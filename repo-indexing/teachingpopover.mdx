@@ -1,0 +1,760 @@
+# TeachingPopover Components
+
+## Overview
+
+### Purpose
+
+Use this component group for instructional popovers with complex architectural coupling
+
+### When to Use
+
+TeachingPopover is designed for providing structured, contextual guidance to users about new features, complex workflows, or onboarding experiences. Use this component group when you need to:
+
+- Introduce users to new features or interface elements
+- Provide step-by-step tutorials or walkthroughs
+- Offer contextual help that's triggered by user interaction
+- Create multi-step guidance flows with navigation
+- Display rich instructional content with media, titles, and actions
+- Implement progressive disclosure of information in educational contexts
+
+### Architecture
+
+**Critical/Strong Coupling**: TeachingPopover components form a tightly integrated system with required hierarchical relationships and shared context dependencies. The primary TeachingPopover component provides context that cascades to all descendant components, while the carousel functionality introduces additional state management for multi-step interactions.
+
+### Component Interdependencies
+
+- **TeachingPopover**: Root component providing popover context and state management
+- **TeachingPopoverTrigger**: Must be direct child of TeachingPopover, handles trigger events
+- **TeachingPopoverSurface**: Container for all popover content, requires TeachingPopover context
+- **TeachingPopoverHeader/Body/Footer**: Layout components that must be within TeachingPopoverSurface
+- **TeachingPopoverCarousel**: Creates additional context for multi-step flows, requires TeachingPopover context
+- **Carousel Components**: All carousel-related components (CarouselCard, CarouselNav, etc.) require TeachingPopoverCarousel context
+- **Context Flow**: TeachingPopover → TeachingPopoverSurface → Content Components → Optional Carousel Context → Carousel Components
+
+## Components
+
+### TeachingPopover {Primary Component}
+
+**Purpose:** Root component that provides foundational popover functionality and context for all descendant components
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverProps extends PopoverProps {
+  children: React.ReactNode; // Required: TeachingPopoverTrigger and TeachingPopoverSurface
+  // Inherits all PopoverProps including positioning, open state, etc.
+}
+```
+
+**Provides:** PopoverContextValue with appearance theming and state management
+**Dependencies:** None (root component)
+
+**Usage Example:**
+
+```tsx
+import { TeachingPopover } from "@fluentui/react-teaching-popover";
+
+function Example() {
+  return (
+    <TeachingPopover>
+      {/* Required: TeachingPopoverTrigger and TeachingPopoverSurface */}
+    </TeachingPopover>
+  );
+}
+```
+
+### TeachingPopoverTrigger {Trigger Component}
+
+**Purpose:** Wraps trigger element and handles event management to open the teaching popover
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverTriggerProps extends PopoverTriggerProps {
+  children: React.ReactElement; // Single child element that acts as trigger
+}
+```
+
+**Context Dependencies:** Requires TeachingPopover parent context
+**Parent Requirements:** Must be direct child of TeachingPopover
+
+**Usage Example:**
+
+```tsx
+import { TeachingPopoverTrigger } from "@fluentui/react-teaching-popover";
+import { Button } from "@fluentui/react-components";
+
+// Must be used within TeachingPopover
+<TeachingPopover>
+  <TeachingPopoverTrigger>
+    <Button>Click for help</Button>
+  </TeachingPopoverTrigger>
+  {/* TeachingPopoverSurface */}
+</TeachingPopover>;
+```
+
+### TeachingPopoverSurface {Content Container}
+
+**Purpose:** Container component that positions and renders all popover content with proper styling
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverSurfaceProps
+  extends ComponentProps<PopoverSurfaceSlots> {
+  children: React.ReactNode; // Header, Body, Footer, or Carousel components
+}
+```
+
+**Context Dependencies:** Requires TeachingPopover parent context
+**Parent Requirements:** Must be child of TeachingPopover
+**Provides:** Styled container for content components
+
+**Usage Example:**
+
+```tsx
+<TeachingPopover>
+  <TeachingPopoverTrigger>
+    <Button>Trigger</Button>
+  </TeachingPopoverTrigger>
+  <TeachingPopoverSurface>
+    {/* Content components go here */}
+  </TeachingPopoverSurface>
+</TeachingPopover>
+```
+
+### TeachingPopoverHeader {Layout Component}
+
+**Purpose:** Provides header section with optional dismiss button and icon for the popover
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverHeaderProps
+  extends ComponentProps<TeachingPopoverHeaderSlots> {
+  children: React.ReactNode; // Header content/text
+}
+
+interface TeachingPopoverHeaderSlots {
+  root: Slot<"div", "h1" | "h2" | "h3" | "h4" | "h5" | "h6">; // Header container
+  dismissButton?: Slot<"button">; // Optional close button
+  icon?: Slot<"div">; // Optional leading icon
+}
+```
+
+**Context Dependencies:** Requires TeachingPopover context for appearance theming
+**Parent Requirements:** Must be within TeachingPopoverSurface
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverSurface>
+  <TeachingPopoverHeader dismissButton={null} icon={<InfoIcon />}>
+    Getting Started Tips
+  </TeachingPopoverHeader>
+  {/* Body and Footer */}
+</TeachingPopoverSurface>
+```
+
+### TeachingPopoverBody {Content Component}
+
+**Purpose:** Main content area with optional media slot and standardized layout for instructional content
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverBodyProps
+  extends ComponentProps<TeachingPopoverBodySlots> {
+  children: React.ReactNode; // Main content
+  mediaLength?: "short" | "medium" | "tall"; // Controls media area height
+}
+
+interface TeachingPopoverBodySlots {
+  root: NonNullable<Slot<"div">>;
+  media?: Slot<"span">; // Optional media content area
+}
+```
+
+**Context Dependencies:** None (self-contained)
+**Parent Requirements:** Typically within TeachingPopoverSurface or TeachingPopoverCarouselCard
+
+**Usage Example:**
+
+```tsx
+import { Image } from "@fluentui/react-components";
+
+<TeachingPopoverBody
+  media={<Image src="tutorial.png" alt="Feature demonstration" />}
+  mediaLength="medium"
+>
+  <TeachingPopoverTitle>New Feature Available</TeachingPopoverTitle>
+  <div>Learn how to use this powerful new tool...</div>
+</TeachingPopoverBody>;
+```
+
+### TeachingPopoverTitle {Title Component}
+
+**Purpose:** Styled title component for use within TeachingPopoverBody, with optional dismiss functionality
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverTitleProps
+  extends ComponentProps<TeachingPopoverTitleSlots> {
+  children: React.ReactNode; // Title text
+}
+
+interface TeachingPopoverTitleSlots {
+  root: Slot<"h2", "h1" | "h3" | "h4" | "h5" | "h6" | "div">; // Title element
+  dismissButton?: Slot<"button">; // Optional dismiss when no header present
+}
+```
+
+**Context Dependencies:** Requires TeachingPopover context for appearance theming
+**Parent Requirements:** Typically within TeachingPopoverBody
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverBody>
+  <TeachingPopoverTitle>Feature Overview</TeachingPopoverTitle>
+  <p>Content describing the feature...</p>
+</TeachingPopoverBody>
+```
+
+### TeachingPopoverFooter {Action Component}
+
+**Purpose:** Provides standardized action buttons (primary/secondary) with proper popover integration
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverFooterProps
+  extends ComponentProps<TeachingPopoverFooterSlots> {
+  footerLayout?: "horizontal" | "vertical"; // Button layout direction
+}
+
+interface TeachingPopoverFooterSlots {
+  root: NonNullable<Slot<"div">>;
+  primary: NonNullable<Slot<typeof Button>>; // Required primary action
+  secondary?: Slot<typeof Button>; // Optional secondary action
+}
+```
+
+**Context Dependencies:** Requires TeachingPopover context for appearance and dismiss functionality
+**Parent Requirements:** Must be within TeachingPopoverSurface
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverFooter
+  primary="Learn More"
+  secondary="Got It"
+  footerLayout="horizontal"
+/>
+```
+
+### TeachingPopoverCarousel {Carousel Root}
+
+**Purpose:** Creates context provider for multi-step carousel functionality with navigation state management
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverCarouselProps
+  extends ComponentProps<TeachingPopoverCarouselSlots>,
+    UseCarouselOptions {
+  children: React.ReactNode; // TeachingPopoverCarouselCard components
+  defaultValue?: string; // Initial page value
+  value?: string; // Controlled current page
+  onValueChange?: EventHandler<CarouselValueChangeData>; // Page change callback
+  onFinish?: EventHandler<CarouselValueChangeData>; // Final step callback
+  announcement?: (newValue: string) => string; // Accessibility announcements
+}
+```
+
+**Context Dependencies:** Requires TeachingPopover context
+**Parent Requirements:** Must be within TeachingPopoverSurface
+**Provides:** CarouselContextValue for child carousel components
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverSurface>
+  <TeachingPopoverHeader>Multi-Step Tutorial</TeachingPopoverHeader>
+  <TeachingPopoverCarousel
+    defaultValue="step-1"
+    onFinish={() => console.log("Tutorial completed")}
+  >
+    {/* TeachingPopoverCarouselCard components */}
+  </TeachingPopoverCarousel>
+</TeachingPopoverSurface>
+```
+
+### TeachingPopoverCarouselCard {Carousel Page}
+
+**Purpose:** Defines individual pages within the carousel, shown one at a time with sequential navigation
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverCarouselCardProps
+  extends ComponentProps<TeachingPopoverCarouselCardSlots> {
+  value: string; // Required unique identifier for the page
+  children: React.ReactNode; // Page content (typically TeachingPopoverBody)
+}
+```
+
+**Context Dependencies:** Requires TeachingPopoverCarousel context for visibility and navigation
+**Parent Requirements:** Must be direct child of TeachingPopoverCarousel
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverCarousel defaultValue="step-1">
+  <TeachingPopoverCarouselCard value="step-1">
+    <TeachingPopoverBody>
+      <TeachingPopoverTitle>Step 1: Getting Started</TeachingPopoverTitle>
+      <p>Welcome to the tutorial...</p>
+    </TeachingPopoverBody>
+  </TeachingPopoverCarouselCard>
+
+  <TeachingPopoverCarouselCard value="step-2">
+    <TeachingPopoverBody>
+      <TeachingPopoverTitle>Step 2: Advanced Features</TeachingPopoverTitle>
+      <p>Now let's explore...</p>
+    </TeachingPopoverBody>
+  </TeachingPopoverCarouselCard>
+</TeachingPopoverCarousel>
+```
+
+### TeachingPopoverCarouselFooter {Carousel Navigation}
+
+**Purpose:** Provides previous/next navigation buttons and container for page count/index navigation
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverCarouselFooterProps
+  extends ComponentProps<TeachingPopoverCarouselFooterSlots> {
+  layout?: "offset" | "centered"; // Button alignment strategy
+  initialStepText: string; // Text for initial step button
+  finalStepText: string; // Text for final step button
+  children?: React.ReactNode; // Optional page count or nav components
+}
+
+interface TeachingPopoverCarouselFooterSlots {
+  root: NonNullable<Slot<"div">>;
+  previous?: Slot<TeachingPopoverCarouselFooterButtonProps>; // Previous button
+  next: NonNullable<Slot<TeachingPopoverCarouselFooterButtonProps>>; // Next button
+}
+```
+
+**Context Dependencies:** Requires TeachingPopoverCarousel context for navigation functionality
+**Parent Requirements:** Must be within TeachingPopoverCarousel
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverCarouselFooter
+  layout="centered"
+  initialStepText="Close"
+  finalStepText="Finish"
+>
+  <TeachingPopoverCarouselPageCount>
+    {(current, total) => `${current} of ${total}`}
+  </TeachingPopoverCarouselPageCount>
+</TeachingPopoverCarouselFooter>
+```
+
+### TeachingPopoverCarouselNav {Index Navigation}
+
+**Purpose:** Provides index-based pagination buttons to jump to any page within the carousel
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverCarouselNavProps
+  extends ComponentProps<TeachingPopoverCarouselNavSlots> {
+  children: NavButtonRenderFunction; // Function to render nav buttons
+}
+
+type NavButtonRenderFunction = (value: string) => React.ReactNode;
+```
+
+**Context Dependencies:** Requires TeachingPopoverCarousel context for available pages and navigation
+**Parent Requirements:** Typically within TeachingPopoverCarouselFooter
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverCarouselNav>
+  {(value) => (
+    <TeachingPopoverCarouselNavButton aria-label={`Go to step ${value}`} />
+  )}
+</TeachingPopoverCarouselNav>
+```
+
+### TeachingPopoverCarouselNavButton {Navigation Button}
+
+**Purpose:** Individual button for jumping to specific pages, with selection state management
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverCarouselNavButtonProps
+  extends ComponentProps<TeachingPopoverCarouselNavButtonSlots> {
+  // Props are typically managed by context and parent nav component
+}
+```
+
+**Context Dependencies:** Requires both TeachingPopoverCarousel context and ValueIdContextProvider from parent nav
+**Parent Requirements:** Must be rendered within TeachingPopoverCarouselNav render function
+
+### TeachingPopoverCarouselPageCount {Page Counter}
+
+**Purpose:** Displays current page number and total pages with customizable render function
+
+**Interface:**
+
+```typescript
+interface TeachingPopoverCarouselPageCountProps
+  extends ComponentProps<TeachingPopoverCarouselPageCountSlots> {
+  children: TeachingPopoverCarouselPageCountRenderFunction; // Render function for count display
+}
+
+type TeachingPopoverCarouselPageCountRenderFunction = (
+  currentPage: number,
+  totalPages: number,
+) => React.ReactNode;
+```
+
+**Context Dependencies:** Requires TeachingPopoverCarousel context for current page and total count
+**Parent Requirements:** Typically within TeachingPopoverCarouselFooter
+
+**Usage Example:**
+
+```tsx
+<TeachingPopoverCarouselPageCount>
+  {(current, total) => (
+    <span aria-live="polite">
+      Step {current} of {total}
+    </span>
+  )}
+</TeachingPopoverCarouselPageCount>
+```
+
+## Integration Patterns
+
+### Basic Single-Step Usage
+
+```tsx
+import {
+  TeachingPopover,
+  TeachingPopoverTrigger,
+  TeachingPopoverSurface,
+  TeachingPopoverHeader,
+  TeachingPopoverBody,
+  TeachingPopoverTitle,
+  TeachingPopoverFooter,
+} from "@fluentui/react-teaching-popover";
+import { Button } from "@fluentui/react-components";
+import { Image } from "@fluentui/react-components";
+
+// Minimal required structure
+function BasicTeachingPopover() {
+  return (
+    <TeachingPopover>
+      <TeachingPopoverTrigger>
+        <Button appearance="subtle" icon={<InfoIcon />}>
+          Need help?
+        </Button>
+      </TeachingPopoverTrigger>
+
+      <TeachingPopoverSurface>
+        <TeachingPopoverHeader>Tips</TeachingPopoverHeader>
+
+        <TeachingPopoverBody
+          media={<Image src="feature-demo.png" alt="Feature demonstration" />}
+          mediaLength="medium"
+        >
+          <TeachingPopoverTitle>New Dashboard Feature</TeachingPopoverTitle>
+          <p>
+            You can now customize your dashboard layout by dragging and dropping
+            widgets. Click the edit button to get started.
+          </p>
+        </TeachingPopoverBody>
+
+        <TeachingPopoverFooter primary="Try it now" secondary="Got it" />
+      </TeachingPopoverSurface>
+    </TeachingPopover>
+  );
+}
+```
+
+### Advanced Multi-Step Carousel Usage
+
+```tsx
+import {
+  TeachingPopover,
+  TeachingPopoverTrigger,
+  TeachingPopoverSurface,
+  TeachingPopoverHeader,
+  TeachingPopoverCarousel,
+  TeachingPopoverCarouselCard,
+  TeachingPopoverBody,
+  TeachingPopoverTitle,
+  TeachingPopoverCarouselFooter,
+  TeachingPopoverCarouselNav,
+  TeachingPopoverCarouselNavButton,
+  TeachingPopoverCarouselPageCount,
+} from "@fluentui/react-teaching-popover";
+
+// Complex multi-step tutorial with navigation
+function OnboardingTutorial() {
+  const handleFinish = () => {
+    console.log("User completed onboarding");
+    // Track completion, close popover, etc.
+  };
+
+  return (
+    <TeachingPopover>
+      <TeachingPopoverTrigger>
+        <Button appearance="primary">Start Tutorial</Button>
+      </TeachingPopoverTrigger>
+
+      <TeachingPopoverSurface>
+        <TeachingPopoverHeader>Welcome Tour</TeachingPopoverHeader>
+
+        <TeachingPopoverCarousel
+          defaultValue="welcome"
+          onFinish={handleFinish}
+          announcement={(value) => `Navigated to ${value} step`}
+        >
+          <TeachingPopoverCarouselCard value="welcome">
+            <TeachingPopoverBody
+              media={<Image src="welcome.png" alt="Welcome illustration" />}
+              mediaLength="tall"
+            >
+              <TeachingPopoverTitle>Welcome to Our App!</TeachingPopoverTitle>
+              <p>
+                Let's take a quick tour of the main features to get you started.
+              </p>
+            </TeachingPopoverBody>
+          </TeachingPopoverCarouselCard>
+
+          <TeachingPopoverCarouselCard value="navigation">
+            <TeachingPopoverBody
+              media={<Image src="navigation.png" alt="Navigation guide" />}
+              mediaLength="tall"
+            >
+              <TeachingPopoverTitle>Navigation Menu</TeachingPopoverTitle>
+              <p>
+                Use the sidebar to access different sections of the application
+                quickly.
+              </p>
+            </TeachingPopoverBody>
+          </TeachingPopoverCarouselCard>
+
+          <TeachingPopoverCarouselCard value="dashboard">
+            <TeachingPopoverBody
+              media={<Image src="dashboard.png" alt="Dashboard overview" />}
+              mediaLength="tall"
+            >
+              <TeachingPopoverTitle>Your Dashboard</TeachingPopoverTitle>
+              <p>
+                This is your personalized dashboard where you can see important
+                metrics and recent activity.
+              </p>
+            </TeachingPopoverBody>
+          </TeachingPopoverCarouselCard>
+
+          <TeachingPopoverCarouselFooter
+            layout="centered"
+            initialStepText="Skip Tutorial"
+            finalStepText="Get Started"
+          >
+            <TeachingPopoverCarouselPageCount>
+              {(current, total) => (
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--colorNeutralForeground2)",
+                  }}
+                >
+                  {current} of {total}
+                </span>
+              )}
+            </TeachingPopoverCarouselPageCount>
+
+            <TeachingPopoverCarouselNav>
+              {(value) => (
+                <TeachingPopoverCarouselNavButton
+                  aria-label={`Jump to step ${value}`}
+                />
+              )}
+            </TeachingPopoverCarouselNav>
+          </TeachingPopoverCarouselFooter>
+        </TeachingPopoverCarousel>
+      </TeachingPopoverSurface>
+    </TeachingPopover>
+  );
+}
+```
+
+### Common Variations
+
+#### Programmatically Controlled Popover
+
+```tsx
+function ControlledTeachingPopover() {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <TeachingPopover open={open} onOpenChange={(_, data) => setOpen(data.open)}>
+      <TeachingPopoverTrigger>
+        <Button>Show Help</Button>
+      </TeachingPopoverTrigger>
+      <TeachingPopoverSurface>{/* Content */}</TeachingPopoverSurface>
+    </TeachingPopover>
+  );
+}
+```
+
+#### Minimal Header-less Popover
+
+```tsx
+function SimpleTooltipStyle() {
+  return (
+    <TeachingPopover>
+      <TeachingPopoverTrigger>
+        <Button icon={<InfoIcon />} appearance="subtle" />
+      </TeachingPopoverTrigger>
+      <TeachingPopoverSurface>
+        <TeachingPopoverBody>
+          <TeachingPopoverTitle dismissButton={<DismissButton />}>
+            Quick Tip
+          </TeachingPopoverTitle>
+          <p>
+            This feature helps you save time by automating repetitive tasks.
+          </p>
+        </TeachingPopoverBody>
+      </TeachingPopoverSurface>
+    </TeachingPopover>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **TeachingPopover** manages the overall popover state (open/closed, positioning)
+2. **TeachingPopoverTrigger** handles user interactions that toggle the popover
+3. **TeachingPopoverSurface** receives positioning and theming context from the root
+4. **Content Components** (Header, Body, Footer) inherit appearance theming through context
+5. **TeachingPopoverCarousel** creates additional state layer for multi-step navigation
+6. **Carousel Components** share navigation state and respond to user interactions
+
+### Context Sharing
+
+- **PopoverContextValue**: Provides appearance theming and popover state to all descendants
+- **CarouselContextValue**: Manages page navigation, current page state, and page registration for carousel components
+- **ValueIdContextProvider**: Enables TeachingPopoverCarouselNavButton to access its associated page value
+
+### Event Handling
+
+- **Popover Events**: Open/close events bubble from TeachingPopoverTrigger to TeachingPopover
+- **Carousel Navigation**: Page change events flow from navigation components to TeachingPopoverCarousel
+- **Finish Events**: Special handling for final step completion in carousel mode
+- **Dismiss Events**: Close button clicks in Header or Title components trigger popover closure
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use TeachingPopover for contextual, educational content rather than critical error messages or warnings
+- Implement progressive disclosure: start with simple single-step popovers and only use carousels for complex multi-step guidance
+- Always provide clear action buttons in the footer - users should understand their next steps
+- Position triggers near the features being explained to maintain spatial context
+- Use media content strategically to enhance understanding, but ensure it doesn't overwhelm the text content
+
+### Accessibility
+
+- Ensure proper ARIA relationships between TeachingPopover components through context providers
+- Use semantic heading levels in TeachingPopoverHeader and TeachingPopoverTitle components
+- Provide meaningful aria-labels for TeachingPopoverCarouselNavButton components
+- Implement proper focus management when navigating between carousel pages
+- Use the announcement callback in TeachingPopoverCarousel to inform screen readers of page changes
+- Ensure dismiss buttons are keyboard accessible and properly labeled
+
+### Performance
+
+- Use controlled mode sparingly - prefer uncontrolled TeachingPopover for better performance
+- Implement lazy loading for carousel content when dealing with large numbers of steps
+- Optimize media content sizing using the mediaLength prop to prevent layout shifts
+- Consider using React.memo for complex carousel card content to prevent unnecessary re-renders
+
+## Common Patterns
+
+### Pattern 1: Feature Introduction Flow
+
+```tsx
+// Use this pattern when introducing users to a new feature
+function FeatureIntroduction({ featureName, triggerElement }) {
+  return (
+    <TeachingPopover>
+      <TeachingPopoverTrigger>{triggerElement}</TeachingPopoverTrigger>
+      <TeachingPopoverSurface>
+        <TeachingPopoverHeader>New Feature</TeachingPopoverHeader>
+        <TeachingPopoverBody media={/* feature demo gif */}>
+          <TeachingPopoverTitle>
+            {featureName} is Now Available
+          </TeachingPopoverTitle>
+          <p>Discover how this feature can improve your workflow...</p>
+        </TeachingPopoverBody>
+        <TeachingPopoverFooter primary="Try It Now" secondary="Learn More" />
+      </TeachingPopoverSurface>
+    </TeachingPopover>
+  );
+}
+```
+
+### Pattern 2: Multi-Step Onboarding
+
+```tsx
+// Use this pattern for comprehensive user onboarding
+function OnboardingFlow({ steps, onComplete }) {
+  return (
+    <TeachingPopover>
+      <TeachingPopoverTrigger>
+        <Button appearance="primary">Get Started</Button>
+      </TeachingPopoverTrigger>
+      <TeachingPopoverSurface>
+        <TeachingPopoverHeader>Getting Started Guide</TeachingPopoverHeader>
+        <TeachingPopoverCarousel
+          defaultValue={steps[0].id}
+          onFinish={onComplete}
+        >
+          {steps.map((step) => (
+            <TeachingPopoverCarouselCard key={step.id} value={step.id}>
+              <TeachingPopoverBody media={step.media}>
+                <TeachingPopoverTitle>{step.title}</TeachingPopoverTitle>
+                <div dangerouslySetInnerHTML={{ __html: step.content }} />
+              </TeachingPopoverBody>
+            </TeachingPopoverCarouselCard>
+          ))}
+          <TeachingPopoverCarouselFooter
+            initialStepText="Skip"
+            finalStepText="Complete Setup"
+          >
+            <TeachingPopoverCarouselPageCount>
+              {(current, total) => `Step ${current} of ${total}`}
+            </TeachingPopoverCarouselPageCount>
+          </TeachingPopoverCarouselFooter>
+        </TeachingPopoverCarousel>
+      </TeachingPopoverSurface>
+    </TeachingPopover>
+  );
+}
+```

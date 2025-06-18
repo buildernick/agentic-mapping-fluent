@@ -1,0 +1,1142 @@
+# Table Components
+
+## Overview
+
+### Purpose
+
+Use this component group to display tabular data with required hierarchical structure including headers, body, rows, and cells. The Table component group provides both primitive table components for maximum flexibility and higher-level DataGrid components for common table scenarios with built-in features like sorting, selection, and keyboard navigation.
+
+### When to Use
+
+- **Displaying structured data** in rows and columns with clear relationships
+- **Data comparison** where users need to scan across multiple data points
+- **Sortable data presentation** where users need to organize information by different criteria
+- **Selectable data sets** where users need to choose items for bulk operations
+- **Data manipulation interfaces** where users need to edit, filter, or export tabular information
+- **Dashboard and analytics views** showing metrics, statistics, or reporting data
+- **Directory listings** for files, users, products, or other structured content
+
+### Architecture
+
+**Critical/Strong Coupling**: This component group requires hierarchical composition with mandatory parent-child relationships and shared context dependencies. The Table components form a structured hierarchy where certain components can only function within their required parent containers.
+
+### Component Interdependencies
+
+- **Table/DataGrid** serves as the root container providing context for all child components
+- **TableHeader/DataGridHeader** must contain TableHeaderCell/DataGridHeaderCell components
+- **TableBody/DataGridBody** must contain TableRow/DataGridRow components
+- **TableRow/DataGridRow** must contain TableCell/DataGridCell components
+- **Selection context** flows from parent Table/DataGrid to child components
+- **Column definitions** are shared across header and body components
+- **Sorting state** is managed at the Table/DataGrid level and affects header rendering
+
+## Components
+
+### Table {Primary Component}
+
+The foundational table container that provides structure, accessibility, and context for all child table components.
+
+**Purpose:** Serves as the root container for tabular data with comprehensive accessibility support and flexible composition patterns.
+
+**Interface:**
+
+```typescript
+interface TableProps {
+  children: React.ReactNode; // Required TableHeader and TableBody components
+  sortable?: boolean; // Enable column sorting functionality
+  noNativeElements?: boolean; // Use div elements instead of native table elements
+  size?: "small" | "smaller" | "medium" | "large"; // Table density
+  role?: string; // ARIA role override
+  "aria-label"?: string; // Accessibility label
+  "aria-labelledby"?: string; // Reference to labeling element
+}
+```
+
+**Dependencies:** None - serves as the root container
+**Provides:** Table context, accessibility structure, and styling foundation for child components
+
+**Usage Example:**
+
+```tsx
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHeaderCell,
+} from "@fluentui/react-components";
+
+function BasicTable() {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHeaderCell>Name</TableHeaderCell>
+          <TableHeaderCell>Email</TableHeaderCell>
+          <TableHeaderCell>Role</TableHeaderCell>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        <TableRow>
+          <TableCell>John Doe</TableCell>
+          <TableCell>john@example.com</TableCell>
+          <TableCell>Developer</TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  );
+}
+```
+
+### DataGrid {Primary Component for Advanced Features}
+
+A feature-rich extension of the Table component that provides built-in sorting, selection, and keyboard navigation capabilities.
+
+**Purpose:** Offers a higher-level API for complex table scenarios with integrated features and opinionated defaults.
+
+**Interface:**
+
+```typescript
+interface DataGridProps<TItem = unknown> {
+  items: TItem[]; // Array of data items to display
+  columns: TableColumnDefinition<TItem>[]; // Column configuration
+  children: React.ReactNode; // Required DataGridHeader and DataGridBody
+  getRowId?: (item: TItem) => string; // Function to generate unique row IDs
+  focusMode?: "none" | "cell" | "row_navigation" | "composite"; // Keyboard navigation behavior
+  selectionMode?: "single" | "multiselect"; // Row selection mode
+  selectedItems?: TItem[]; // Controlled selection state
+  defaultSelectedItems?: TItem[]; // Default selection state
+  onSelectionChange?: (
+    e: SelectionEvents,
+    data: OnSelectionChangeData<TItem>,
+  ) => void;
+  sortable?: boolean; // Enable column sorting
+  sortState?: SortState; // Controlled sort state
+  defaultSortState?: SortState; // Default sort state
+  onSortChange?: (e: React.MouseEvent, data: SortState) => void;
+  resizableColumns?: boolean; // Enable column resizing
+  subtleSelection?: boolean; // Use subtle selection appearance
+  size?: "small" | "smaller" | "medium" | "large"; // Table density
+}
+```
+
+**Dependencies:** Requires TableColumnDefinition array and data items
+**Provides:** Enhanced table functionality with built-in features, selection state, and sort state
+
+**Usage Example:**
+
+```tsx
+import {
+  DataGrid,
+  DataGridHeader,
+  DataGridBody,
+  DataGridRow,
+  DataGridCell,
+  DataGridHeaderCell,
+  createTableColumn,
+} from "@fluentui/react-components";
+
+interface Person {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+const columns = [
+  createTableColumn<Person>({
+    columnId: "name",
+    compare: (a, b) => a.name.localeCompare(b.name),
+  }),
+  createTableColumn<Person>({
+    columnId: "email",
+    compare: (a, b) => a.email.localeCompare(b.email),
+  }),
+  createTableColumn<Person>({
+    columnId: "role",
+    compare: (a, b) => a.role.localeCompare(b.role),
+  }),
+];
+
+const items: Person[] = [
+  { id: "1", name: "John Doe", email: "john@example.com", role: "Developer" },
+  { id: "2", name: "Jane Smith", email: "jane@example.com", role: "Designer" },
+];
+
+function AdvancedDataGrid() {
+  return (
+    <DataGrid
+      items={items}
+      columns={columns}
+      sortable
+      selectionMode="multiselect"
+      getRowId={(item) => item.id}
+    >
+      <DataGridHeader>
+        <DataGridRow>
+          {({ renderHeaderCell }) => (
+            <>
+              <DataGridHeaderCell>
+                {renderHeaderCell({ columnId: "name" })}
+              </DataGridHeaderCell>
+              <DataGridHeaderCell>
+                {renderHeaderCell({ columnId: "email" })}
+              </DataGridHeaderCell>
+              <DataGridHeaderCell>
+                {renderHeaderCell({ columnId: "role" })}
+              </DataGridHeaderCell>
+            </>
+          )}
+        </DataGridRow>
+      </DataGridHeader>
+      <DataGridBody>
+        {({ item, rowId }) => (
+          <DataGridRow key={rowId}>
+            <DataGridCell>{item.name}</DataGridCell>
+            <DataGridCell>{item.email}</DataGridCell>
+            <DataGridCell>{item.role}</DataGridCell>
+          </DataGridRow>
+        )}
+      </DataGridBody>
+    </DataGrid>
+  );
+}
+```
+
+### TableHeader {Dependent Component}
+
+Container for table header content that must be used within a Table component.
+
+**Purpose:** Provides semantic structure and styling for table header sections.
+
+**Interface:**
+
+```typescript
+interface TableHeaderProps {
+  children: React.ReactNode; // Required TableRow components containing TableHeaderCell
+  noNativeElements?: boolean; // Use div instead of thead element
+}
+```
+
+**Context Dependencies:** Must be used within Table component for proper styling and accessibility
+**Parent Requirements:** Table component
+
+**Usage Example:**
+
+```tsx
+// Must be used within Table component
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHeaderCell sortDirection="ascending">Name</TableHeaderCell>
+      <TableHeaderCell>Email</TableHeaderCell>
+    </TableRow>
+  </TableHeader>
+  {/* TableBody required */}
+</Table>
+```
+
+### DataGridHeader {Dependent Component}
+
+Enhanced header container for DataGrid with built-in sorting and selection capabilities.
+
+**Purpose:** Provides header functionality with integrated sorting controls and selection management.
+
+**Interface:**
+
+```typescript
+interface DataGridHeaderProps {
+  children: React.ReactNode; // Render function or ReactNode
+  noNativeElements?: boolean; // Use div instead of thead element
+}
+```
+
+**Context Dependencies:** Must be used within DataGrid component to access column definitions and sorting state
+**Parent Requirements:** DataGrid component
+
+### TableBody {Dependent Component}
+
+Container for table body content that houses all data rows.
+
+**Purpose:** Provides semantic structure and styling for the main table content area.
+
+**Interface:**
+
+```typescript
+interface TableBodyProps {
+  children: React.ReactNode; // Required TableRow components
+  noNativeElements?: boolean; // Use div instead of tbody element
+}
+```
+
+**Context Dependencies:** Must be used within Table component
+**Parent Requirements:** Table component
+
+### DataGridBody {Dependent Component}
+
+Enhanced body container for DataGrid with selection and navigation features.
+
+**Purpose:** Manages data rendering with built-in selection state and keyboard navigation.
+
+**Interface:**
+
+```typescript
+interface DataGridBodyProps {
+  children: React.ReactNode; // Render function for rows
+  noNativeElements?: boolean; // Use div instead of tbody element
+}
+```
+
+**Context Dependencies:** Must be used within DataGrid component to access items and selection state
+**Parent Requirements:** DataGrid component
+
+### TableRow {Dependent Component}
+
+Individual row container that can contain table cells and manage row-level interactions.
+
+**Purpose:** Represents a single row of data with support for selection and interactive states.
+
+**Interface:**
+
+```typescript
+interface TableRowProps {
+  children: React.ReactNode; // Required TableCell or TableHeaderCell components
+  appearance?: "brand" | "neutral" | "none"; // Visual styling variant
+  "aria-selected"?: boolean; // Selection state for accessibility
+  noNativeElements?: boolean; // Use div instead of tr element
+}
+```
+
+**Context Dependencies:** Must be used within TableHeader or TableBody components
+**Parent Requirements:** TableHeader or TableBody
+
+### DataGridRow {Dependent Component}
+
+Enhanced row component with integrated selection and navigation capabilities.
+
+**Purpose:** Manages individual row rendering with built-in selection state and keyboard navigation.
+
+**Interface:**
+
+```typescript
+interface DataGridRowProps<TItem = unknown> {
+  children: React.ReactNode; // Render function or ReactNode
+  item?: TItem; // Data item for this row
+  appearance?: "brand" | "neutral" | "none"; // Visual styling variant
+  noNativeElements?: boolean; // Use div instead of tr element
+}
+```
+
+**Context Dependencies:** Must be used within DataGridHeader or DataGridBody
+**Parent Requirements:** DataGridHeader or DataGridBody
+
+### TableCell {Dependent Component}
+
+Individual cell component for displaying data within table rows.
+
+**Purpose:** Renders individual data points with proper accessibility and styling.
+
+**Interface:**
+
+```typescript
+interface TableCellProps {
+  children?: React.ReactNode; // Cell content
+  role?: string; // ARIA role override
+  noNativeElements?: boolean; // Use div instead of td element
+}
+```
+
+**Context Dependencies:** Must be used within TableRow component
+**Parent Requirements:** TableRow
+
+### DataGridCell {Dependent Component}
+
+Enhanced cell component with integrated data binding and interaction support.
+
+**Purpose:** Renders cell content with built-in data context and interaction capabilities.
+
+**Interface:**
+
+```typescript
+interface DataGridCellProps {
+  children?: React.ReactNode; // Cell content
+  role?: string; // ARIA role override
+  noNativeElements?: boolean; // Use div instead of td element
+}
+```
+
+**Context Dependencies:** Must be used within DataGridRow component
+**Parent Requirements:** DataGridRow
+
+### TableHeaderCell {Dependent Component}
+
+Specialized cell component for table headers with sorting capabilities.
+
+**Purpose:** Provides header cell functionality with sorting controls and accessibility features.
+
+**Interface:**
+
+```typescript
+interface TableHeaderCellProps {
+  children?: React.ReactNode; // Header cell content
+  sortDirection?: "ascending" | "descending"; // Current sort direction
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void; // Sort click handler
+  button?: boolean; // Render as interactive button for sorting
+  role?: string; // ARIA role override
+  noNativeElements?: boolean; // Use div instead of th element
+}
+```
+
+**Context Dependencies:** Must be used within TableRow in TableHeader
+**Parent Requirements:** TableRow within TableHeader
+
+### DataGridHeaderCell {Dependent Component}
+
+Enhanced header cell with integrated sorting functionality.
+
+**Purpose:** Manages header cell rendering with built-in sorting controls and state management.
+
+**Interface:**
+
+```typescript
+interface DataGridHeaderCellProps {
+  children?: React.ReactNode; // Header cell content
+  role?: string; // ARIA role override
+  noNativeElements?: boolean; // Use div instead of th element
+}
+```
+
+**Context Dependencies:** Must be used within DataGridRow in DataGridHeader
+**Parent Requirements:** DataGridRow within DataGridHeader
+
+### TableSelectionCell {Dependent Component}
+
+Specialized cell component for selection controls (checkboxes or radio buttons).
+
+**Purpose:** Provides row selection functionality with proper accessibility support.
+
+**Interface:**
+
+```typescript
+interface TableSelectionCellProps {
+  checked?: boolean; // Selection state
+  checkboxIndicator?: SelectionIndicatorSlot; // Custom selection indicator
+  radioIndicator?: SelectionIndicatorSlot; // Custom radio indicator
+  type?: "checkbox" | "radio"; // Selection type
+  "aria-label"?: string; // Accessibility label
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void; // Selection change handler
+  hidden?: boolean; // Hide selection cell
+  noNativeElements?: boolean; // Use div instead of td element
+}
+```
+
+**Context Dependencies:** Must be used within TableRow component
+**Parent Requirements:** TableRow
+
+### DataGridSelectionCell {Dependent Component}
+
+Enhanced selection cell with integrated selection state management.
+
+**Purpose:** Manages selection controls with built-in state synchronization and accessibility.
+
+**Interface:**
+
+```typescript
+interface DataGridSelectionCellProps {
+  type?: "checkbox" | "radio"; // Selection type
+  "aria-label"?: string; // Accessibility label
+  hidden?: boolean; // Hide selection cell
+  noNativeElements?: boolean; // Use div instead of td element
+}
+```
+
+**Context Dependencies:** Must be used within DataGridRow component and accesses DataGrid selection state
+**Parent Requirements:** DataGridRow
+
+### TableCellActions {Dependent Component}
+
+Container for action buttons and controls within table cells.
+
+**Purpose:** Provides consistent styling and layout for cell-level actions and controls.
+
+**Interface:**
+
+```typescript
+interface TableCellActionsProps {
+  children: React.ReactNode; // Action buttons or controls
+  visible?: boolean; // Control visibility of actions
+}
+```
+
+**Context Dependencies:** Typically used within TableCell components
+**Parent Requirements:** TableCell (recommended)
+
+### TableCellLayout {Dependent Component}
+
+Layout utility component for organizing complex cell content.
+
+**Purpose:** Provides structured layout options for cells with multiple content elements.
+
+**Interface:**
+
+```typescript
+interface TableCellLayoutProps {
+  children: React.ReactNode; // Cell content elements
+  media?: React.ReactNode; // Media element (avatar, icon, etc.)
+  description?: React.ReactNode; // Secondary description text
+  appearance?: "primary" | "secondary"; // Content emphasis level
+  truncate?: boolean; // Enable text truncation
+}
+```
+
+**Context Dependencies:** Used within TableCell or DataGridCell components
+**Parent Requirements:** TableCell or DataGridCell (recommended)
+
+### TableResizeHandle {Dependent Component}
+
+Interactive handle for resizing table columns.
+
+**Purpose:** Provides column resizing functionality with proper accessibility and interaction feedback.
+
+**Interface:**
+
+```typescript
+interface TableResizeHandleProps {
+  columnId: string; // ID of the column to resize
+  "aria-label"?: string; // Accessibility label
+  onResize?: (e: MouseEvent, data: { columnId: string; width: number }) => void; // Resize event handler
+}
+```
+
+**Context Dependencies:** Must be used within table header context with column information
+**Parent Requirements:** TableHeaderCell or DataGridHeaderCell
+
+### TableContextProvider {Context Provider}
+
+Context provider that manages table-wide state and configuration.
+
+**Purpose:** Provides shared context for table components including styling, accessibility, and interaction state.
+
+**Interface:**
+
+```typescript
+interface TableContextProviderProps {
+  children: React.ReactNode; // Table component tree
+  value: TableContextValue; // Context configuration
+}
+
+interface TableContextValue {
+  noNativeElements?: boolean; // Use div elements instead of native table elements
+  size?: "small" | "smaller" | "medium" | "large"; // Table density
+  sortable?: boolean; // Enable sorting capabilities
+}
+```
+
+**Context Dependencies:** None - provides context to child components
+**Parent Requirements:** Usually wraps Table or DataGrid components
+
+### DataGridContextProvider {Context Provider}
+
+Enhanced context provider for DataGrid functionality including selection and sorting state.
+
+**Purpose:** Manages complex DataGrid state including item data, selection, sorting, and column definitions.
+
+**Interface:**
+
+```typescript
+interface DataGridContextProviderProps<TItem = unknown> {
+  children: React.ReactNode; // DataGrid component tree
+  value: DataGridContextValue<TItem>; // Context configuration
+}
+
+interface DataGridContextValue<TItem = unknown> {
+  items: TItem[]; // Data items
+  columns: TableColumnDefinition<TItem>[]; // Column definitions
+  selection: SelectionState; // Selection management
+  sort: SortState; // Sorting state
+  focusMode: FocusMode; // Keyboard navigation mode
+}
+```
+
+**Context Dependencies:** None - provides context to child components
+**Parent Requirements:** Usually wraps DataGrid components
+
+### TableRowIdContextProvider {Context Provider}
+
+Context provider for managing row identification and navigation.
+
+**Purpose:** Provides row ID context for accessibility and keyboard navigation within table rows.
+
+**Interface:**
+
+```typescript
+interface TableRowIdContextProviderProps {
+  children: React.ReactNode; // Row content
+  value: string; // Unique row identifier
+}
+```
+
+**Context Dependencies:** Must be used within table row context
+**Parent Requirements:** TableRow or DataGridRow
+
+### ColumnIdContextProvider {Context Provider}
+
+Context provider for managing column identification and configuration.
+
+**Purpose:** Provides column ID context for cell rendering and column-specific operations.
+
+**Interface:**
+
+```typescript
+interface ColumnIdContextProviderProps {
+  children: React.ReactNode; // Cell content
+  value: string; // Column identifier
+}
+```
+
+**Context Dependencies:** Must be used within table context
+**Parent Requirements:** Table or DataGrid component tree
+
+### TableHeaderContextProvider {Context Provider}
+
+Context provider for table header-specific functionality.
+
+**Purpose:** Manages header-specific state including sorting controls and header cell interactions.
+
+**Interface:**
+
+```typescript
+interface TableHeaderContextProviderProps {
+  children: React.ReactNode; // Header content
+  value: TableHeaderContextValue; // Header configuration
+}
+
+interface TableHeaderContextValue {
+  sortable?: boolean; // Enable sorting on header cells
+  sortState?: SortState; // Current sort state
+  onSortChange?: (columnId: string, direction: SortDirection) => void; // Sort change handler
+}
+```
+
+**Context Dependencies:** Must be used within table context
+**Parent Requirements:** Table or DataGrid component
+
+## Integration Patterns
+
+### Basic Table Usage
+
+```tsx
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableHeaderCell,
+  TableSelectionCell,
+} from "@fluentui/react-components";
+
+// Basic table with selection
+function BasicTableWithSelection() {
+  const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
+
+  const handleSelectionChange = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedItems([...selectedItems, id]);
+    } else {
+      setSelectedItems(selectedItems.filter((item) => item !== id));
+    }
+  };
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHeaderCell>
+            <input
+              type="checkbox"
+              onChange={(e) => {
+                // Handle select all logic
+              }}
+            />
+          </TableHeaderCell>
+          <TableHeaderCell>Name</TableHeaderCell>
+          <TableHeaderCell>Email</TableHeaderCell>
+          <TableHeaderCell>Actions</TableHeaderCell>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data.map((item) => (
+          <TableRow key={item.id}>
+            <TableSelectionCell
+              checked={selectedItems.includes(item.id)}
+              onChange={(e) => handleSelectionChange(item.id, e.target.checked)}
+              aria-label={`Select ${item.name}`}
+            />
+            <TableCell>{item.name}</TableCell>
+            <TableCell>{item.email}</TableCell>
+            <TableCell>
+              <TableCellActions>
+                <Button>Edit</Button>
+                <Button>Delete</Button>
+              </TableCellActions>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+```
+
+### Advanced DataGrid Usage
+
+```tsx
+import {
+  DataGrid,
+  DataGridHeader,
+  DataGridBody,
+  DataGridRow,
+  DataGridCell,
+  DataGridHeaderCell,
+  DataGridSelectionCell,
+  createTableColumn,
+  useTableFeatures,
+  useTableSort,
+  useTableSelection,
+} from "@fluentui/react-components";
+
+// Advanced DataGrid with all features
+function AdvancedDataGridExample() {
+  const columns = [
+    createTableColumn<Person>({
+      columnId: "name",
+      compare: (a, b) => a.name.localeCompare(b.name),
+      renderHeaderCell: () => "Name",
+      renderCell: (item) => (
+        <TableCellLayout media={<Avatar name={item.name} />}>
+          {item.name}
+        </TableCellLayout>
+      ),
+    }),
+    createTableColumn<Person>({
+      columnId: "email",
+      compare: (a, b) => a.email.localeCompare(b.email),
+      renderHeaderCell: () => "Email",
+      renderCell: (item) => item.email,
+    }),
+    createTableColumn<Person>({
+      columnId: "status",
+      compare: (a, b) => a.status.localeCompare(b.status),
+      renderHeaderCell: () => "Status",
+      renderCell: (item) => (
+        <Badge appearance={item.status === "active" ? "success" : "warning"}>
+          {item.status}
+        </Badge>
+      ),
+    }),
+  ];
+
+  const {
+    getRows,
+    sort: { getSortDirection, toggleColumnSort, sort },
+    selection: {
+      allRowsSelected,
+      someRowsSelected,
+      toggleAllRows,
+      toggleRow,
+      isRowSelected,
+    },
+  } = useTableFeatures(
+    {
+      columns,
+      items: data,
+    },
+    [
+      useTableSort({
+        defaultSortState: { sortColumn: "name", sortDirection: "ascending" },
+      }),
+      useTableSelection({
+        selectionMode: "multiselect",
+        defaultSelectedItems: new Set([data[0]?.id]),
+      }),
+    ],
+  );
+
+  const rows = sort(getRows());
+
+  return (
+    <DataGrid
+      items={data}
+      columns={columns}
+      sortable
+      selectionMode="multiselect"
+      resizableColumns
+      getRowId={(item) => item.id}
+    >
+      <DataGridHeader>
+        <DataGridRow>
+          <DataGridSelectionCell
+            checked={
+              allRowsSelected ? true : someRowsSelected ? "mixed" : false
+            }
+            onChange={toggleAllRows}
+          />
+          {columns.map((column) => (
+            <DataGridHeaderCell key={column.columnId}>
+              <Button
+                appearance="transparent"
+                onClick={() => toggleColumnSort(column.columnId)}
+              >
+                {column.renderHeaderCell()}
+                {getSortDirection(column.columnId) && <ArrowUp16Regular />}
+              </Button>
+              <TableResizeHandle columnId={column.columnId} />
+            </DataGridHeaderCell>
+          ))}
+        </DataGridRow>
+      </DataGridHeader>
+      <DataGridBody>
+        {rows.map(({ item }) => (
+          <DataGridRow key={item.id}>
+            <DataGridSelectionCell
+              checked={isRowSelected(item.id)}
+              onChange={() => toggleRow(item.id)}
+            />
+            {columns.map((column) => (
+              <DataGridCell key={column.columnId}>
+                {column.renderCell(item)}
+              </DataGridCell>
+            ))}
+          </DataGridRow>
+        ))}
+      </DataGridBody>
+    </DataGrid>
+  );
+}
+```
+
+### Context Provider Usage
+
+```tsx
+// Using context providers for custom table implementations
+function CustomTableWithProviders() {
+  const tableContextValue = {
+    noNativeElements: false,
+    size: "medium" as const,
+    sortable: true,
+  };
+
+  const headerContextValue = {
+    sortable: true,
+    sortState: { columnId: "name", direction: "ascending" },
+    onSortChange: (columnId: string, direction: SortDirection) => {
+      // Handle sort change
+    },
+  };
+
+  return (
+    <TableContextProvider value={tableContextValue}>
+      <Table>
+        <TableHeaderContextProvider value={headerContextValue}>
+          <TableHeader>
+            <TableRow>
+              <ColumnIdContextProvider value="name">
+                <TableHeaderCell>Name</TableHeaderCell>
+              </ColumnIdContextProvider>
+              <ColumnIdContextProvider value="email">
+                <TableHeaderCell>Email</TableHeaderCell>
+              </ColumnIdContextProvider>
+            </TableRow>
+          </TableHeader>
+        </TableHeaderContextProvider>
+        <TableBody>
+          {data.map((item) => (
+            <TableRowIdContextProvider key={item.id} value={item.id}>
+              <TableRow>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>{item.email}</TableCell>
+              </TableRow>
+            </TableRowIdContextProvider>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContextProvider>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+- **Column definitions** flow from DataGrid props to header and body components
+- **Selection state** is managed at DataGrid/Table level and flows to selection cells
+- **Sort state** flows from DataGrid to header cells for visual indicators
+- **Item data** flows from DataGrid to body rows and individual cells
+- **Context values** flow from providers to child components through React context
+
+### Context Sharing
+
+- **Table context** provides styling and accessibility information to all child components
+- **DataGrid context** provides enhanced features like selection and sorting state
+- **Column context** shares column definitions and rendering functions
+- **Row context** provides item data and row-level state to cells
+- **Header context** manages sorting state and header-specific functionality
+
+### Event Handling
+
+- **Sort events** bubble from header cells to DataGrid for state updates
+- **Selection events** flow from selection cells to DataGrid selection manager
+- **Resize events** propagate from resize handles to column width management
+- **Cell events** can bubble up through row and table contexts for handling
+- **Context changes** trigger re-renders in dependent child components
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Use Table for simple data display** where you need maximum control over rendering and behavior
+- **Use DataGrid for complex scenarios** requiring sorting, selection, keyboard navigation, or column resizing
+- **Always provide column headers** for accessibility and user understanding
+- **Include unique row IDs** when using selection or dynamic data updates
+- **Use TableCellLayout** for cells with multiple content elements like avatars and descriptions
+- **Implement responsive patterns** for mobile-friendly table experiences
+- **Leverage context providers** for complex custom implementations requiring shared state
+
+### Accessibility
+
+- **Provide aria-label or aria-labelledby** on the root Table/DataGrid component to describe the table's purpose
+- **Use semantic table elements** unless noNativeElements is specifically needed for styling requirements
+- **Include proper column headers** with TableHeaderCell components for screen reader navigation
+- **Implement selection announcements** using aria-label on TableSelectionCell components
+- **Support keyboard navigation** with proper focus management and arrow key handling in DataGrid
+- **Maintain proper heading hierarchy** when using nested table content
+- **Use context providers** to ensure accessibility properties flow correctly through component hierarchy
+
+### Performance
+
+- **Virtualize large datasets** using libraries like react-window when displaying thousands of rows
+- **Implement pagination or lazy loading** for datasets larger than 100-200 items
+- **Use React.memo on row components** to prevent unnecessary re-renders when data doesn't change
+- **Optimize column rendering functions** by memoizing expensive computations
+- **Consider useTableFeatures hooks** for efficient state management in complex scenarios
+- **Implement debounced sorting** to avoid excessive re-rendering during rapid sort changes
+- **Use context providers efficiently** to avoid unnecessary re-renders when context values change
+
+## Common Patterns
+
+### Pattern 1: Master-Detail Table
+
+```tsx
+// Table with expandable rows showing additional details
+function MasterDetailTable() {
+  const [expandedRows, setExpandedRows] = React.useState<Set<string>>(
+    new Set(),
+  );
+
+  const toggleRow = (rowId: string) => {
+    const newExpanded = new Set(expandedRows);
+    if (newExpanded.has(rowId)) {
+      newExpanded.delete(rowId);
+    } else {
+      newExpanded.add(rowId);
+    }
+    setExpandedRows(newExpanded);
+  };
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHeaderCell></TableHeaderCell> {/* Expand toggle column */}
+          <TableHeaderCell>Product</TableHeaderCell>
+          <TableHeaderCell>Price</TableHeaderCell>
+          <TableHeaderCell>Stock</TableHeaderCell>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {products.map((product) => (
+          <React.Fragment key={product.id}>
+            <TableRow>
+              <TableCell>
+                <Button
+                  appearance="transparent"
+                  icon={
+                    expandedRows.has(product.id) ? (
+                      <ChevronDownRegular />
+                    ) : (
+                      <ChevronRightRegular />
+                    )
+                  }
+                  onClick={() => toggleRow(product.id)}
+                />
+              </TableCell>
+              <TableCell>{product.name}</TableCell>
+              <TableCell>{product.price}</TableCell>
+              <TableCell>{product.stock}</TableCell>
+            </TableRow>
+            {expandedRows.has(product.id) && (
+              <TableRow>
+                <TableCell colSpan={4}>
+                  <div
+                    style={{
+                      padding: "16px",
+                      backgroundColor: "var(--colorNeutralBackground2)",
+                    }}
+                  >
+                    <Text weight="semibold">Description:</Text>
+                    <div>{product.description}</div>
+                    <Text weight="semibold">Specifications:</Text>
+                    <div>{product.specifications}</div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </React.Fragment>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+```
+
+### Pattern 2: Bulk Operations Table
+
+```tsx
+// Table with bulk operations and action confirmation
+function BulkOperationsTable() {
+  const [selectedItems, setSelectedItems] = React.useState<Set<string>>(
+    new Set(),
+  );
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const handleBulkDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteItems(Array.from(selectedItems));
+      setSelectedItems(new Set());
+      // Refresh data
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <>
+      {selectedItems.size > 0 && (
+        <Toolbar>
+          <ToolbarGroup>
+            <Text>{selectedItems.size} items selected</Text>
+            <ToolbarButton onClick={handleBulkDelete} disabled={isDeleting}>
+              {isDeleting ? <Spinner size="small" /> : "Delete Selected"}
+            </ToolbarButton>
+            <ToolbarButton onClick={() => setSelectedItems(new Set())}>
+              Clear Selection
+            </ToolbarButton>
+          </ToolbarGroup>
+        </Toolbar>
+      )}
+
+      <DataGrid
+        items={data}
+        columns={columns}
+        selectionMode="multiselect"
+        selectedItems={Array.from(selectedItems)}
+        onSelectionChange={(e, { selectedItems }) =>
+          setSelectedItems(new Set(selectedItems.map((item) => item.id)))
+        }
+      >
+        {/* DataGrid content */}
+      </DataGrid>
+    </>
+  );
+}
+```
+
+### Pattern 3: Context-Driven Custom Table
+
+```tsx
+// Custom table implementation using context providers
+function ContextDrivenTable() {
+  const [sortState, setSortState] = React.useState({
+    columnId: "name",
+    direction: "ascending" as const,
+  });
+
+  const tableContext = {
+    noNativeElements: false,
+    size: "medium" as const,
+    sortable: true,
+  };
+
+  const headerContext = {
+    sortable: true,
+    sortState,
+    onSortChange: (columnId: string, direction: SortDirection) => {
+      setSortState({ columnId, direction });
+    },
+  };
+
+  return (
+    <TableContextProvider value={tableContext}>
+      <DataGridContextProvider
+        value={{
+          items: data,
+          columns: columnDefinitions,
+          selection: selectionState,
+          sort: sortState,
+          focusMode: "composite",
+        }}
+      >
+        <Table>
+          <TableHeaderContextProvider value={headerContext}>
+            <TableHeader>
+              <TableRow>
+                {columnDefinitions.map((column) => (
+                  <ColumnIdContextProvider
+                    key={column.columnId}
+                    value={column.columnId}
+                  >
+                    <TableHeaderCell
+                      sortDirection={
+                        sortState.columnId === column.columnId
+                          ? sortState.direction
+                          : undefined
+                      }
+                      onClick={() =>
+                        headerContext.onSortChange(
+                          column.columnId,
+                          sortState.direction === "ascending"
+                            ? "descending"
+                            : "ascending",
+                        )
+                      }
+                    >
+                      {column.label}
+                    </TableHeaderCell>
+                  </ColumnIdContextProvider>
+                ))}
+              </TableRow>
+            </TableHeader>
+          </TableHeaderContextProvider>
+          <TableBody>
+            {sortedData.map((item) => (
+              <TableRowIdContextProvider key={item.id} value={item.id}>
+                <TableRow>
+                  {columnDefinitions.map((column) => (
+                    <TableCell key={column.columnId}>
+                      {column.renderCell(item)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableRowIdContextProvider>
+            ))}
+          </TableBody>
+        </Table>
+      </DataGridContextProvider>
+    </TableContextProvider>
+  );
+}
+```

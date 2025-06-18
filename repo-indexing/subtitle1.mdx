@@ -1,0 +1,280 @@
+# Subtitle1 Component
+
+## Overview
+
+### Purpose
+
+Use this component for subtitle text styling
+
+### When to Use
+
+The Subtitle1 component is designed for subtitle text that provides secondary hierarchy below main titles. Use Subtitle1 when you need:
+
+- Section headings that provide context and organization to content areas
+- Subtitle text that supports primary titles or headings with additional information
+- Secondary navigation elements or page section dividers
+- Descriptive text that needs more prominence than body text but less than main titles
+- Text that establishes visual hierarchy between titles and body content
+- Consistent typography for subtitles across your application that follows the Fluent Design System
+
+### Architecture
+
+**No Coupling** - Subtitle1 is a standalone typography component that doesn't require other components to function. It's part of the broader typography system but operates independently, providing subtitle-level text styling.
+
+### Component Interdependencies
+
+Subtitle1 has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related components like Title1, Title2, Title3, Subtitle2, Body1, and other text styling variants for different emphasis levels and content purposes.
+
+## Components
+
+### Subtitle1 {Standalone Component}
+
+**Purpose:** Provides subtitle text styling that adheres to the Fluent Design System's typography standards. This component ensures consistent font sizing, line height, and spacing for subtitle content that establishes secondary hierarchy in your interface.
+
+**Interface:**
+
+```typescript
+interface Subtitle1Props {
+  /**
+   * The content to be rendered as subtitle text
+   */
+  children?: React.ReactNode;
+
+  /**
+   * The HTML element or React component to render
+   * @default 'span'
+   */
+  as?: React.ElementType;
+
+  /**
+   * Applies block-level styling (display: block)
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Prevents text wrapping (white-space: nowrap)
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Applies text truncation with ellipsis on overflow
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Text alignment
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Subtitle1 } from "@fluentui/react-components";
+
+function Example() {
+  return <Subtitle1>Data Dashboard Overview</Subtitle1>;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Subtitle1 } from "@fluentui/react-components";
+
+// Simple subtitle text
+function BasicExample() {
+  return <Subtitle1>Section Overview</Subtitle1>;
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Subtitle1 } from "@fluentui/react-components";
+
+// Using semantic heading elements
+function SemanticExample() {
+  return (
+    <div>
+      <Subtitle1 as="h2">Main Section</Subtitle1>
+      <Subtitle1 as="h3">Subsection Title</Subtitle1>
+    </div>
+  );
+}
+```
+
+### Block Layout and Alignment
+
+```tsx
+import { Subtitle1 } from "@fluentui/react-components";
+
+// Block-level subtitle with alignment
+function BlockExample() {
+  return (
+    <div>
+      <Subtitle1 as="h2" block align="center">
+        Centered Section Title
+      </Subtitle1>
+      <Subtitle1 as="h3" block align="start">
+        Left-aligned Subsection
+      </Subtitle1>
+    </div>
+  );
+}
+```
+
+### Typography Hierarchy Usage
+
+```tsx
+import { Title1, Subtitle1, Body1 } from "@fluentui/react-components";
+
+// Using with other typography components
+function HierarchyExample() {
+  return (
+    <article>
+      <Title1 as="h1">Main Article Title</Title1>
+      <Subtitle1 as="h2" block style={{ marginTop: "16px" }}>
+        Article Subtitle or Section
+      </Subtitle1>
+      <Body1 as="p" block style={{ marginTop: "12px" }}>
+        This is the body content that follows the subtitle, providing detailed
+        information about the topic.
+      </Body1>
+    </article>
+  );
+}
+```
+
+### Card and Layout Integration
+
+```tsx
+import { Subtitle1, Body1, Card, CardHeader } from "@fluentui/react-components";
+
+// Using in card layouts
+function CardExample() {
+  return (
+    <Card>
+      <CardHeader>
+        <Subtitle1>Product Information</Subtitle1>
+      </CardHeader>
+      <Body1>Detailed product description and specifications.</Body1>
+    </Card>
+  );
+}
+```
+
+## Common Patterns
+
+### Pattern 1: Page Section Headers
+
+```tsx
+import { Subtitle1, Divider } from "@fluentui/react-components";
+
+// Section headers with visual separation
+function SectionHeaderPattern() {
+  return (
+    <div>
+      <Subtitle1 as="h2" block>
+        User Settings
+      </Subtitle1>
+      <Divider style={{ margin: "12px 0" }} />
+      {/* Section content */}
+    </div>
+  );
+}
+```
+
+### Pattern 2: Content Preview Titles
+
+```tsx
+import { Subtitle1, Body1 } from "@fluentui/react-components";
+
+// Preview cards or content summaries
+function ContentPreviewPattern() {
+  return (
+    <div>
+      <Subtitle1 as="h3" truncate>
+        Long Article Title That Might Need Truncation
+      </Subtitle1>
+      <Body1 style={{ marginTop: "8px" }}>
+        Brief description or preview of the content...
+      </Body1>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Form Section Labels
+
+```tsx
+import { Subtitle1, Field, Input } from "@fluentui/react-components";
+
+// Form section organization
+function FormSectionPattern() {
+  return (
+    <div>
+      <Subtitle1 as="h3" block style={{ marginBottom: "16px" }}>
+        Personal Information
+      </Subtitle1>
+      <Field label="First Name">
+        <Input />
+      </Field>
+      <Field label="Last Name">
+        <Input />
+      </Field>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Subtitle1 for secondary headings that provide context and organization to content sections
+- Leverage the `as` prop to ensure semantic HTML structure (h2, h3, etc.) for proper accessibility
+- Combine with the `block` prop when you need the subtitle to occupy full width and create visual separation
+- Use `align` prop to control text alignment based on your design requirements and content flow
+
+### Accessibility
+
+- Always use appropriate heading levels (h1, h2, h3, etc.) with the `as` prop to maintain proper document structure
+- Ensure heading hierarchy is logical and sequential for screen readers
+- Use Subtitle1 consistently across your application to maintain predictable navigation patterns
+- Consider contrast ratios when applying custom styling to ensure readability
+
+### Performance
+
+- Subtitle1 components are lightweight and optimized for performance
+- Use semantic HTML elements (h2, h3) when possible for better SEO and accessibility
+- Avoid excessive nesting or complex styling that might impact rendering performance
+
+## Typography Hierarchy Context
+
+Subtitle1 fits within the broader Fluent UI typography system:
+
+- **Display**: Largest text for hero sections and major focal points
+- **LargeTitle**: Large headings for page titles
+- **Title1, Title2, Title3**: Hierarchical title sizes
+- **Subtitle1, Subtitle2**: Subtitle variations (this component and its secondary variant)
+- **Body1, Body2**: Body text variations
+- **Caption1, Caption2**: Small text for captions and metadata
+
+Use Subtitle1 when you need subtitle-level prominence that's more prominent than body text but secondary to main titles, ensuring a clear visual hierarchy in your interface.

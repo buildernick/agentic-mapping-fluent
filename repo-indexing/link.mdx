@@ -1,0 +1,287 @@
+---
+
+# Link Component
+
+## Overview
+
+### Purpose
+
+Use this component for hyperlink functionality that facilitates navigation within an application or to external sites. Links can also be used to initiate commands when no navigation is needed.
+
+### When to Use
+
+- Navigate to another part of the app, other pages, or help articles
+- Initiate commands or actions (without destructive or irreversible consequences)
+- Provide inline clickable text elements within content
+- Create accessible interactive text elements that follow link semantics
+
+### Architecture
+
+**No Coupling**: This is a standalone component that can be used independently without requiring other components.
+
+The Link component intelligently renders as either an HTML anchor tag (`<a>`) when an `href` is provided, or as a button element when only an `onClick` handler is specified, ensuring proper semantic behavior.
+
+## Components
+
+### Link
+
+**Purpose:** Creates interactive text elements for navigation or command actions with semantic HTML rendering.
+
+**Interface:**
+
+```typescript
+interface LinkProps {
+  // Navigation props
+  href?: string; // URL destination - renders as anchor tag when provided
+  target?: string; // Target window/frame for navigation (e.g., "_blank")
+  rel?: string; // Relationship between current and linked document
+
+  // Interaction props
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void; // Click handler - renders as button when href is absent
+  disabled?: boolean; // Disables the link interaction
+
+  // Styling props
+  underline?: boolean; // Shows underline decoration
+  className?: string; // Custom CSS classes
+  styles?: ILinkStyles; // Fluent UI styling object
+
+  // Content
+  children: React.ReactNode; // Link text content
+
+  // Accessibility
+  "aria-label"?: string; // Accessible label
+  "aria-describedby"?: string; // Associated description
+  role?: string; // ARIA role override
+
+  // Standard HTML attributes (when rendering as anchor)
+  download?: string; // Download attribute for file links
+  hrefLang?: string; // Language of linked document
+  type?: string; // Media type of linked document
+
+  // Standard HTML attributes (when rendering as button)
+  type?: "button" | "submit" | "reset"; // Button type when no href
+}
+```
+
+**Rendering Behavior:**
+
+- **With `href`**: Renders as `<a>` tag with proper anchor semantics
+- **Without `href`**: Renders as `<button>` tag with button semantics
+- **Disabled state**: Prevents interaction and applies disabled styling
+
+**Usage Example:**
+
+```tsx
+import { Link } from "@fluentui/react";
+
+function Example() {
+  return (
+    <div>
+      {/* Navigation link - renders as anchor */}
+      <Link href="https://example.com" target="_blank" rel="noopener" underline>
+        Visit External Site
+      </Link>
+
+      {/* Action link - renders as button */}
+      <Link onClick={() => console.log("Action triggered")} underline>
+        Trigger Action
+      </Link>
+
+      {/* Disabled link */}
+      <Link disabled href="https://example.com" underline>
+        Disabled Link
+      </Link>
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Navigation Links
+
+```tsx
+import { Link, Text } from "@fluentui/react";
+
+// External navigation with security best practices
+function ExternalNavigationExample() {
+  return (
+    <Text>
+      Visit our{" "}
+      <Link
+        href="https://docs.microsoft.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        underline
+      >
+        documentation site
+      </Link>{" "}
+      for more information.
+    </Text>
+  );
+}
+```
+
+### Command Links
+
+```tsx
+import { Link } from "@fluentui/react";
+
+// Action-triggering links without navigation
+function CommandExample() {
+  const handleToggleVisibility = () => {
+    // Toggle some UI state
+  };
+
+  return (
+    <div>
+      <p>Content goes here...</p>
+      <Link onClick={handleToggleVisibility} underline>
+        Show more details
+      </Link>
+    </div>
+  );
+}
+```
+
+### Inline Content Links
+
+```tsx
+import { Link, Text } from "@fluentui/react";
+
+// Links within text content
+function InlineContentExample() {
+  return (
+    <Text>
+      When a link has an href,{" "}
+      <Link href="/help" underline>
+        it renders as an anchor tag
+      </Link>
+      . Without an href,{" "}
+      <Link onClick={() => alert("Button clicked")} underline>
+        the link is rendered as a button
+      </Link>
+      .
+    </Text>
+  );
+}
+```
+
+### Styled Links
+
+```tsx
+import { Link, ILinkStyles } from "@fluentui/react";
+
+// Custom styling
+function StyledLinkExample() {
+  const linkStyles: ILinkStyles = {
+    root: {
+      color: "red",
+      fontSize: "14px",
+      fontWeight: "bold",
+    },
+  };
+
+  return (
+    <Link href="/custom" styles={linkStyles} className="custom-link" underline>
+      Custom Styled Link
+    </Link>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use descriptive, actionable link text that clearly indicates the destination or action
+- Avoid using URLs as link text - use meaningful descriptions instead
+- Don't use links for destructive or irreversible actions - use buttons with appropriate styling
+- Ensure sufficient spacing between discrete links for easy targeting
+- Use sentence-style capitalization (only capitalize the first word)
+
+### Accessibility
+
+- Links automatically provide proper ARIA roles based on rendering (anchor vs button)
+- Use `rel="noopener noreferrer"` for external links with `target="_blank"` for security
+- Ensure link text is descriptive enough to be understood out of context
+- Consider providing `aria-label` for links where the visible text might not be clear
+- Use appropriate color contrast and underline styling for visibility
+
+### Performance
+
+- External links with `target="_blank"` should include `rel="noopener"` to prevent performance issues
+- Consider using `rel="prefetch"` for internal links that are likely to be visited next
+- Avoid excessive onClick handlers that perform heavy operations
+
+## Common Patterns
+
+### Pattern 1: External Link with Security
+
+```tsx
+// Secure external navigation pattern
+<Link
+  href="https://external-site.com"
+  target="_blank"
+  rel="noopener noreferrer"
+  underline
+>
+  Visit External Resource
+</Link>
+```
+
+### Pattern 2: Download Link
+
+```tsx
+// File download pattern
+<Link href="/path/to/file.pdf" download="document.pdf" underline>
+  Download PDF
+</Link>
+```
+
+### Pattern 3: Conditional Link
+
+```tsx
+// Conditional rendering based on permissions
+function ConditionalLinkExample({ hasPermission, item }) {
+  return hasPermission ? (
+    <Link href={`/edit/${item.id}`} underline>
+      {item.name}
+    </Link>
+  ) : (
+    <Text>{item.name}</Text>
+  );
+}
+```
+
+### Pattern 4: Link in Data Table
+
+```tsx
+// Links within data grids or tables
+function TableLinkExample({ item }) {
+  return (
+    <Link href={`/details/${item.id}`} className="table-link" underline>
+      {item.title}
+    </Link>
+  );
+}
+```
+
+### Pattern 5: Action Link with Confirmation
+
+```tsx
+// Action links that require confirmation
+function ActionLinkExample() {
+  const handleDeleteAction = () => {
+    if (confirm("Are you sure you want to delete this item?")) {
+      // Perform delete action
+    }
+  };
+
+  return (
+    <Link onClick={handleDeleteAction} underline>
+      Delete Item
+    </Link>
+  );
+}
+```

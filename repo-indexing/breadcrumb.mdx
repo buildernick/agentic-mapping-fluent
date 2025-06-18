@@ -1,0 +1,539 @@
+# Breadcrumb Components
+
+## Overview
+
+### Purpose
+
+Use this component group for navigation breadcrumbs with required hierarchical structure
+
+### When to Use
+
+Use Breadcrumb components when you need to help users understand their current location within a hierarchical navigation structure and provide quick access to higher levels in the hierarchy. Breadcrumbs are ideal for:
+
+- **Multi-level navigation**: Showing the path through nested categories, folders, or pages
+- **E-commerce sites**: Displaying product category hierarchy (Home > Electronics > Computers > Laptops)
+- **File system navigation**: Showing folder paths and allowing navigation to parent directories
+- **Documentation sites**: Indicating section and subsection locations within knowledge bases
+- **Application workflows**: Showing progress through multi-step processes or nested views
+- **Content management**: Helping users navigate through hierarchical content structures
+
+### Architecture
+
+**Strong Coupling**: The Breadcrumb component group requires a strict compositional hierarchy where each component serves a specific role in the navigation structure. The components must be used together to create a complete breadcrumb navigation experience.
+
+### Component Interdependencies
+
+The Breadcrumb component group follows a compositional pattern with clear structural requirements:
+
+- **Breadcrumb** serves as the root container providing semantic navigation context
+- **BreadcrumbItem** components represent individual levels in the navigation hierarchy
+- **BreadcrumbButton** provides interactive navigation elements within items
+- **BreadcrumbDivider** creates visual separation between navigation levels
+- **BreadcrumbProvider** (when used) supplies shared context for advanced behaviors
+
+## Components
+
+### Breadcrumb {Primary Component}
+
+**Purpose:** The root container component that provides semantic navigation structure and accessibility context for the entire breadcrumb trail.
+
+**Interface:**
+
+```typescript
+interface BreadcrumbProps {
+  children: React.ReactNode; // Required BreadcrumbItem and BreadcrumbDivider components
+  "aria-label"?: string; // Accessible label for the breadcrumb navigation
+  size?: "small" | "medium" | "large"; // Size variant for the breadcrumb
+  as?: React.ElementType; // Component to render as (default: nav)
+}
+```
+
+**Provides:** Semantic navigation context and accessibility foundation for child components
+
+**Usage Example:**
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+} from "@fluentui/react-components";
+
+function BasicBreadcrumbExample() {
+  return (
+    <Breadcrumb aria-label="Website navigation">
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/">Home</BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/products">Products</BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem current>
+        <BreadcrumbButton href="/products/laptops">Laptops</BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+}
+```
+
+### BreadcrumbItem {Navigation Item}
+
+**Purpose:** Represents an individual level in the navigation hierarchy, containing the interactive elements and providing current state context.
+
+**Interface:**
+
+```typescript
+interface BreadcrumbItemProps {
+  children: React.ReactNode; // Typically BreadcrumbButton or text content
+  current?: boolean; // Indicates if this item represents the current page/location
+  as?: React.ElementType; // Component to render as (default: li)
+}
+```
+
+**Context Dependencies:** Breadcrumb container for proper semantic structure
+**Parent Requirements:** Must be direct child of Breadcrumb component
+
+**Usage Example:**
+
+```tsx
+{
+  /* Regular navigation item */
+}
+<BreadcrumbItem>
+  <BreadcrumbButton href="/documents">Documents</BreadcrumbButton>
+</BreadcrumbItem>;
+
+{
+  /* Current page item */
+}
+<BreadcrumbItem current>
+  <BreadcrumbButton href="/documents/report.pdf">Report.pdf</BreadcrumbButton>
+</BreadcrumbItem>;
+```
+
+### BreadcrumbButton {Interactive Element}
+
+**Purpose:** Provides the interactive navigation element within breadcrumb items, handling click events and navigation behavior.
+
+**Interface:**
+
+```typescript
+interface BreadcrumbButtonProps {
+  children: React.ReactNode; // Button content (text, icons, or combined)
+  href?: string; // Navigation destination URL
+  onClick?: (event: React.MouseEvent) => void; // Click event handler
+  current?: boolean; // Indicates if this represents the current page
+  disabled?: boolean; // Whether the button is disabled
+  icon?: React.ReactElement; // Leading icon for the button
+  size?: "small" | "medium" | "large"; // Size variant
+  appearance?: "subtle" | "transparent"; // Visual appearance
+  as?: React.ElementType; // Component to render as
+}
+```
+
+**Context Dependencies:** BreadcrumbItem for proper semantic context
+**Parent Requirements:** Should be used within BreadcrumbItem
+
+**Usage Example:**
+
+```tsx
+{
+  /* Button with href navigation */
+}
+<BreadcrumbButton href="/home" icon={<HomeRegular />}>
+  Home
+</BreadcrumbButton>;
+
+{
+  /* Button with click handler */
+}
+<BreadcrumbButton onClick={() => navigateToSection("overview")}>
+  Overview
+</BreadcrumbButton>;
+
+{
+  /* Current page button (typically non-interactive) */
+}
+<BreadcrumbButton current disabled>
+  Current Page
+</BreadcrumbButton>;
+```
+
+### BreadcrumbDivider {Visual Separator}
+
+**Purpose:** Provides visual separation between breadcrumb items to clearly indicate navigation hierarchy levels.
+
+**Interface:**
+
+```typescript
+interface BreadcrumbDividerProps {
+  children?: React.ReactNode; // Custom divider content (default: chevron or slash)
+  icon?: React.ReactElement; // Custom icon for the divider
+  as?: React.ElementType; // Component to render as
+}
+```
+
+**Parent Requirements:** Must be placed between BreadcrumbItem components within Breadcrumb
+
+**Usage Example:**
+
+```tsx
+{
+  /* Default divider */
+}
+<BreadcrumbDivider />;
+
+{
+  /* Custom divider with text */
+}
+<BreadcrumbDivider>/</BreadcrumbDivider>;
+
+{
+  /* Custom divider with icon */
+}
+<BreadcrumbDivider icon={<ChevronRightRegular />} />;
+```
+
+### BreadcrumbProvider {Context Provider}
+
+**Purpose:** Provides shared context for advanced breadcrumb behaviors such as overflow handling and theme customization.
+
+**Interface:**
+
+```typescript
+interface BreadcrumbProviderProps {
+  children: React.ReactNode;
+  value: BreadcrumbContextValue; // Context value with shared state and configuration
+}
+```
+
+**Context Dependencies:** None (root provider)
+**Provides:** Shared breadcrumb context for advanced features
+
+## Integration Patterns
+
+### Basic Navigation Breadcrumb
+
+```tsx
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbButton,
+  BreadcrumbDivider,
+} from "@fluentui/react-components";
+
+function BasicNavigationBreadcrumb() {
+  return (
+    <Breadcrumb aria-label="Main navigation">
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/">Home</BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/categories">Categories</BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/categories/electronics">
+          Electronics
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider />
+      <BreadcrumbItem current>
+        <BreadcrumbButton href="/categories/electronics/laptops">
+          Laptops
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+}
+```
+
+### File System Breadcrumb
+
+```tsx
+function FileSystemBreadcrumb() {
+  const [currentPath, setCurrentPath] = React.useState(
+    "/documents/projects/website",
+  );
+
+  const pathSegments = currentPath.split("/").filter(Boolean);
+
+  const navigateToPath = (index: number) => {
+    const newPath = "/" + pathSegments.slice(0, index + 1).join("/");
+    setCurrentPath(newPath);
+  };
+
+  return (
+    <Breadcrumb aria-label="File system navigation">
+      <BreadcrumbItem>
+        <BreadcrumbButton
+          icon={<FolderRegular />}
+          onClick={() => setCurrentPath("/")}
+        >
+          Root
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      {pathSegments.map((segment, index) => (
+        <React.Fragment key={index}>
+          <BreadcrumbDivider />
+          <BreadcrumbItem current={index === pathSegments.length - 1}>
+            <BreadcrumbButton
+              onClick={() => navigateToPath(index)}
+              icon={<FolderRegular />}
+            >
+              {segment}
+            </BreadcrumbButton>
+          </BreadcrumbItem>
+        </React.Fragment>
+      ))}
+    </Breadcrumb>
+  );
+}
+```
+
+### E-commerce Category Breadcrumb
+
+```tsx
+function EcommerceBreadcrumb() {
+  const categories = [
+    { name: "Home", path: "/", icon: <HomeRegular /> },
+    {
+      name: "Electronics",
+      path: "/electronics",
+      icon: <DeviceLaptopRegular />,
+    },
+    {
+      name: "Computers",
+      path: "/electronics/computers",
+      icon: <DesktopRegular />,
+    },
+    {
+      name: "Laptops",
+      path: "/electronics/computers/laptops",
+      icon: <LaptopRegular />,
+    },
+  ];
+
+  return (
+    <Breadcrumb aria-label="Product category navigation">
+      {categories.map((category, index) => (
+        <React.Fragment key={category.path}>
+          <BreadcrumbItem current={index === categories.length - 1}>
+            <BreadcrumbButton href={category.path} icon={category.icon}>
+              {category.name}
+            </BreadcrumbButton>
+          </BreadcrumbItem>
+          {index < categories.length - 1 && <BreadcrumbDivider />}
+        </React.Fragment>
+      ))}
+    </Breadcrumb>
+  );
+}
+```
+
+### Dynamic Breadcrumb with Click Handlers
+
+```tsx
+function DynamicBreadcrumb() {
+  const [breadcrumbItems, setBreadcrumbItems] = React.useState([
+    { id: "home", label: "Home", path: "/" },
+    { id: "products", label: "Products", path: "/products" },
+  ]);
+
+  const handleNavigate = (targetIndex: number) => {
+    // Remove items after the clicked item
+    setBreadcrumbItems((items) => items.slice(0, targetIndex + 1));
+
+    // Navigate to the selected item
+    const targetItem = breadcrumbItems[targetIndex];
+    console.log(`Navigating to: ${targetItem.path}`);
+  };
+
+  const addBreadcrumbItem = (label: string, path: string) => {
+    setBreadcrumbItems((items) => [
+      ...items,
+      { id: Date.now().toString(), label, path },
+    ]);
+  };
+
+  return (
+    <div>
+      <Breadcrumb aria-label="Dynamic navigation">
+        {breadcrumbItems.map((item, index) => (
+          <React.Fragment key={item.id}>
+            <BreadcrumbItem current={index === breadcrumbItems.length - 1}>
+              <BreadcrumbButton onClick={() => handleNavigate(index)}>
+                {item.label}
+              </BreadcrumbButton>
+            </BreadcrumbItem>
+            {index < breadcrumbItems.length - 1 && <BreadcrumbDivider />}
+          </React.Fragment>
+        ))}
+      </Breadcrumb>
+
+      <div style={{ marginTop: 16 }}>
+        <button
+          onClick={() => addBreadcrumbItem("Category", "/products/category")}
+        >
+          Add Category
+        </button>
+        <button
+          onClick={() => addBreadcrumbItem("Item", "/products/category/item")}
+        >
+          Add Item
+        </button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **Breadcrumb** provides the semantic container and accessibility context
+2. **BreadcrumbItem** components receive current state and handle individual navigation items
+3. **BreadcrumbButton** components handle user interactions and navigation events
+4. **BreadcrumbDivider** components provide visual separation without interactive behavior
+
+### Context Sharing
+
+- **BreadcrumbProvider** (when used) shares configuration and state across all breadcrumb components
+- Accessibility context flows from Breadcrumb to all child components
+- Current state is typically managed at the application level and passed to individual items
+
+### Event Handling
+
+- Click events on BreadcrumbButton trigger navigation or application state changes
+- Navigation events bubble up to application routing logic
+- Focus management follows standard keyboard navigation patterns (Tab/Shift+Tab)
+
+## Best Practices
+
+### Usage Guidelines
+
+- Always provide an `aria-label` on the Breadcrumb component for screen reader accessibility
+- Use the `current` prop on the BreadcrumbItem representing the current page/location
+- Place BreadcrumbDivider components between each BreadcrumbItem for visual separation
+- Keep breadcrumb labels concise and descriptive to maintain usability
+- Consider truncating very long breadcrumb trails with overflow patterns for mobile devices
+
+### Accessibility
+
+- Breadcrumb provides semantic navigation structure with proper ARIA roles
+- Current page is indicated both visually and programmatically with the `current` prop
+- Keyboard navigation follows standard web navigation patterns
+- Screen readers announce the breadcrumb as a navigation landmark
+- Focus management ensures logical tab order through interactive elements
+
+### Performance
+
+- Use React.Fragment to group BreadcrumbItem and BreadcrumbDivider pairs efficiently
+- Consider memoizing breadcrumb items when dealing with frequently changing navigation states
+- Implement lazy loading for deeply nested hierarchies with many levels
+- Use href attributes for actual navigation links to support browser history and bookmarking
+
+## Common Patterns
+
+### Breadcrumb with Icons and Custom Dividers
+
+```tsx
+function IconBreadcrumbExample() {
+  return (
+    <Breadcrumb aria-label="Navigation with icons">
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/" icon={<HomeRegular />}>
+          Home
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider icon={<ChevronRightRegular />} />
+      <BreadcrumbItem>
+        <BreadcrumbButton href="/settings" icon={<SettingsRegular />}>
+          Settings
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+      <BreadcrumbDivider icon={<ChevronRightRegular />} />
+      <BreadcrumbItem current>
+        <BreadcrumbButton href="/settings/profile" icon={<PersonRegular />}>
+          Profile
+        </BreadcrumbButton>
+      </BreadcrumbItem>
+    </Breadcrumb>
+  );
+}
+```
+
+### Responsive Breadcrumb with Overflow
+
+```tsx
+function ResponsiveBreadcrumb() {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  const allItems = [
+    { label: "Home", path: "/", icon: <HomeRegular /> },
+    { label: "Documents", path: "/documents", icon: <DocumentRegular /> },
+    { label: "Projects", path: "/documents/projects", icon: <FolderRegular /> },
+    {
+      label: "Website",
+      path: "/documents/projects/website",
+      icon: <GlobeRegular />,
+    },
+    {
+      label: "Assets",
+      path: "/documents/projects/website/assets",
+      icon: <ImageRegular />,
+    },
+  ];
+
+  // Show only first, last, and current if collapsed
+  const displayItems = isCollapsed
+    ? [allItems[0], allItems[allItems.length - 1]]
+    : allItems;
+
+  return (
+    <Breadcrumb aria-label="Responsive navigation">
+      {isCollapsed && (
+        <>
+          <BreadcrumbItem>
+            <BreadcrumbButton href={allItems[0].path} icon={allItems[0].icon}>
+              {allItems[0].label}
+            </BreadcrumbButton>
+          </BreadcrumbItem>
+          <BreadcrumbDivider />
+          <BreadcrumbItem>
+            <BreadcrumbButton onClick={() => setIsCollapsed(false)}>
+              ...
+            </BreadcrumbButton>
+          </BreadcrumbItem>
+          <BreadcrumbDivider />
+        </>
+      )}
+
+      {!isCollapsed &&
+        displayItems.map((item, index) => (
+          <React.Fragment key={item.path}>
+            <BreadcrumbItem current={index === displayItems.length - 1}>
+              <BreadcrumbButton href={item.path} icon={item.icon}>
+                {item.label}
+              </BreadcrumbButton>
+            </BreadcrumbItem>
+            {index < displayItems.length - 1 && <BreadcrumbDivider />}
+          </React.Fragment>
+        ))}
+
+      {isCollapsed && (
+        <BreadcrumbItem current>
+          <BreadcrumbButton href={allItems[allItems.length - 1].path}>
+            {allItems[allItems.length - 1].label}
+          </BreadcrumbButton>
+        </BreadcrumbItem>
+      )}
+    </Breadcrumb>
+  );
+}
+```

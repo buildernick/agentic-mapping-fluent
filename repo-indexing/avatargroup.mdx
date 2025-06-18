@@ -1,0 +1,380 @@
+# AvatarGroup Components
+
+## Overview
+
+### Purpose
+
+Use this component group for displaying collections of avatars with required group context to represent teams, collaborators, or multiple users in a compact and organized manner.
+
+### When to Use
+
+- **Team visualization**: Display team members, project collaborators, or organizational hierarchies
+- **User aggregation**: Show multiple users who have interacted with content (likes, comments, participants)
+- **Compact user lists**: Present user collections where space is limited but visual recognition is important
+- **Activity indicators**: Represent multiple users involved in tasks, documents, or conversations
+- **Social proof**: Display user participation in events, groups, or activities
+
+### Architecture
+
+**Critical/Strong Coupling**: The AvatarGroup component requires a hierarchical structure with required group context and compositional relationships between the container and individual avatar items.
+
+- **Group Container**: Provides layout, overflow handling, and interaction coordination
+- **Avatar Items**: Individual user representations that inherit sizing and styling from the group
+- **Overflow Management**: Handles display when there are more users than the maximum display limit
+- **Interaction Context**: Manages hover states, click behaviors, and popover coordination
+
+### Component Interdependencies
+
+The AvatarGroup components form a tightly coupled system with required relationships:
+
+- **AvatarGroup** serves as the root container and provides context for all child components
+- **Avatar** components must be children of AvatarGroup to inherit proper sizing and layout
+- **AvatarGroupItem** provides enhanced wrapper functionality for individual avatars within the group
+- **AvatarGroupPopover** handles overflow scenarios and detailed user information display
+- Shared context includes: maximum display count, sizing, spacing, and interaction states
+
+## Components
+
+### AvatarGroup {Primary Component}
+
+The root container component that orchestrates the display and behavior of multiple avatars.
+
+**Purpose:** Manages the layout, overflow behavior, and collective interactions of multiple user avatars
+
+**Interface:**
+
+```typescript
+interface AvatarGroupProps {
+  children: React.ReactNode; // Avatar or AvatarGroupItem components
+  layout?: "spread" | "stack" | "pie"; // Layout arrangement style
+  size?: "extra-small" | "small" | "medium" | "large" | "extra-large"; // Size of all avatars
+  max?: number; // Maximum avatars to display before showing overflow
+  spacing?: "tight" | "normal" | "loose"; // Space between avatars
+  onOverflowClick?: (event: React.MouseEvent) => void; // Handler for overflow indicator
+}
+```
+
+**Dependencies:** None - this is the root component  
+**Provides:** Layout context, sizing context, overflow management, and interaction coordination for all child avatars
+
+**Usage Example:**
+
+```tsx
+import { AvatarGroup, Avatar } from "@fluentui/react-components";
+
+function TeamDisplay() {
+  return (
+    <AvatarGroup
+      layout="stack"
+      size="medium"
+      max={4}
+      onOverflowClick={() => console.log("Show all team members")}
+    >
+      <Avatar name="Sarah Wilson" />
+      <Avatar name="Mike Chen" />
+      <Avatar name="Lisa Garcia" />
+      <Avatar name="David Kim" />
+      <Avatar name="Emily Taylor" />
+    </AvatarGroup>
+  );
+}
+```
+
+### Avatar {Dependent Component}
+
+Individual user representation that adapts to the group context when used within AvatarGroup.
+
+**Purpose:** Displays a single user's avatar with automatic sizing and positioning when part of a group
+
+**Interface:**
+
+```typescript
+interface AvatarProps {
+  name?: string; // User's display name for initials fallback
+  src?: string; // Profile image URL
+  alt?: string; // Alternative text for accessibility
+  badge?: "online" | "offline" | "away" | "busy" | "out-of-office"; // Status indicator
+  shape?: "circular" | "square"; // Avatar shape
+  color?: "neutral" | "brand" | "colorful" | "dark-red" | "cranberry"; // Background color scheme
+  onClick?: (event: React.MouseEvent) => void; // Click handler
+}
+```
+
+**Context Dependencies:** When used within AvatarGroup, inherits sizing, spacing, and layout behavior  
+**Parent Requirements:** Can be used standalone or within AvatarGroup for enhanced layout management
+
+**Usage Example:**
+
+```tsx
+// Within AvatarGroup context
+<AvatarGroup size="large" layout="spread">
+  <Avatar
+    name="John Doe"
+    src="/images/john.jpg"
+    badge="online"
+    onClick={() => console.log("View John's profile")}
+  />
+  <Avatar name="Jane Smith" color="brand" badge="away" />
+</AvatarGroup>
+```
+
+### AvatarGroupItem {Enhanced Wrapper Component}
+
+Provides additional functionality and context for avatars within the group, including enhanced interaction states.
+
+**Purpose:** Wraps individual avatars with additional group-specific behaviors and interaction patterns
+
+**Interface:**
+
+```typescript
+interface AvatarGroupItemProps {
+  children: React.ReactElement<AvatarProps>; // Single Avatar component
+  tooltip?: string; // Hover tooltip content
+  disabled?: boolean; // Disable interactions
+  onHover?: (event: React.MouseEvent) => void; // Hover event handler
+  onFocus?: (event: React.FocusEvent) => void; // Focus event handler
+}
+```
+
+**Context Dependencies:** Must be used within AvatarGroup to access group layout and interaction context  
+**Parent Requirements:** AvatarGroup container is required for proper functionality
+
+**Usage Example:**
+
+```tsx
+<AvatarGroup layout="stack" max={3}>
+  <AvatarGroupItem
+    tooltip="Sarah Wilson - Project Manager"
+    onHover={() => console.log("Hovering over Sarah")}
+  >
+    <Avatar name="Sarah Wilson" badge="online" />
+  </AvatarGroupItem>
+  <AvatarGroupItem tooltip="Mike Chen - Developer">
+    <Avatar name="Mike Chen" badge="busy" />
+  </AvatarGroupItem>
+</AvatarGroup>
+```
+
+### AvatarGroupPopover {Overflow Management Component}
+
+Handles the display of additional avatars when the group exceeds the maximum display limit.
+
+**Purpose:** Provides expandable overflow functionality to show all users in a group when space is limited
+
+**Interface:**
+
+```typescript
+interface AvatarGroupPopoverProps {
+  indicator?: React.ReactNode; // Custom overflow indicator content
+  onOpenChange?: (open: boolean) => void; // Popover open state change handler
+  positioning?: "above" | "below" | "before" | "after"; // Popover positioning
+  trigger?: "hover" | "click"; // Interaction trigger for popover
+  maxDisplayed?: number; // Override group max for popover trigger
+}
+```
+
+**Context Dependencies:** Requires AvatarGroup context to access overflow avatars and display configuration  
+**Parent Requirements:** Must be used as a child of AvatarGroup to manage overflow behavior
+
+**Usage Example:**
+
+```tsx
+<AvatarGroup layout="stack" max={2}>
+  <Avatar name="User 1" />
+  <Avatar name="User 2" />
+  <Avatar name="User 3" />
+  <Avatar name="User 4" />
+  <AvatarGroupPopover
+    positioning="below"
+    trigger="click"
+    onOpenChange={(open) => console.log("Popover open:", open)}
+  />
+</AvatarGroup>
+```
+
+## Integration Patterns
+
+### Basic Team Display
+
+```tsx
+import { AvatarGroup, Avatar } from "@fluentui/react-components";
+
+// Minimal team representation
+function BasicTeam() {
+  return (
+    <AvatarGroup layout="spread" size="medium">
+      <Avatar name="Alice Johnson" badge="online" />
+      <Avatar name="Bob Smith" badge="away" />
+      <Avatar name="Carol Davis" badge="offline" />
+    </AvatarGroup>
+  );
+}
+```
+
+### Advanced Collaborative Interface
+
+```tsx
+import {
+  AvatarGroup,
+  Avatar,
+  AvatarGroupItem,
+  AvatarGroupPopover,
+} from "@fluentui/react-components";
+
+// Complex collaboration display with overflow handling
+function CollaboratorDisplay({ users, onUserClick }) {
+  return (
+    <AvatarGroup layout="stack" size="small" max={4} spacing="tight">
+      {users.slice(0, 4).map((user) => (
+        <AvatarGroupItem
+          key={user.id}
+          tooltip={`${user.name} - ${user.role}`}
+          onHover={() => console.log(`Viewing ${user.name}`)}
+        >
+          <Avatar
+            name={user.name}
+            src={user.avatar}
+            badge={user.status}
+            onClick={() => onUserClick(user)}
+          />
+        </AvatarGroupItem>
+      ))}
+      {users.length > 4 && (
+        <AvatarGroupPopover
+          positioning="below"
+          trigger="click"
+          onOpenChange={(open) =>
+            console.log("Showing all collaborators:", open)
+          }
+        />
+      )}
+    </AvatarGroup>
+  );
+}
+```
+
+### Project Activity Indicator
+
+```tsx
+// Show recent activity participants
+function ActivityIndicator({ recentUsers, totalCount }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <AvatarGroup layout="stack" size="extra-small" max={3}>
+        {recentUsers.map((user) => (
+          <Avatar
+            key={user.id}
+            name={user.name}
+            src={user.avatar}
+            color="brand"
+          />
+        ))}
+        <AvatarGroupPopover trigger="hover" positioning="above" />
+      </AvatarGroup>
+      <span>{totalCount} participants</span>
+    </div>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **AvatarGroup** receives configuration props (size, layout, max) and passes context to children
+2. **Avatar** components inherit sizing and spacing from parent group context
+3. **AvatarGroupItem** wraps avatars with enhanced interaction capabilities
+4. **AvatarGroupPopover** receives overflow avatars from group context and manages display
+
+### Context Sharing
+
+- **Size Context**: All child avatars inherit consistent sizing from the group
+- **Layout Context**: Determines spacing, overlap, and positioning of individual avatars
+- **Overflow Context**: Manages which avatars are visible and which are hidden in overflow
+- **Interaction Context**: Coordinates hover states and focus management across the group
+
+### Event Handling
+
+- Individual avatar clicks bubble up through the group for centralized handling
+- Group-level interactions (overflow clicks) are managed by the AvatarGroup component
+- Hover states are coordinated to prevent conflicting interactions between avatars
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Limit group size**: Keep visible avatars to 3-5 for optimal recognition and performance
+- **Consistent sizing**: Use the same size for all avatars within a group for visual harmony
+- **Meaningful overflow**: When using overflow, ensure the "+N" indicator clearly communicates additional users
+- **Accessible interactions**: Provide clear focus indicators and keyboard navigation for all avatars
+- **Status consistency**: Use presence badges consistently across all avatars in a group
+
+### Accessibility
+
+- **ARIA relationships**: AvatarGroup automatically manages aria-setsize and aria-posinset for screen readers
+- **Keyboard navigation**: Tab order follows logical sequence through visible avatars and overflow trigger
+- **Screen reader support**: Each avatar provides name and status information to assistive technologies
+- **Focus management**: Clear focus indicators and logical tab order for all interactive elements
+
+### Performance
+
+- **Image optimization**: Use appropriate image sizes for avatar dimensions to reduce load times
+- **Lazy loading**: Consider lazy loading for avatars in large groups or frequently updated lists
+- **Overflow efficiency**: Only render visible avatars and defer overflow content until needed
+- **State management**: Avoid unnecessary re-renders by memoizing user data and stable callback references
+
+## Common Patterns
+
+### Pattern 1: Document Collaboration
+
+```tsx
+// Show users currently editing a document
+function DocumentCollaborators({ activeUsers, recentUsers }) {
+  return (
+    <div className="collaboration-bar">
+      <span>Currently editing:</span>
+      <AvatarGroup layout="stack" size="small" max={3}>
+        {activeUsers.map((user) => (
+          <AvatarGroupItem key={user.id} tooltip={`${user.name} is editing`}>
+            <Avatar
+              name={user.name}
+              src={user.avatar}
+              badge="online"
+              color="brand"
+            />
+          </AvatarGroupItem>
+        ))}
+        <AvatarGroupPopover positioning="below" trigger="hover" />
+      </AvatarGroup>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Social Proof Display
+
+```tsx
+// Show users who liked or interacted with content
+function SocialProofAvatars({ likedByUsers, totalLikes }) {
+  return (
+    <div className="social-proof">
+      <AvatarGroup layout="spread" size="extra-small" max={5}>
+        {likedByUsers.map((user) => (
+          <Avatar
+            key={user.id}
+            name={user.name}
+            src={user.avatar}
+            onClick={() => window.open(`/profile/${user.id}`)}
+          />
+        ))}
+        <AvatarGroupPopover
+          positioning="above"
+          trigger="click"
+          indicator={<span>+{totalLikes - 5} more</span>}
+        />
+      </AvatarGroup>
+      <span>and {totalLikes} others liked this</span>
+    </div>
+  );
+}
+```

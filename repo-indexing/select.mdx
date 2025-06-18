@@ -1,0 +1,738 @@
+# Select Component
+
+## Overview
+
+### Purpose
+
+Use this component for dropdown selection functionality
+
+### When to Use
+
+The Select component is ideal for scenarios where users need to:
+
+- Choose a single option from a predefined list of values
+- Select from a moderate number of options (5-20 items) where showing all options at once would be impractical
+- Maintain a compact form layout where space is at a premium
+- Provide a native-like selection experience with enhanced styling and accessibility
+- Replace native `<select>` elements with better cross-platform consistency
+- Offer simple selection without the need for search, filtering, or custom input capabilities
+- Present options that users are likely to scan through rather than search for
+
+Choose Select over Combobox when you don't need search functionality, text input, or virtualization for large datasets. Select provides a lighter-weight alternative focused purely on selection from predefined options.
+
+### Architecture
+
+**No Coupling**: The Select component is a standalone component that doesn't require other components to function properly. It operates independently as a styled wrapper around the native HTML `<select>` element, providing enhanced appearance and accessibility while maintaining familiar browser behavior.
+
+### Component Interdependencies
+
+This is a standalone component with no required dependencies on other components. Select works with standard HTML `<option>` and `<optgroup>` elements as children, leveraging native browser functionality for selection behavior.
+
+## Components
+
+### Select
+
+**Purpose:** A styled wrapper around the native `<select>` element that provides enhanced appearance, consistent cross-platform behavior, and improved accessibility while maintaining the familiar selection interaction model.
+
+**Interface:**
+
+```typescript
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  // Appearance and sizing
+  appearance?: "outline" | "underline" | "filled-darker" | "filled-lighter";
+  size?: "small" | "medium" | "large"; // Component size variant
+
+  // State and interaction
+  value?: string; // Controlled selected value
+  defaultValue?: string; // Default selected value for uncontrolled usage
+  disabled?: boolean; // Disables the select interaction
+  required?: boolean; // Marks the select as required for form validation
+  multiple?: boolean; // Enables multiple selection (with native browser behavior)
+
+  // Event handling
+  onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onFocus?: (event: React.FocusEvent<HTMLSelectElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLSelectElement>) => void;
+
+  // Children
+  children: React.ReactNode; // HTML option and optgroup elements
+
+  // Accessibility
+  "aria-label"?: string; // Accessible label when no visible label
+  "aria-labelledby"?: string; // ID of element that labels the select
+  "aria-describedby"?: string; // ID of element that describes the select
+  "aria-invalid"?: boolean; // Indicates validation error state
+
+  // Styling customization
+  className?: string; // Additional CSS classes
+  style?: React.CSSProperties; // Inline styles
+
+  // Form integration
+  name?: string; // Form field name
+  form?: string; // Associated form ID
+  autoComplete?: string; // Browser autocomplete behavior
+
+  // Additional HTML select attributes
+  autoFocus?: boolean; // Automatically focus on mount
+  tabIndex?: number; // Tab order position
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Select } from "@fluentui/react-components";
+
+function BasicSelectExample() {
+  const [selectedFruit, setSelectedFruit] = React.useState("apple");
+
+  return (
+    <div>
+      {/* Uncontrolled select */}
+      <Select
+        defaultValue="banana"
+        onChange={(event) => console.log("Selected:", event.target.value)}
+      >
+        <option value="">Choose a fruit</option>
+        <option value="apple">Apple</option>
+        <option value="banana">Banana</option>
+        <option value="orange">Orange</option>
+        <option value="grape">Grape</option>
+      </Select>
+
+      {/* Controlled select */}
+      <Select
+        value={selectedFruit}
+        onChange={(event) => setSelectedFruit(event.target.value)}
+      >
+        <option value="">Choose a fruit</option>
+        <option value="apple">Apple</option>
+        <option value="banana">Banana</option>
+        <option value="orange">Orange</option>
+        <option value="grape">Grape</option>
+      </Select>
+
+      {/* Disabled select */}
+      <Select disabled defaultValue="apple">
+        <option value="apple">Apple (selected)</option>
+        <option value="banana">Banana</option>
+      </Select>
+
+      {/* Required select with validation */}
+      <Select required aria-invalid={!selectedFruit}>
+        <option value="">Please select an option</option>
+        <option value="option1">Option 1</option>
+        <option value="option2">Option 2</option>
+      </Select>
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Uncontrolled Usage
+
+```tsx
+import { Select } from "@fluentui/react-components";
+
+// Select manages its own state using native browser behavior
+function UncontrolledExample() {
+  return (
+    <Select
+      defaultValue="medium"
+      onChange={(event) => {
+        // Handle change without managing state
+        console.log("Size selected:", event.target.value);
+      }}
+    >
+      <option value="">Select size</option>
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large</option>
+    </Select>
+  );
+}
+```
+
+### Controlled Usage
+
+```tsx
+import { Select } from "@fluentui/react-components";
+
+function ControlledExample() {
+  const [selectedCategory, setSelectedCategory] = React.useState("");
+  const [selectedProduct, setSelectedProduct] = React.useState("");
+
+  // Product options change based on selected category
+  const productOptions = {
+    electronics: ["Laptop", "Phone", "Tablet"],
+    clothing: ["Shirt", "Pants", "Shoes"],
+    books: ["Fiction", "Non-fiction", "Educational"],
+  };
+
+  return (
+    <div>
+      <Select
+        value={selectedCategory}
+        onChange={(event) => {
+          setSelectedCategory(event.target.value);
+          setSelectedProduct(""); // Reset product selection
+        }}
+      >
+        <option value="">Select category</option>
+        <option value="electronics">Electronics</option>
+        <option value="clothing">Clothing</option>
+        <option value="books">Books</option>
+      </Select>
+
+      {selectedCategory && (
+        <Select
+          value={selectedProduct}
+          onChange={(event) => setSelectedProduct(event.target.value)}
+        >
+          <option value="">Select product</option>
+          {productOptions[selectedCategory]?.map((product) => (
+            <option key={product} value={product.toLowerCase()}>
+              {product}
+            </option>
+          ))}
+        </Select>
+      )}
+    </div>
+  );
+}
+```
+
+### Form Integration
+
+```tsx
+import { Select, Field, Label } from "@fluentui/react-components";
+
+function FormExample() {
+  const [formData, setFormData] = React.useState({
+    country: "",
+    state: "",
+    priority: "medium",
+  });
+
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+  const handleSelectChange =
+    (field: string) => (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = event.target.value;
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+
+      // Clear error when field is filled
+      if (value && errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: "" }));
+      }
+    };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.country) newErrors.country = "Please select a country";
+    if (!formData.state) newErrors.state = "Please select a state";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        validateForm();
+      }}
+    >
+      <Field validationMessage={errors.country}>
+        <Label required>Country</Label>
+        <Select
+          value={formData.country}
+          onChange={handleSelectChange("country")}
+          required
+          aria-invalid={!!errors.country}
+        >
+          <option value="">Select country</option>
+          <option value="us">United States</option>
+          <option value="ca">Canada</option>
+          <option value="uk">United Kingdom</option>
+          <option value="de">Germany</option>
+        </Select>
+      </Field>
+
+      <Field validationMessage={errors.state}>
+        <Label required>State/Province</Label>
+        <Select
+          value={formData.state}
+          onChange={handleSelectChange("state")}
+          disabled={!formData.country}
+          required
+          aria-invalid={!!errors.state}
+        >
+          <option value="">Select state</option>
+          {formData.country === "us" && (
+            <>
+              <option value="ca">California</option>
+              <option value="ny">New York</option>
+              <option value="tx">Texas</option>
+              <option value="fl">Florida</option>
+            </>
+          )}
+          {formData.country === "ca" && (
+            <>
+              <option value="on">Ontario</option>
+              <option value="bc">British Columbia</option>
+              <option value="qc">Quebec</option>
+            </>
+          )}
+        </Select>
+      </Field>
+
+      <Field>
+        <Label>Priority</Label>
+        <Select
+          value={formData.priority}
+          onChange={handleSelectChange("priority")}
+        >
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </Select>
+      </Field>
+    </form>
+  );
+}
+```
+
+### Grouped Options with OptGroup
+
+```tsx
+import { Select } from "@fluentui/react-components";
+
+function GroupedOptionsExample() {
+  const [selectedValue, setSelectedValue] = React.useState("");
+
+  return (
+    <Select
+      value={selectedValue}
+      onChange={(event) => setSelectedValue(event.target.value)}
+      size="large"
+      appearance="outline"
+    >
+      <option value="">Choose an option</option>
+
+      <optgroup label="Fruits">
+        <option value="apple">🍎 Apple</option>
+        <option value="banana">🍌 Banana</option>
+        <option value="orange">🍊 Orange</option>
+        <option value="grape">🍇 Grape</option>
+      </optgroup>
+
+      <optgroup label="Vegetables">
+        <option value="carrot">🥕 Carrot</option>
+        <option value="broccoli">🥦 Broccoli</option>
+        <option value="lettuce">🥬 Lettuce</option>
+        <option value="tomato">🍅 Tomato</option>
+      </optgroup>
+
+      <optgroup label="Dairy">
+        <option value="milk">🥛 Milk</option>
+        <option value="cheese">🧀 Cheese</option>
+        <option value="yogurt">🥛 Yogurt</option>
+      </optgroup>
+    </Select>
+  );
+}
+```
+
+### Multiple Selection
+
+```tsx
+import { Select } from "@fluentui/react-components";
+
+function MultipleSelectExample() {
+  const [selectedSkills, setSelectedSkills] = React.useState<string[]>([]);
+
+  const handleMultipleChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    const selectedOptions = Array.from(
+      event.target.selectedOptions,
+      (option) => option.value,
+    );
+    setSelectedSkills(selectedOptions);
+  };
+
+  return (
+    <div>
+      <Select
+        multiple
+        value={selectedSkills}
+        onChange={handleMultipleChange}
+        size="large"
+        style={{ minHeight: "120px" }} // Show multiple options
+      >
+        <optgroup label="Frontend">
+          <option value="react">React</option>
+          <option value="vue">Vue.js</option>
+          <option value="angular">Angular</option>
+          <option value="html">HTML/CSS</option>
+        </optgroup>
+
+        <optgroup label="Backend">
+          <option value="nodejs">Node.js</option>
+          <option value="python">Python</option>
+          <option value="java">Java</option>
+          <option value="csharp">C#</option>
+        </optgroup>
+
+        <optgroup label="Database">
+          <option value="sql">SQL</option>
+          <option value="mongodb">MongoDB</option>
+          <option value="redis">Redis</option>
+        </optgroup>
+      </Select>
+
+      {/* Display selected skills */}
+      {selectedSkills.length > 0 && (
+        <div style={{ marginTop: "8px" }}>
+          <strong>Selected Skills:</strong> {selectedSkills.join(", ")}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Size and Appearance Variants
+
+```tsx
+import { Select } from "@fluentui/react-components";
+
+function VariantsExample() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      {/* Size variants */}
+      <Select size="small" defaultValue="small">
+        <option value="small">Small select</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      <Select size="medium" defaultValue="medium">
+        <option value="medium">Medium select (default)</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      <Select size="large" defaultValue="large">
+        <option value="large">Large select</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      {/* Appearance variants */}
+      <Select appearance="outline" defaultValue="outline">
+        <option value="outline">Outline appearance</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      <Select appearance="underline" defaultValue="underline">
+        <option value="underline">Underline appearance</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      <Select appearance="filled-darker" defaultValue="filled">
+        <option value="filled">Filled darker appearance</option>
+        <option value="option2">Option 2</option>
+      </Select>
+
+      <Select appearance="filled-lighter" defaultValue="filled-light">
+        <option value="filled-light">Filled lighter appearance</option>
+        <option value="option2">Option 2</option>
+      </Select>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Select for simple selection from predefined options when search functionality is not needed
+- Keep option lists to a reasonable length (5-20 items) for optimal user experience
+- Provide a clear placeholder or default option that indicates the expected selection
+- Use optgroup elements to organize large lists of options into logical categories
+- Consider Select over Combobox when users are more likely to browse than search for options
+- Use descriptive option text that clearly indicates what each choice represents
+
+### Accessibility
+
+- Always provide proper labeling using `<Label>` components or aria-label/aria-labelledby attributes
+- Use aria-describedby to associate additional descriptive text or error messages
+- Ensure keyboard navigation works properly (arrow keys to navigate, Enter/Space to select)
+- Support screen readers by providing meaningful option text and group labels
+- Use aria-invalid to indicate validation error states
+- Maintain proper focus management and visual focus indicators
+- Group related options using optgroup with descriptive labels
+
+### Performance
+
+- Use uncontrolled Selects when you don't need to react to every selection change
+- Avoid recreating option arrays on every render - memoize or define outside component
+- For very large option lists, consider using Combobox with virtualization instead
+- Use React.memo for complex option content if rendering performance becomes an issue
+
+## Common Patterns
+
+### Pattern 1: Cascading Dropdowns
+
+```tsx
+function CascadingSelectExample() {
+  const [country, setCountry] = React.useState("");
+  const [state, setState] = React.useState("");
+  const [city, setCity] = React.useState("");
+
+  // Sample data structure
+  const locations = {
+    us: {
+      name: "United States",
+      states: {
+        ca: {
+          name: "California",
+          cities: ["Los Angeles", "San Francisco", "San Diego"],
+        },
+        ny: {
+          name: "New York",
+          cities: ["New York City", "Buffalo", "Albany"],
+        },
+        tx: { name: "Texas", cities: ["Houston", "Dallas", "Austin"] },
+      },
+    },
+    ca: {
+      name: "Canada",
+      states: {
+        on: { name: "Ontario", cities: ["Toronto", "Ottawa", "Hamilton"] },
+        bc: {
+          name: "British Columbia",
+          cities: ["Vancouver", "Victoria", "Burnaby"],
+        },
+      },
+    },
+  };
+
+  const handleCountryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setCountry(event.target.value);
+    setState(""); // Reset dependent selections
+    setCity("");
+  };
+
+  const handleStateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setState(event.target.value);
+    setCity(""); // Reset dependent selection
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <Select value={country} onChange={handleCountryChange}>
+        <option value="">Select Country</option>
+        {Object.entries(locations).map(([code, data]) => (
+          <option key={code} value={code}>
+            {data.name}
+          </option>
+        ))}
+      </Select>
+
+      <Select value={state} onChange={handleStateChange} disabled={!country}>
+        <option value="">Select State/Province</option>
+        {country &&
+          Object.entries(locations[country]?.states || {}).map(
+            ([code, data]) => (
+              <option key={code} value={code}>
+                {data.name}
+              </option>
+            ),
+          )}
+      </Select>
+
+      <Select
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        disabled={!state}
+      >
+        <option value="">Select City</option>
+        {state &&
+          locations[country]?.states[state]?.cities.map((cityName) => (
+            <option key={cityName} value={cityName}>
+              {cityName}
+            </option>
+          ))}
+      </Select>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Dynamic Option Loading
+
+```tsx
+function DynamicOptionsExample() {
+  const [category, setCategory] = React.useState("");
+  const [options, setOptions] = React.useState<
+    Array<{ value: string; label: string }>
+  >([]);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (category) {
+      setLoading(true);
+      // Simulate API call to load options based on category
+      setTimeout(() => {
+        const mockOptions = {
+          electronics: [
+            { value: "laptop", label: "Laptop" },
+            { value: "phone", label: "Smartphone" },
+            { value: "tablet", label: "Tablet" },
+          ],
+          clothing: [
+            { value: "shirt", label: "Shirt" },
+            { value: "pants", label: "Pants" },
+            { value: "shoes", label: "Shoes" },
+          ],
+          books: [
+            { value: "fiction", label: "Fiction" },
+            { value: "nonfiction", label: "Non-Fiction" },
+            { value: "textbook", label: "Textbook" },
+          ],
+        };
+        setOptions(mockOptions[category] || []);
+        setLoading(false);
+      }, 1000);
+    } else {
+      setOptions([]);
+    }
+  }, [category]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <Select
+        value={category}
+        onChange={(event) => setCategory(event.target.value)}
+      >
+        <option value="">Select Category</option>
+        <option value="electronics">Electronics</option>
+        <option value="clothing">Clothing</option>
+        <option value="books">Books</option>
+      </Select>
+
+      <Select disabled={!category || loading}>
+        <option value="">
+          {loading ? "Loading options..." : "Select Product"}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </Select>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Settings and Preferences
+
+```tsx
+function SettingsSelectExample() {
+  const [settings, setSettings] = React.useState({
+    theme: "auto",
+    language: "en",
+    timezone: "auto",
+    dateFormat: "mm/dd/yyyy",
+    notifications: "all",
+  });
+
+  const handleSettingChange =
+    (setting: string) => (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setSettings((prev) => ({
+        ...prev,
+        [setting]: event.target.value,
+      }));
+    };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <Field>
+        <Label>Theme</Label>
+        <Select value={settings.theme} onChange={handleSettingChange("theme")}>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="auto">Auto (system preference)</option>
+        </Select>
+      </Field>
+
+      <Field>
+        <Label>Language</Label>
+        <Select
+          value={settings.language}
+          onChange={handleSettingChange("language")}
+        >
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="ja">日本語</option>
+        </Select>
+      </Field>
+
+      <Field>
+        <Label>Timezone</Label>
+        <Select
+          value={settings.timezone}
+          onChange={handleSettingChange("timezone")}
+        >
+          <option value="auto">Auto-detect</option>
+          <optgroup label="North America">
+            <option value="est">Eastern Time (EST)</option>
+            <option value="cst">Central Time (CST)</option>
+            <option value="mst">Mountain Time (MST)</option>
+            <option value="pst">Pacific Time (PST)</option>
+          </optgroup>
+          <optgroup label="Europe">
+            <option value="gmt">Greenwich Mean Time (GMT)</option>
+            <option value="cet">Central European Time (CET)</option>
+          </optgroup>
+        </Select>
+      </Field>
+
+      <Field>
+        <Label>Date Format</Label>
+        <Select
+          value={settings.dateFormat}
+          onChange={handleSettingChange("dateFormat")}
+        >
+          <option value="mm/dd/yyyy">MM/DD/YYYY (US)</option>
+          <option value="dd/mm/yyyy">DD/MM/YYYY (EU)</option>
+          <option value="yyyy-mm-dd">YYYY-MM-DD (ISO)</option>
+          <option value="dd-mmm-yyyy">DD-MMM-YYYY</option>
+        </Select>
+      </Field>
+
+      <Field>
+        <Label>Notifications</Label>
+        <Select
+          value={settings.notifications}
+          onChange={handleSettingChange("notifications")}
+        >
+          <option value="all">All notifications</option>
+          <option value="important">Important only</option>
+          <option value="mentions">Mentions only</option>
+          <option value="none">None</option>
+        </Select>
+      </Field>
+    </div>
+  );
+}
+```

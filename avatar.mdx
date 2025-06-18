@@ -1,0 +1,382 @@
+# Avatar Components
+
+## Overview
+
+### Purpose
+
+Use this component to display user information with avatar
+
+### When to Use
+
+Use Avatar components when you need to represent people or entities in your interface. This is particularly useful for:
+
+- User profiles and account management
+- Comment sections and activity feeds
+- Team member listings
+- Collaboration features where multiple users interact
+- People pickers and contact lists
+- Social features requiring user identification
+
+The Avatar component provides a visual representation of a person or entity through their image, initials, or an icon, helping users quickly identify and distinguish between different people in the interface.
+
+### Architecture
+
+**Moderate Coupling**: The Avatar component can be used standalone for individual user representation, while AvatarGroup provides enhanced functionality for displaying collections of avatars with overflow handling and group-specific behaviors.
+
+### Component Interdependencies
+
+The Avatar component group consists of:
+
+- **Avatar**: Standalone component for individual user representation
+- **AvatarGroup**: Container component that manages collections of avatars
+- **AvatarGroupItem**: Individual avatar items within a group context
+- **AvatarGroupPopover**: Popover component for displaying overflow avatars
+
+**Communication patterns:**
+
+- AvatarGroup manages the display logic for multiple avatars
+- AvatarGroupPopover handles overflow scenarios when too many avatars are present
+- AvatarGroupItem provides group-specific styling and behavior context
+
+## Components
+
+### Avatar
+
+**Purpose:** Display a single user or entity with their image, initials, or icon representation
+
+**Interface:**
+
+```typescript
+interface AvatarProps {
+  name?: string; // Name of the person or entity
+  image?: {
+    src: string; // Source URL of the image
+    alt?: string; // Alternative text for accessibility
+  };
+  initials?: string; // Custom initials to display when no image is provided
+  badge?: React.ReactElement; // Badge component to display on the avatar
+  size?: 16 | 20 | 24 | 28 | 32 | 36 | 40 | 48 | 56 | 64 | 72 | 96 | 120 | 128; // Size of the avatar in pixels
+  shape?: "circular" | "square"; // Shape of the avatar
+  active?: "active" | "inactive"; // Active state indicator
+  activeAppearance?: "ring" | "shadow" | "ring-shadow"; // Appearance when active
+  color?:
+    | "neutral"
+    | "brand"
+    | "colorful"
+    | "gold"
+    | "green"
+    | "red"
+    | "blue"
+    | "purple"
+    | "pink"; // Color scheme
+  idForColor?: string; // Custom ID for color calculation
+  getInitials?: (name: string, locale?: string) => string; // Function to generate initials
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Avatar } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <Avatar
+      name="Annie Lindqvist"
+      image={{ src: "https://example.com/avatar.jpg", alt: "Annie's avatar" }}
+      size={48}
+      shape="circular"
+      active="active"
+      activeAppearance="ring"
+    />
+  );
+}
+```
+
+### AvatarGroup
+
+**Purpose:** Display a collection of avatars with overflow handling and group-specific layout
+
+**Interface:**
+
+```typescript
+interface AvatarGroupProps {
+  children: React.ReactNode; // Collection of Avatar components
+  maxVisible?: number; // Maximum number of avatars to display before overflow
+  overflowIndicator?: React.ReactElement; // Custom overflow indicator component
+  size?: 16 | 20 | 24 | 28 | 32 | 36 | 40 | 48 | 56 | 64 | 72 | 96 | 120 | 128; // Size applied to all avatars
+  layout?: "spread" | "stack"; // Layout pattern for the group
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Provides:** Group context for avatar sizing, layout, and overflow management
+**Dependencies:** Requires Avatar components as children
+
+**Usage Example:**
+
+```tsx
+import { AvatarGroup, Avatar } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <AvatarGroup maxVisible={3} size={32} layout="stack">
+      <Avatar name="John Doe" image={{ src: "john.jpg" }} />
+      <Avatar name="Jane Smith" image={{ src: "jane.jpg" }} />
+      <Avatar name="Bob Wilson" image={{ src: "bob.jpg" }} />
+      <Avatar name="Alice Brown" image={{ src: "alice.jpg" }} />
+      <Avatar name="Charlie Davis" image={{ src: "charlie.jpg" }} />
+    </AvatarGroup>
+  );
+}
+```
+
+### AvatarGroupItem
+
+**Purpose:** Individual avatar component optimized for group context with inherited group properties
+
+**Interface:**
+
+```typescript
+interface AvatarGroupItemProps extends Omit<AvatarProps, "size"> {
+  // Inherits most Avatar props except size, which comes from AvatarGroup context
+}
+```
+
+**Context Dependencies:** Inherits size and layout properties from parent AvatarGroup
+**Parent Requirements:** Must be used within AvatarGroup for proper functionality
+
+**Usage Example:**
+
+```tsx
+// Used automatically within AvatarGroup - no direct usage required
+<AvatarGroup size={40}>
+  <AvatarGroupItem name="User 1" image={{ src: "user1.jpg" }} />
+  <AvatarGroupItem name="User 2" image={{ src: "user2.jpg" }} />
+</AvatarGroup>
+```
+
+### AvatarGroupPopover
+
+**Purpose:** Popover component that displays overflow avatars when the group exceeds maxVisible limit
+
+**Interface:**
+
+```typescript
+interface AvatarGroupPopoverProps {
+  indicator?: React.ReactElement; // Custom indicator for the popover trigger
+  children: React.ReactNode; // Overflow avatar components
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Context Dependencies:** Managed automatically by AvatarGroup for overflow scenarios
+**Parent Requirements:** Used internally by AvatarGroup component
+
+**Usage Example:**
+
+```tsx
+// Automatically managed by AvatarGroup - no manual implementation needed
+<AvatarGroup maxVisible={3}>
+  {/* When more than 3 avatars, popover automatically handles overflow */}
+</AvatarGroup>
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Avatar } from "@fluentui/react-components";
+
+// Single avatar representation
+function BasicExample() {
+  return (
+    <Avatar
+      name="Annie Lindqvist"
+      image={{ src: "/avatars/annie.jpg" }}
+      size={48}
+    />
+  );
+}
+```
+
+### Group with Overflow
+
+```tsx
+import { AvatarGroup, Avatar } from "@fluentui/react-components";
+
+// Multiple avatars with overflow handling
+function GroupExample() {
+  const users = [
+    { name: "John Doe", image: "john.jpg" },
+    { name: "Jane Smith", image: "jane.jpg" },
+    { name: "Bob Wilson", image: "bob.jpg" },
+    { name: "Alice Brown", image: "alice.jpg" },
+    { name: "Charlie Davis", image: "charlie.jpg" },
+  ];
+
+  return (
+    <AvatarGroup maxVisible={3} size={32}>
+      {users.map((user) => (
+        <Avatar key={user.name} name={user.name} image={{ src: user.image }} />
+      ))}
+    </AvatarGroup>
+  );
+}
+```
+
+### Advanced Usage
+
+```tsx
+import {
+  Avatar,
+  AvatarGroup,
+  Badge,
+  PresenceBadge,
+} from "@fluentui/react-components";
+
+// Avatar with presence badge and custom styling
+function AdvancedExample() {
+  return (
+    <div>
+      {/* Avatar with presence badge */}
+      <Avatar
+        name="Annie Lindqvist"
+        image={{ src: "/avatars/annie.jpg" }}
+        size={56}
+        badge={<PresenceBadge status="available" />}
+        active="active"
+        activeAppearance="ring-shadow"
+      />
+
+      {/* Avatar group with custom overflow indicator */}
+      <AvatarGroup
+        maxVisible={4}
+        size={40}
+        layout="spread"
+        overflowIndicator={<Avatar name="+5 more" />}
+      >
+        <Avatar name="User 1" initials="U1" color="brand" />
+        <Avatar name="User 2" initials="U2" color="green" />
+        <Avatar name="User 3" initials="U3" color="blue" />
+        <Avatar name="User 4" initials="U4" color="purple" />
+        <Avatar name="User 5" initials="U5" color="red" />
+        <Avatar name="User 6" initials="U6" color="gold" />
+      </AvatarGroup>
+    </div>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+- **Avatar**: Self-contained component that handles individual user representation
+- **AvatarGroup**: Manages collection-level properties (size, layout, overflow) and distributes them to child avatars
+- **Overflow Logic**: AvatarGroup automatically determines which avatars to show and which to move to the popover
+
+### Context Sharing
+
+- **Size Context**: AvatarGroup provides consistent sizing to all child avatars
+- **Layout Context**: Group layout affects spacing and arrangement of individual avatars
+- **Overflow Context**: Group manages which avatars are visible vs. hidden in popover
+
+### Event Handling
+
+- Individual avatars can have their own click handlers and interactions
+- AvatarGroup can handle group-level events and interactions
+- Popover trigger is managed automatically by the group component
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use consistent avatar sizes within the same context (e.g., all 32px in a user list)
+- Provide meaningful alt text for accessibility when using images
+- Use initials as fallback when user images are not available
+- Consider presence badges for real-time collaboration features
+- Limit the number of visible avatars in groups (typically 3-5) to avoid visual clutter
+
+### Accessibility
+
+- Always provide `name` prop for screen reader accessibility
+- Use descriptive `alt` text for avatar images
+- Ensure sufficient color contrast for initials on background colors
+- Support keyboard navigation for interactive avatars
+- Use semantic markup and ARIA labels for avatar groups
+
+### Performance
+
+- Optimize avatar images for size and loading performance
+- Use lazy loading for avatar images in long lists
+- Consider using initials instead of images for better performance in large datasets
+- Implement efficient overflow rendering to handle large user groups
+- Cache user avatar data to reduce repeated network requests
+
+## Common Patterns
+
+### Pattern 1: User Profile Display
+
+```tsx
+// Display user with presence and status information
+<Avatar
+  name="Annie Lindqvist"
+  image={{ src: "/avatars/annie.jpg" }}
+  size={64}
+  badge={<PresenceBadge status="available" />}
+  active="active"
+  activeAppearance="ring"
+/>
+```
+
+### Pattern 2: Team Member List
+
+```tsx
+// Show team members with overflow handling
+<AvatarGroup maxVisible={5} size={40} layout="spread">
+  {teamMembers.map((member) => (
+    <Avatar
+      key={member.id}
+      name={member.name}
+      image={{ src: member.avatar }}
+      color="colorful"
+      idForColor={member.id}
+    />
+  ))}
+</AvatarGroup>
+```
+
+### Pattern 3: Comment Author
+
+```tsx
+// Small avatar for comment threads
+<Avatar
+  name="John Doe"
+  image={{ src: "/avatars/john.jpg" }}
+  size={24}
+  shape="circular"
+/>
+```
+
+### Pattern 4: Fallback to Initials
+
+```tsx
+// Avatar without image, showing generated initials
+<Avatar
+  name="Alice Brown"
+  size={48}
+  color="brand"
+  getInitials={(name) =>
+    name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+  }
+/>
+```

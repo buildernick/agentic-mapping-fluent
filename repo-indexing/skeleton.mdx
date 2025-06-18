@@ -1,0 +1,509 @@
+# Skeleton Components
+
+## Overview
+
+### Purpose
+
+Use this component to display loading placeholders that provide visual feedback to users while content is being loaded. Skeleton components create wireframe-like representations of content layouts, improving perceived performance and user experience during loading states.
+
+### When to Use
+
+- Display placeholder content while data is being fetched from APIs
+- Provide visual feedback during initial page loads or content transitions
+- Replace spinner indicators in complex layouts where users need to understand the structure of incoming content
+- Maintain layout stability during asynchronous operations
+- Improve perceived performance by showing familiar content structures before real data arrives
+- Create smooth transitions between loading and loaded states in lists, cards, or detailed views
+
+### Architecture
+
+**Moderate Coupling**: The Skeleton component group consists of components that enhance each other's functionality through shared context and coordinated behavior.
+
+- **Skeleton** serves as the primary container that manages animation timing and provides context
+- **SkeletonItem** represents individual placeholder elements with customizable size and shape
+- **SkeletonContextProvider** manages shared state and animation coordination across all skeleton components
+
+### Component Interdependencies
+
+- **SkeletonContextProvider** provides animation timing and state context to child components
+- **Skeleton** acts as a logical container and can leverage context for coordinated animations
+- **SkeletonItem** components benefit from context for synchronized animations but can also function independently
+- Components work together to create cohesive loading experiences across complex layouts
+
+## Components
+
+### Skeleton {Primary Component}
+
+**Purpose:** Serves as the primary container for skeleton loading states, managing animation behavior and providing structure for skeleton layouts.
+
+**Interface:**
+
+```typescript
+interface SkeletonProps {
+  /**
+   * Controls the animation effect of the skeleton
+   * @default "off"
+   */
+  animation?: "wave" | "pulse" | "off";
+
+  /**
+   * Child skeleton items to display
+   */
+  children?: React.ReactNode;
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Provides:** Animation coordination and container structure for nested SkeletonItem components
+**Context Integration:** Can utilize SkeletonContextProvider for coordinated animations across multiple skeleton groups
+
+**Usage Example:**
+
+```tsx
+import { Skeleton, SkeletonItem } from "@fluentui/react-components";
+
+function LoadingCard() {
+  return (
+    <Skeleton animation="wave">
+      <SkeletonItem shape="circle" size="medium" />
+      <SkeletonItem shape="rect" size="large" />
+      <SkeletonItem shape="rect" size="medium" />
+    </Skeleton>
+  );
+}
+```
+
+### SkeletonItem {Individual Placeholder Element}
+
+**Purpose:** Represents individual placeholder elements within skeleton layouts, with customizable shapes and sizes to match expected content.
+
+**Interface:**
+
+```typescript
+interface SkeletonItemProps {
+  /**
+   * Determines the shape of the skeleton item
+   * @default "rect"
+   */
+  shape?: "circle" | "rect";
+
+  /**
+   * Specifies the size of the skeleton item
+   * @default "medium"
+   */
+  size?: "small" | "medium" | "large";
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles for custom dimensions
+   */
+  style?: React.CSSProperties;
+
+  /**
+   * Custom width (overrides size-based width)
+   */
+  width?: string | number;
+
+  /**
+   * Custom height (overrides size-based height)
+   */
+  height?: string | number;
+}
+```
+
+**Context Dependencies:** Benefits from SkeletonContextProvider for coordinated animations
+**Standalone Capability:** Can be used independently without Skeleton container for simple placeholder needs
+
+**Usage Example:**
+
+```tsx
+import { SkeletonItem } from "@fluentui/react-components";
+
+// Standalone usage
+function SimpleLoading() {
+  return (
+    <div>
+      <SkeletonItem shape="circle" size="small" />
+      <SkeletonItem shape="rect" style={{ width: "200px", height: "20px" }} />
+    </div>
+  );
+}
+
+// Within Skeleton container
+function StructuredLoading() {
+  return (
+    <Skeleton animation="pulse">
+      <SkeletonItem shape="circle" size="medium" />
+      <SkeletonItem shape="rect" size="large" />
+    </Skeleton>
+  );
+}
+```
+
+### SkeletonContextProvider {Context Provider}
+
+**Purpose:** Provides shared context for coordinating animations and state across multiple skeleton components and groups.
+
+**Interface:**
+
+```typescript
+interface SkeletonContextProviderProps {
+  /**
+   * Child components that will have access to skeleton context
+   */
+  children: React.ReactNode;
+
+  /**
+   * Global animation setting for all nested skeleton components
+   */
+  animation?: "wave" | "pulse" | "off";
+
+  /**
+   * Animation timing configuration
+   */
+  animationTiming?: {
+    duration?: number;
+    delay?: number;
+  };
+}
+```
+
+**Provides:** Global animation coordination, timing synchronization, and shared state management
+**Context Scope:** Affects all nested Skeleton and SkeletonItem components
+
+**Usage Example:**
+
+```tsx
+import {
+  SkeletonContextProvider,
+  Skeleton,
+  SkeletonItem,
+} from "@fluentui/react-components";
+
+function App() {
+  return (
+    <SkeletonContextProvider animation="wave">
+      <div className="loading-layout">
+        <Skeleton>
+          <SkeletonItem shape="circle" size="medium" />
+          <SkeletonItem shape="rect" size="large" />
+        </Skeleton>
+
+        <Skeleton>
+          <SkeletonItem shape="rect" size="medium" />
+          <SkeletonItem shape="rect" size="small" />
+        </Skeleton>
+      </div>
+    </SkeletonContextProvider>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Skeleton, SkeletonItem } from "@fluentui/react-components";
+
+// Simple loading placeholder
+function BasicSkeleton() {
+  return (
+    <Skeleton animation="wave">
+      <SkeletonItem shape="rect" size="large" />
+      <SkeletonItem shape="rect" size="medium" />
+      <SkeletonItem shape="rect" size="small" />
+    </Skeleton>
+  );
+}
+```
+
+### Advanced Usage with Context
+
+```tsx
+import {
+  SkeletonContextProvider,
+  Skeleton,
+  SkeletonItem,
+} from "@fluentui/react-components";
+
+// Coordinated loading across multiple sections
+function AdvancedSkeleton() {
+  return (
+    <SkeletonContextProvider animation="pulse">
+      <div className="content-layout">
+        {/* Header skeleton */}
+        <Skeleton>
+          <SkeletonItem shape="circle" size="medium" />
+          <div style={{ marginLeft: "12px" }}>
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "120px", height: "16px" }}
+            />
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "80px", height: "14px", marginTop: "4px" }}
+            />
+          </div>
+        </Skeleton>
+
+        {/* Content skeleton */}
+        <Skeleton>
+          <SkeletonItem
+            shape="rect"
+            style={{ width: "100%", height: "200px" }}
+          />
+          <SkeletonItem
+            shape="rect"
+            style={{ width: "90%", height: "16px", marginTop: "8px" }}
+          />
+          <SkeletonItem
+            shape="rect"
+            style={{ width: "70%", height: "16px", marginTop: "4px" }}
+          />
+        </Skeleton>
+      </div>
+    </SkeletonContextProvider>
+  );
+}
+```
+
+### Common Variations
+
+#### Card Skeleton
+
+```tsx
+function CardSkeleton() {
+  return (
+    <div
+      className="card-skeleton"
+      style={{ padding: "16px", border: "1px solid #e0e0e0" }}
+    >
+      <Skeleton animation="wave">
+        <SkeletonItem shape="rect" style={{ width: "100%", height: "160px" }} />
+        <SkeletonItem
+          shape="rect"
+          style={{ width: "80%", height: "20px", marginTop: "12px" }}
+        />
+        <SkeletonItem
+          shape="rect"
+          style={{ width: "60%", height: "16px", marginTop: "8px" }}
+        />
+      </Skeleton>
+    </div>
+  );
+}
+```
+
+#### List Item Skeleton
+
+```tsx
+function ListItemSkeleton() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", padding: "12px 0" }}>
+      <SkeletonItem shape="circle" size="medium" />
+      <div style={{ marginLeft: "12px", flex: 1 }}>
+        <SkeletonItem shape="rect" style={{ width: "70%", height: "16px" }} />
+        <SkeletonItem
+          shape="rect"
+          style={{ width: "50%", height: "14px", marginTop: "4px" }}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+#### Table Skeleton
+
+```tsx
+function TableSkeleton() {
+  return (
+    <SkeletonContextProvider animation="pulse">
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr>
+            {[1, 2, 3, 4].map((i) => (
+              <th key={i} style={{ padding: "12px", textAlign: "left" }}>
+                <SkeletonItem
+                  shape="rect"
+                  style={{ width: "80px", height: "16px" }}
+                />
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {[1, 2, 3].map((row) => (
+            <tr key={row}>
+              {[1, 2, 3, 4].map((col) => (
+                <td key={col} style={{ padding: "12px" }}>
+                  <SkeletonItem
+                    shape="rect"
+                    style={{ width: "100px", height: "14px" }}
+                  />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </SkeletonContextProvider>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+- **SkeletonContextProvider** establishes global animation settings and timing that cascade to child components
+- **Skeleton** can override context settings with local animation props
+- **SkeletonItem** inherits animation behavior from parent Skeleton or global context
+- Components coordinate animations to create unified loading experiences
+
+### Context Sharing
+
+- **Animation Synchronization**: All skeleton components within a provider share the same animation timing
+- **State Management**: Context provider can manage loading states and transition timing
+- **Performance Optimization**: Shared context reduces individual component animation calculations
+
+### Event Handling
+
+- Components primarily handle animation lifecycle events internally
+- Context provider can expose loading state changes for parent component integration
+- Animation events are coordinated to prevent conflicts between overlapping skeleton groups
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use skeletons that closely match the layout and dimensions of the actual content to minimize layout shift
+- Choose animation types based on content type: 'wave' for text-heavy content, 'pulse' for media-rich content, 'off' for minimal distraction
+- Implement skeletons early in the loading process to provide immediate feedback to users
+- Ensure skeleton shapes and sizes represent the general structure of expected content
+- Use SkeletonContextProvider when coordinating animations across multiple skeleton groups
+
+### Accessibility
+
+- Skeleton components include appropriate ARIA labels to indicate loading states to screen readers
+- Animations respect user preferences for reduced motion when system settings indicate preference
+- Provide alternative text or announcements for screen readers: "Content is loading"
+- Ensure sufficient color contrast for skeleton elements in both light and dark themes
+- Consider providing skip links or alternative navigation during extended loading periods
+
+### Performance
+
+- Use CSS animations over JavaScript animations for better performance and smoother rendering
+- Limit the number of simultaneously animated skeleton elements to prevent performance degradation
+- Implement skeleton components conditionally based on loading states to avoid unnecessary rendering
+- Consider using fewer, larger skeleton elements rather than many small ones for complex layouts
+- Leverage SkeletonContextProvider to coordinate animations efficiently across multiple components
+
+## Common Patterns
+
+### Pattern 1: Progressive Loading
+
+```tsx
+function ProgressiveLoading({ isLoading, data }) {
+  if (isLoading) {
+    return (
+      <SkeletonContextProvider animation="wave">
+        <div className="progressive-skeleton">
+          <Skeleton>
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "100%", height: "40px" }}
+            />
+          </Skeleton>
+          <Skeleton>
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "100%", height: "200px", marginTop: "16px" }}
+            />
+          </Skeleton>
+        </div>
+      </SkeletonContextProvider>
+    );
+  }
+
+  return <ActualContent data={data} />;
+}
+```
+
+### Pattern 2: Conditional Skeleton Items
+
+```tsx
+function ConditionalSkeleton({ showAvatar, showDescription }) {
+  return (
+    <Skeleton animation="pulse">
+      {showAvatar && <SkeletonItem shape="circle" size="medium" />}
+      <div style={{ marginLeft: showAvatar ? "12px" : "0" }}>
+        <SkeletonItem shape="rect" style={{ width: "150px", height: "20px" }} />
+        {showDescription && (
+          <SkeletonItem
+            shape="rect"
+            style={{ width: "100px", height: "16px", marginTop: "4px" }}
+          />
+        )}
+      </div>
+    </Skeleton>
+  );
+}
+```
+
+### Pattern 3: Responsive Skeleton Layout
+
+```tsx
+function ResponsiveSkeleton() {
+  return (
+    <SkeletonContextProvider animation="wave">
+      <div className="responsive-skeleton">
+        <style jsx>{`
+          .responsive-skeleton {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+          }
+
+          @media (max-width: 768px) {
+            .responsive-skeleton {
+              grid-template-columns: 1fr;
+            }
+          }
+        `}</style>
+
+        {[1, 2, 3].map((item) => (
+          <Skeleton key={item}>
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "100%", height: "180px" }}
+            />
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "80%", height: "20px", marginTop: "12px" }}
+            />
+            <SkeletonItem
+              shape="rect"
+              style={{ width: "60%", height: "16px", marginTop: "8px" }}
+            />
+          </Skeleton>
+        ))}
+      </div>
+    </SkeletonContextProvider>
+  );
+}
+```

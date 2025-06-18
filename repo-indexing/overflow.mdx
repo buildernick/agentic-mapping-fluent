@@ -1,0 +1,383 @@
+---
+
+# Overflow Components
+
+## Overview
+
+### Purpose
+
+Use this component to handle overflow of items in a container when there isn't enough space to display all items. The Overflow component group provides a responsive solution that automatically manages item visibility based on available container space, moving excess items to an overflow menu or hidden state.
+
+### When to Use
+
+- **Responsive navigation bars** - When menu items need to collapse into an overflow menu on smaller screens
+- **Toolbars and command bars** - When there are too many actions to fit in the available toolbar space
+- **Tag lists or item collections** - When displaying a dynamic list of items that may exceed container bounds
+- **Breadcrumb navigation** - When the navigation path becomes too long for the container
+- **Data tables** - When column headers or action buttons need responsive overflow handling
+- **Card layouts** - When card content or action buttons need to adapt to different container sizes
+
+### Architecture
+
+**Moderate Coupling**: The Overflow components work together as a coordinated system where the primary Overflow component manages the layout and overflow logic, while OverflowItem and OverflowDivider components provide the individual items and visual separators within the overflow context.
+
+### Component Interdependencies
+
+- **Overflow** serves as the container and coordination layer that:
+
+  - Measures available space and determines which items should overflow
+  - Manages the visibility state of child items
+  - Provides context for overflow behavior to child components
+  - Handles responsive layout changes and recalculations
+
+- **OverflowItem** components depend on the Overflow context to:
+
+  - Receive overflow priority and visibility instructions
+  - Understand their position in the overflow hierarchy
+  - Access overflow state for conditional rendering
+
+- **OverflowDivider** components work within the Overflow context to:
+  - Provide visual separation between item groups
+  - Participate in the overflow calculation and priority system
+  - Maintain consistent spacing in both visible and overflow states
+
+## Components
+
+### Overflow {Primary Component}
+
+**Purpose:** The main container component that manages the overflow behavior and coordinates the responsive layout of child items.
+
+**Interface:**
+
+```typescript
+interface OverflowProps {
+  children: React.ReactNode; // OverflowItem and OverflowDivider components
+  minimumVisible?: number; // Minimum number of items to keep visible before overflowing
+  overflowAxis?: "horizontal" | "vertical"; // Direction of overflow behavior
+  overflowDirection?: "start" | "end"; // Which items overflow first
+  padding?: number; // Internal padding to account for in calculations
+  onOverflowChange?: (overflowingItems: string[]) => void; // Callback when overflow state changes
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Dependencies:** None - this is the root component of the group
+**Provides:** Overflow context and state management to child OverflowItem and OverflowDivider components
+
+**Usage Example:**
+
+```tsx
+import { Overflow, OverflowItem } from "@fluentui/react-overflow";
+
+function NavigationExample() {
+  return (
+    <Overflow
+      minimumVisible={2}
+      overflowDirection="end"
+      onOverflowChange={(items) => console.log("Overflowing:", items)}
+    >
+      <OverflowItem id="home">Home</OverflowItem>
+      <OverflowItem id="products">Products</OverflowItem>
+      <OverflowItem id="about">About</OverflowItem>
+      <OverflowItem id="contact">Contact</OverflowItem>
+    </Overflow>
+  );
+}
+```
+
+### OverflowItem {Dependent Component}
+
+**Purpose:** Individual items within the overflow container that can be shown or hidden based on available space and priority.
+
+**Interface:**
+
+```typescript
+interface OverflowItemProps {
+  children: React.ReactNode; // Content to display when visible
+  id: string; // Unique identifier for the item
+  priority?: number; // Override priority for overflow order (higher = less likely to overflow)
+  groupId?: string; // Group identifier for collective overflow behavior
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Context Dependencies:** Must be used within an Overflow component to receive overflow state and visibility instructions
+**Parent Requirements:** Overflow component is required for proper functionality
+
+**Usage Example:**
+
+```tsx
+// Must be used within Overflow component
+<Overflow>
+  <OverflowItem id="primary-action" priority={100}>
+    Save Document
+  </OverflowItem>
+  <OverflowItem id="secondary-action" priority={50}>
+    Export PDF
+  </OverflowItem>
+  <OverflowItem id="tertiary-action" priority={10}>
+    Print
+  </OverflowItem>
+</Overflow>
+```
+
+### OverflowDivider {Dependent Component}
+
+**Purpose:** Visual separators between overflow items that participate in the overflow calculation and maintain proper spacing.
+
+**Interface:**
+
+```typescript
+interface OverflowDividerProps {
+  groupId?: string; // Associate divider with specific item groups
+  priority?: number; // Overflow priority for the divider itself
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Context Dependencies:** Must be used within an Overflow component to participate in overflow calculations
+**Parent Requirements:** Overflow component is required for proper spacing and overflow behavior
+
+**Usage Example:**
+
+```tsx
+// Used within Overflow to separate item groups
+<Overflow>
+  <OverflowItem id="file">File</OverflowItem>
+  <OverflowItem id="edit">Edit</OverflowItem>
+  <OverflowDivider groupId="primary-actions" />
+  <OverflowItem id="view">View</OverflowItem>
+  <OverflowItem id="tools">Tools</OverflowItem>
+</Overflow>
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import {
+  Overflow,
+  OverflowItem,
+  OverflowDivider,
+} from "@fluentui/react-overflow";
+
+// Minimal required structure for responsive navigation
+function BasicOverflowExample() {
+  return (
+    <Overflow>
+      <OverflowItem id="item1">Dashboard</OverflowItem>
+      <OverflowItem id="item2">Reports</OverflowItem>
+      <OverflowItem id="item3">Settings</OverflowItem>
+      <OverflowItem id="item4">Help</OverflowItem>
+    </Overflow>
+  );
+}
+```
+
+### Advanced Usage
+
+```tsx
+// Complex usage with priorities, groups, and overflow handling
+function AdvancedOverflowExample() {
+  const [overflowingItems, setOverflowingItems] = React.useState<string[]>([]);
+
+  return (
+    <Overflow
+      minimumVisible={1}
+      overflowDirection="end"
+      onOverflowChange={setOverflowingItems}
+    >
+      <OverflowItem id="primary" priority={100} groupId="main-actions">
+        Primary Action
+      </OverflowItem>
+      <OverflowItem id="secondary" priority={75} groupId="main-actions">
+        Secondary Action
+      </OverflowItem>
+      <OverflowDivider groupId="main-actions" priority={50} />
+      <OverflowItem id="option1" priority={25} groupId="options">
+        Option 1
+      </OverflowItem>
+      <OverflowItem id="option2" priority={10} groupId="options">
+        Option 2
+      </OverflowItem>
+
+      {/* Render overflow menu if items are hidden */}
+      {overflowingItems.length > 0 && <OverflowMenu items={overflowingItems} />}
+    </Overflow>
+  );
+}
+```
+
+### Common Variations
+
+#### Toolbar with Overflow Menu
+
+```tsx
+function ResponsiveToolbar() {
+  return (
+    <Overflow overflowDirection="end" minimumVisible={2}>
+      <OverflowItem id="bold" priority={90}>
+        <Button icon="Bold" title="Bold" />
+      </OverflowItem>
+      <OverflowItem id="italic" priority={80}>
+        <Button icon="Italic" title="Italic" />
+      </OverflowItem>
+      <OverflowDivider priority={70} />
+      <OverflowItem id="align-left" priority={60}>
+        <Button icon="AlignLeft" title="Align Left" />
+      </OverflowItem>
+      <OverflowItem id="align-center" priority={50}>
+        <Button icon="AlignCenter" title="Align Center" />
+      </OverflowItem>
+    </Overflow>
+  );
+}
+```
+
+#### Breadcrumb Navigation
+
+```tsx
+function ResponsiveBreadcrumb() {
+  return (
+    <Overflow overflowDirection="start" minimumVisible={1}>
+      <OverflowItem id="root" priority={100}>
+        <Link href="/">Home</Link>
+      </OverflowItem>
+      <OverflowDivider />
+      <OverflowItem id="category" priority={80}>
+        <Link href="/category">Category</Link>
+      </OverflowItem>
+      <OverflowDivider />
+      <OverflowItem id="subcategory" priority={60}>
+        <Link href="/subcategory">Subcategory</Link>
+      </OverflowItem>
+      <OverflowDivider />
+      <OverflowItem id="current" priority={100}>
+        Current Page
+      </OverflowItem>
+    </Overflow>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+The Overflow component measures available space and calculates which child items should remain visible based on:
+
+1. **Priority values** - Items with higher priority values stay visible longer
+2. **Minimum visible count** - Ensures a specified number of items always remain visible
+3. **Overflow direction** - Determines whether items overflow from start or end
+4. **Container dimensions** - Real-time measurements trigger recalculations
+
+### Context Sharing
+
+The Overflow component provides context that includes:
+
+- **Visibility state** for each child item
+- **Overflow calculations** and available space
+- **Priority management** for determining overflow order
+- **Group associations** for collective overflow behavior
+
+### Event Handling
+
+- **Resize events** trigger automatic recalculation of item visibility
+- **Overflow state changes** are communicated through the `onOverflowChange` callback
+- **Item interactions** bubble up through the component hierarchy
+- **Focus management** ensures keyboard navigation works correctly in both visible and overflow states
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Set meaningful priorities** - Use priority values that reflect the relative importance of items to users
+- **Implement overflow menus** - Always provide access to overflowing items through a menu or alternative interface
+- **Test responsive behavior** - Verify overflow behavior across different screen sizes and content lengths
+- **Consider minimum visible items** - Ensure critical actions remain accessible even in the smallest containers
+- **Group related items** - Use groupId to keep related items together during overflow calculations
+
+### Accessibility
+
+- **Maintain focus order** - Ensure keyboard navigation follows a logical sequence including overflow menus
+- **Provide ARIA labels** - Use appropriate labels for overflow buttons and hidden content
+- **Announce state changes** - Inform screen readers when items move between visible and overflow states
+- **Support keyboard navigation** - Ensure all functionality is accessible via keyboard shortcuts
+
+### Performance
+
+- **Minimize recalculations** - Use stable references for children and avoid unnecessary re-renders
+- **Optimize priority calculations** - Set priorities once rather than calculating them dynamically
+- **Debounce resize events** - Prevent excessive recalculation during window resizing
+- **Virtualize large lists** - Consider virtualization for overflow containers with many items
+
+## Common Patterns
+
+### Pattern 1: Command Bar with Overflow
+
+```tsx
+// Responsive command bar that moves less important actions to overflow
+function CommandBarWithOverflow() {
+  const [overflowItems, setOverflowItems] = React.useState<string[]>([]);
+
+  return (
+    <div className="command-bar">
+      <Overflow minimumVisible={1} onOverflowChange={setOverflowItems}>
+        <OverflowItem id="new" priority={100}>
+          <Button primary>New</Button>
+        </OverflowItem>
+        <OverflowItem id="save" priority={90}>
+          <Button>Save</Button>
+        </OverflowItem>
+        <OverflowItem id="copy" priority={50}>
+          <Button>Copy</Button>
+        </OverflowItem>
+        <OverflowItem id="delete" priority={25}>
+          <Button>Delete</Button>
+        </OverflowItem>
+      </Overflow>
+
+      {overflowItems.length > 0 && (
+        <MenuButton
+          menuProps={{
+            items: overflowItems.map((id) => ({ key: id, text: id })),
+          }}
+        >
+          More Actions
+        </MenuButton>
+      )}
+    </div>
+  );
+}
+```
+
+### Pattern 2: Tag List with Overflow Indicator
+
+```tsx
+// Tag collection that shows overflow count
+function TagListWithOverflow() {
+  const [overflowCount, setOverflowCount] = React.useState(0);
+
+  return (
+    <div className="tag-container">
+      <Overflow onOverflowChange={(items) => setOverflowCount(items.length)}>
+        {tags.map((tag, index) => (
+          <OverflowItem key={tag.id} id={tag.id} priority={100 - index}>
+            <Tag>{tag.label}</Tag>
+          </OverflowItem>
+        ))}
+      </Overflow>
+
+      {overflowCount > 0 && (
+        <Tooltip content={`${overflowCount} more tags`}>
+          <Badge>+{overflowCount}</Badge>
+        </Tooltip>
+      )}
+    </div>
+  );
+}
+```

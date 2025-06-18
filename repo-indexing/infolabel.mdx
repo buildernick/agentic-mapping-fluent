@@ -1,0 +1,248 @@
+# InfoLabel Component
+
+## Overview
+
+### Purpose
+
+Use this component for informational labels that display a label with an accompanying info button. When the info button is selected, a popover appears providing additional contextual information, helping users understand form fields, settings, or other UI elements without cluttering the interface.
+
+### When to Use
+
+- **Form field explanations**: When form labels need additional context or instructions
+- **Feature descriptions**: To provide supplemental information about UI features or controls
+- **Help content**: When brief explanations would assist user comprehension
+- **Settings guidance**: To explain configuration options or their implications
+- **Complex terminology**: When technical terms or specialized language needs clarification
+- **Progressive disclosure**: To keep interfaces clean while making detailed information available on demand
+
+### Architecture
+
+**No Coupling**: InfoLabel is a standalone component that can be used independently. It internally manages its own popover state and combines a label with an info button, but doesn't require other components to function properly.
+
+## Components
+
+### InfoLabel {Primary Component}
+
+**Purpose:** Displays a text label alongside an info button that reveals additional content in a popover when activated.
+
+**Interface:**
+
+```typescript
+interface InfoLabelProps {
+  children: React.ReactNode; // The main label text to be displayed
+  info: React.ReactNode; // The content to be displayed in the popover when the info button is clicked
+  className?: string; // Additional CSS class names
+  size?: "small" | "medium" | "large"; // Size variant for the label
+  disabled?: boolean; // Whether the info button is disabled
+  required?: boolean; // Whether to display a required indicator
+}
+```
+
+**Key Features:**
+
+- Automatic accessibility with proper ARIA labeling
+- Popover positioning that avoids blocking important content
+- Keyboard navigation support
+- Integrated focus management
+- Responsive design across different screen sizes
+
+**Usage Example:**
+
+```tsx
+import { InfoLabel } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <InfoLabel info="This field helps us personalize your experience. Your data is kept private and secure.">
+      User Preferences
+    </InfoLabel>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Form Field Usage
+
+```tsx
+import { InfoLabel, Input, Field } from "@fluentui/react-components";
+
+function FormFieldExample() {
+  return (
+    <Field>
+      <InfoLabel info="Enter your full legal name as it appears on official documents. This will be used for verification purposes.">
+        Full Name
+      </InfoLabel>
+      <Input placeholder="Enter your full name" />
+    </Field>
+  );
+}
+```
+
+### Settings Configuration
+
+```tsx
+import { InfoLabel, Switch } from "@fluentui/react-components";
+
+function SettingsExample() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <Switch />
+      <InfoLabel info="When enabled, you'll receive email notifications about important account updates, security alerts, and feature announcements. You can customize these preferences in your notification settings.">
+        Email Notifications
+      </InfoLabel>
+    </div>
+  );
+}
+```
+
+### Complex Information Display
+
+```tsx
+import { InfoLabel } from "@fluentui/react-components";
+
+function ComplexInfoExample() {
+  const complexInfo = (
+    <div>
+      <p>
+        <strong>API Rate Limiting</strong>
+      </p>
+      <ul>
+        <li>Standard Plan: 1,000 requests/hour</li>
+        <li>Premium Plan: 10,000 requests/hour</li>
+        <li>Enterprise Plan: Unlimited</li>
+      </ul>
+      <p>Rate limits reset every hour at the top of the hour.</p>
+    </div>
+  );
+
+  return <InfoLabel info={complexInfo}>API Usage Limits</InfoLabel>;
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Keep info content concise but comprehensive**: Provide enough detail to be helpful without overwhelming the user
+- **Use clear, jargon-free language**: Make explanations accessible to users with varying technical knowledge
+- **Position strategically**: Place InfoLabels near the elements they describe for logical information flow
+- **Avoid redundancy**: Don't repeat information that's already clearly indicated elsewhere in the interface
+
+### Accessibility
+
+- **Automatic ARIA support**: The component automatically provides proper ARIA labeling, announcing as "{label text} more information button"
+- **Keyboard navigation**: Info button is included in tab order and can be activated with Enter or Space
+- **Screen reader compatibility**: Popover content is properly announced when opened
+- **Focus management**: When popover opens, focus is appropriately managed for keyboard users
+
+### Performance
+
+- **Lazy content loading**: Consider loading complex info content only when the popover is opened
+- **Popover positioning**: Component automatically positions popovers to avoid blocking important content
+- **Memory efficiency**: Popovers are created and destroyed as needed, not maintained in memory when closed
+
+## Common Patterns
+
+### Pattern 1: Required Field with Information
+
+```tsx
+import { InfoLabel, Input, Field } from "@fluentui/react-components";
+
+function RequiredFieldPattern() {
+  return (
+    <Field required>
+      <InfoLabel
+        required
+        info="Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters."
+      >
+        Password
+      </InfoLabel>
+      <Input type="password" placeholder="Enter a strong password" />
+    </Field>
+  );
+}
+```
+
+### Pattern 2: Disabled State with Context
+
+```tsx
+import { InfoLabel, Input } from "@fluentui/react-components";
+
+function DisabledFieldPattern() {
+  return (
+    <div>
+      <InfoLabel
+        disabled
+        info="This field is automatically populated based on your account settings and cannot be modified directly. Contact support to make changes."
+      >
+        Account Type
+      </InfoLabel>
+      <Input disabled value="Premium" />
+    </div>
+  );
+}
+```
+
+### Pattern 3: Multi-step Process Information
+
+```tsx
+import { InfoLabel } from "@fluentui/react-components";
+
+function ProcessStepPattern() {
+  const stepInfo = (
+    <div>
+      <p>
+        <strong>Step 2 of 4: Document Upload</strong>
+      </p>
+      <p>Upload one of the following:</p>
+      <ul>
+        <li>Driver's License</li>
+        <li>Passport</li>
+        <li>State ID</li>
+      </ul>
+      <p>Files must be under 5MB and in PDF, PNG, or JPG format.</p>
+    </div>
+  );
+
+  return <InfoLabel info={stepInfo}>Identity Verification</InfoLabel>;
+}
+```
+
+### Pattern 4: Dynamic Information Based on State
+
+```tsx
+import { InfoLabel, Select } from "@fluentui/react-components";
+import { useState } from "react";
+
+function DynamicInfoPattern() {
+  const [selectedPlan, setSelectedPlan] = useState("basic");
+
+  const getPlanInfo = (plan: string) => {
+    switch (plan) {
+      case "basic":
+        return "Basic plan includes 5GB storage, email support, and core features.";
+      case "premium":
+        return "Premium plan includes 50GB storage, priority support, advanced features, and API access.";
+      case "enterprise":
+        return "Enterprise plan includes unlimited storage, dedicated support, all features, and custom integrations.";
+      default:
+        return "Please select a plan to see details.";
+    }
+  };
+
+  return (
+    <div>
+      <InfoLabel info={getPlanInfo(selectedPlan)}>Subscription Plan</InfoLabel>
+      <Select
+        value={selectedPlan}
+        onChange={(_, data) => setSelectedPlan(data.value)}
+      >
+        <option value="basic">Basic</option>
+        <option value="premium">Premium</option>
+        <option value="enterprise">Enterprise</option>
+      </Select>
+    </div>
+  );
+}
+```

@@ -1,0 +1,287 @@
+# Divider Component
+
+## Overview
+
+### Purpose
+
+Use this component to create visual separators between content sections, enhancing layout hierarchy and improving content organization.
+
+### When to Use
+
+- **Section separation**: Create clear visual boundaries between different content areas
+- **Toolbar organization**: Separate groups of actions in command bars and toolbars
+- **List organization**: Break up long lists or content into logical groups
+- **Inline content**: Separate inline elements like breadcrumb items or navigation links
+- **Layout rhythm**: Add visual breathing room and establish content hierarchy
+
+### Architecture
+
+**No Coupling**: This is a standalone component that can be used independently without requiring other components or shared context.
+
+## Components
+
+### Divider
+
+**Purpose:** Creates a visual line separator to distinguish between content sections
+
+**Interface:**
+
+```typescript
+interface DividerProps {
+  // Content displayed within the divider (optional)
+  children?: React.ReactNode;
+
+  // Alignment of content within the divider
+  alignContent?: "start" | "center" | "end";
+
+  // Visual appearance style
+  appearance?: "brand" | "default" | "strong" | "subtle";
+
+  // When true, divider doesn't extend to container edges
+  inset?: boolean;
+
+  // Render as vertical divider instead of horizontal
+  vertical?: boolean;
+
+  // Custom styling
+  styles?: IVerticalDividerStyles;
+
+  // CSS class name
+  className?: string;
+
+  // Additional HTML attributes
+  [key: string]: any;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Divider } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <div>
+      <p>Content before divider</p>
+      <Divider />
+      <p>Content after divider</p>
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Horizontal Divider
+
+```tsx
+import { Divider } from "@fluentui/react-components";
+
+// Simple horizontal separator
+function BasicExample() {
+  return (
+    <div>
+      <section>
+        <h2>Section 1</h2>
+        <p>First section content</p>
+      </section>
+
+      <Divider />
+
+      <section>
+        <h2>Section 2</h2>
+        <p>Second section content</p>
+      </section>
+    </div>
+  );
+}
+```
+
+### Vertical Divider for Inline Content
+
+```tsx
+import { Divider } from "@fluentui/react-components";
+
+// Vertical separator for inline elements
+function VerticalExample() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <span>Before</span>
+      <Divider vertical />
+      <span>After</span>
+    </div>
+  );
+}
+```
+
+### Divider with Content Labels
+
+```tsx
+import { Divider } from "@fluentui/react-components";
+
+// Divider with text content
+function LabeledExample() {
+  return (
+    <div>
+      <p>Content before divider</p>
+
+      <Divider alignContent="center">OR</Divider>
+
+      <p>Alternative content</p>
+    </div>
+  );
+}
+```
+
+### Inset Divider for Related Content
+
+```tsx
+import { Divider } from "@fluentui/react-components";
+
+// Inset divider for closer content relationships
+function InsetExample() {
+  return (
+    <div style={{ padding: "16px", border: "1px solid #ccc" }}>
+      <h3>Related Items</h3>
+      <p>First related item</p>
+
+      <Divider inset />
+
+      <p>Second related item</p>
+    </div>
+  );
+}
+```
+
+### Styled Custom Divider
+
+```tsx
+import { Divider } from "@fluentui/react-components";
+
+// Custom styled divider
+function CustomExample() {
+  return (
+    <div>
+      <p>Content before custom divider</p>
+
+      <Divider
+        appearance="brand"
+        styles={{
+          divider: {
+            height: 2,
+            backgroundColor: "#0078d4",
+          },
+        }}
+      />
+
+      <p>Content after custom divider</p>
+    </div>
+  );
+}
+```
+
+## Common Patterns
+
+### Pattern 1: Toolbar Section Separation
+
+```tsx
+// Separate action groups in toolbars
+function ToolbarDivider() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <button>Save</button>
+      <button>Copy</button>
+
+      <Divider vertical />
+
+      <button>Delete</button>
+      <button>Archive</button>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Content Section Divider
+
+```tsx
+// Separate major content sections
+function SectionDivider() {
+  return (
+    <article>
+      <section>
+        <h2>Introduction</h2>
+        <p>Introduction content...</p>
+      </section>
+
+      <Divider appearance="subtle" />
+
+      <section>
+        <h2>Main Content</h2>
+        <p>Main content...</p>
+      </section>
+
+      <Divider appearance="subtle" />
+
+      <section>
+        <h2>Conclusion</h2>
+        <p>Conclusion content...</p>
+      </section>
+    </article>
+  );
+}
+```
+
+### Pattern 3: Form Section Organization
+
+```tsx
+// Organize form sections with dividers
+function FormDivider() {
+  return (
+    <form>
+      <fieldset>
+        <legend>Personal Information</legend>
+        <input placeholder="Name" />
+        <input placeholder="Email" />
+      </fieldset>
+
+      <Divider alignContent="start">Contact Details</Divider>
+
+      <fieldset>
+        <input placeholder="Phone" />
+        <input placeholder="Address" />
+      </fieldset>
+    </form>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use dividers sparingly to maintain clean, uncluttered layouts
+- Choose appropriate appearance styles that match your content hierarchy
+- Consider using inset dividers for closely related content groups
+- Use vertical dividers for inline content separation like breadcrumbs or toolbars
+- Ensure sufficient spacing around dividers for optimal visual balance
+
+### Accessibility
+
+- Dividers are primarily decorative and should not rely on color alone to convey meaning
+- Use semantic HTML structure and headings to organize content hierarchy
+- Ensure adequate color contrast when customizing divider appearance
+- Consider screen reader users who may not perceive visual separators
+
+### Performance
+
+- Dividers are lightweight components with minimal rendering overhead
+- Use CSS-based styling rather than images for optimal performance
+- Consider using border styles on containers as an alternative for simple separations
+
+### Visual Design
+
+- **Default appearance**: Use for standard content separation with neutral styling
+- **Subtle appearance**: Use for secondary separations that should be less prominent
+- **Strong appearance**: Use for primary separations that need emphasis
+- **Brand appearance**: Use when dividers should align with brand color schemes
+- Maintain consistent divider styles throughout your application for design coherence

@@ -1,0 +1,282 @@
+# Title2 Component
+
+## Overview
+
+### Purpose
+
+Use this component for secondary title text styling
+
+### When to Use
+
+- When you need to display a second-level heading in your interface hierarchy
+- For section titles that are subordinate to a primary heading (Title1)
+- When creating visual hierarchy in content with multiple heading levels
+- In forms or dialogs where you need to introduce secondary sections
+- For subsection headers within complex layouts or dashboards
+
+### Architecture
+
+**No Coupling** - This is a standalone component that can be used independently without requiring other components or shared context.
+
+Title2 is a text styling component that provides consistent secondary title typography according to FluentUI design system guidelines. It's part of the typography component family but operates independently.
+
+## Components
+
+### Title2
+
+**Purpose:** Provides styled text rendering for secondary level titles with consistent typography, spacing, and theming support.
+
+**Interface:**
+
+```typescript
+interface Title2Props extends React.HTMLAttributes<HTMLHeadingElement> {
+  /**
+   * Content to be displayed as the secondary title
+   */
+  children?: React.ReactNode;
+
+  /**
+   * Custom CSS class name to apply to the title element
+   */
+  className?: string;
+
+  /**
+   * Inline styles to apply to the component
+   */
+  style?: React.CSSProperties;
+
+  /**
+   * Whether the text should not wrap
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Whether to render as a block element
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Custom HTML tag to render
+   * @default "h2"
+   */
+  as?: keyof JSX.IntrinsicElements;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Title2 } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <div>
+      <Title2>Section Overview</Title2>
+      <p>This is the content under the secondary title.</p>
+
+      <Title2 className="custom-title">Custom Styled Title</Title2>
+
+      <Title2 nowrap>This title will not wrap to multiple lines</Title2>
+
+      <Title2 as="h3">Rendered as h3 element</Title2>
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Typography Hierarchy
+
+```tsx
+import { Title1, Title2, Body1, Caption1 } from "@fluentui/react-components";
+
+function TypographyExample() {
+  return (
+    <article>
+      <Title1>Main Article Heading</Title1>
+      <Body1>Introduction paragraph with main article content.</Body1>
+
+      <Title2>Section Heading</Title2>
+      <Body1>Content for this section goes here.</Body1>
+
+      <Title2>Another Section</Title2>
+      <Body1>More content with proper hierarchy.</Body1>
+      <Caption1>Additional notes or metadata</Caption1>
+    </article>
+  );
+}
+```
+
+### Form Section Headers
+
+```tsx
+import { Title2, Field, Input, Label } from "@fluentui/react-components";
+
+function FormWithSections() {
+  return (
+    <form>
+      <Title2>Personal Information</Title2>
+      <Field>
+        <Label htmlFor="firstName">First Name</Label>
+        <Input id="firstName" />
+      </Field>
+      <Field>
+        <Label htmlFor="lastName">Last Name</Label>
+        <Input id="lastName" />
+      </Field>
+
+      <Title2>Contact Details</Title2>
+      <Field>
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" type="email" />
+      </Field>
+    </form>
+  );
+}
+```
+
+### Card Content Headers
+
+```tsx
+import { Title2, Card, CardHeader, CardBody } from "@fluentui/react-components";
+
+function CardWithTitle() {
+  return (
+    <Card>
+      <CardHeader>
+        <Title2>Quick Actions</Title2>
+      </CardHeader>
+      <CardBody>
+        <p>Choose from the following options to get started.</p>
+        {/* Action buttons or content */}
+      </CardBody>
+    </Card>
+  );
+}
+```
+
+### Dashboard Section Headers
+
+```tsx
+import { Title2, Body1 } from "@fluentui/react-components";
+
+function DashboardSection() {
+  return (
+    <section>
+      <Title2>Recent Activity</Title2>
+      <div className="activity-list">{/* Activity items */}</div>
+
+      <Title2>System Status</Title2>
+      <div className="status-indicators">{/* Status content */}</div>
+    </section>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Title2 for second-level headings that follow Title1 in your content hierarchy
+- Maintain consistent spacing between Title2 and surrounding content
+- Combine with other typography components (Body1, Caption1) to create clear content structure
+- Use semantic HTML heading levels (h2, h3) when appropriate for accessibility
+
+### Accessibility
+
+- The component renders as an h2 element by default, providing proper semantic structure for screen readers
+- When using custom `as` prop, ensure the heading level makes sense in your document structure
+- Avoid skipping heading levels (h1 → h3) as this can confuse assistive technologies
+- Use descriptive text that clearly indicates the content that follows
+
+### Performance
+
+- Title2 is a lightweight component with minimal rendering overhead
+- Text content is efficiently rendered without unnecessary re-renders
+- Component supports tree-shaking when bundled with modern build tools
+
+### Visual Consistency
+
+- Title2 automatically applies theme-appropriate typography styles
+- Respects dark/light mode preferences when used with FluentUI theme provider
+- Maintains consistent font size, weight, and spacing across your application
+
+## Common Patterns
+
+### Content Sections with Hierarchy
+
+```tsx
+import { Title1, Title2, Title3, Body1 } from "@fluentui/react-components";
+
+function DocumentStructure() {
+  return (
+    <article>
+      <Title1>User Guide</Title1>
+      <Body1>Welcome to our comprehensive user guide.</Body1>
+
+      <Title2>Getting Started</Title2>
+      <Body1>This section covers the basics.</Body1>
+
+      <Title3>Installation</Title3>
+      <Body1>Step-by-step installation instructions.</Body1>
+
+      <Title3>Configuration</Title3>
+      <Body1>How to configure the application.</Body1>
+
+      <Title2>Advanced Features</Title2>
+      <Body1>Learn about advanced functionality.</Body1>
+    </article>
+  );
+}
+```
+
+### Responsive Layout Headers
+
+```tsx
+import { Title2 } from "@fluentui/react-components";
+
+function ResponsiveHeaders() {
+  return (
+    <div className="responsive-layout">
+      <header>
+        <Title2 className="section-header">Dashboard Overview</Title2>
+      </header>
+
+      <main>
+        <Title2 nowrap className="mobile-friendly">
+          Key Metrics
+        </Title2>
+        {/* Metrics content */}
+      </main>
+    </div>
+  );
+}
+```
+
+### Dialog and Modal Headers
+
+```tsx
+import {
+  Title2,
+  Dialog,
+  DialogSurface,
+  DialogBody,
+} from "@fluentui/react-components";
+
+function DialogWithTitle() {
+  return (
+    <Dialog>
+      <DialogSurface>
+        <DialogBody>
+          <Title2>Confirm Action</Title2>
+          <p>Are you sure you want to proceed with this action?</p>
+          {/* Dialog actions */}
+        </DialogBody>
+      </DialogSurface>
+    </Dialog>
+  );
+}
+```

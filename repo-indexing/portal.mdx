@@ -1,0 +1,386 @@
+# Portal Components
+
+## Overview
+
+### Purpose
+
+Use this component to render content in a specific DOM layer outside the normal DOM hierarchy. Portal enables rendering React components at any DOM node, providing essential functionality for modals, tooltips, dropdowns, and other overlay elements that need to escape their parent containers for proper layering and positioning.
+
+### When to Use
+
+- **Modal dialogs and overlays** that need to appear above all other content
+- **Tooltips and popovers** that must escape overflow: hidden containers
+- **Dropdown menus** that need to render outside their parent's boundaries
+- **Notifications and toasts** that should appear in a specific location regardless of component hierarchy
+- **Custom positioning** scenarios where content needs to be rendered at a specific DOM location
+- **Layer management** for complex UI overlays with proper z-index stacking
+
+### Architecture
+
+**No Coupling**: Portal is a standalone component that provides DOM layer management functionality. It works independently and can be used wherever content needs to be rendered outside the normal React component tree hierarchy.
+
+### Component Interdependencies
+
+Portal is a self-contained component with no required dependencies on other components. It operates as a wrapper that teleports its children to a different location in the DOM while maintaining React's component lifecycle and state management.
+
+## Components
+
+### Portal
+
+**Purpose:** Renders React elements in a portal at a specified DOM location, enabling content to escape the normal DOM hierarchy for proper layering and positioning.
+
+**Interface:**
+
+```typescript
+interface PortalProps {
+  children: React.ReactNode; // Content to be rendered in the portal
+  mountNode?: HTMLElement | null; // Custom DOM node to render into (defaults to document.body)
+  id?: string; // Optional id attribute for the portal container
+  className?: string; // Optional CSS class name for the portal container
+  style?: React.CSSProperties; // Optional inline styles for the portal container
+}
+```
+
+**Dependencies:** Requires FluentProvider ancestor for proper theming and RTL support
+**Provides:** DOM layer management and content teleportation capabilities
+
+**Usage Example:**
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <FluentProvider>
+      <div>
+        <h1>Main Content</h1>
+        <Portal>
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "white",
+              padding: "20px",
+              border: "1px solid #ccc",
+              borderRadius: "8px",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+            }}
+          >
+            This content is rendered in a portal to document.body
+          </div>
+        </Portal>
+      </div>
+    </FluentProvider>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Portal Usage
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+
+// Basic portal rendering to document.body
+function BasicPortalExample() {
+  return (
+    <FluentProvider>
+      <Portal>
+        <div className="overlay-content">
+          Content rendered by default to document.body
+        </div>
+      </Portal>
+    </FluentProvider>
+  );
+}
+```
+
+### Custom Mount Node
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+import { useEffect, useRef } from "react";
+
+// Portal with custom mount location
+function CustomMountExample() {
+  const customContainer = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Create or reference a custom mount point
+    const node = document.getElementById("custom-portal-root");
+    if (node && customContainer.current) {
+      customContainer.current = node as HTMLDivElement;
+    }
+  }, []);
+
+  return (
+    <FluentProvider>
+      <Portal mountNode={customContainer.current}>
+        <div className="custom-portal-content">
+          Rendered to a custom DOM node
+        </div>
+      </Portal>
+    </FluentProvider>
+  );
+}
+```
+
+### Modal Implementation
+
+```tsx
+import { Portal, FluentProvider, Button } from "@fluentui/react-components";
+import { useState } from "react";
+
+// Complete modal implementation using Portal
+function ModalExample() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <FluentProvider>
+      <Button onClick={() => setIsOpen(true)}>Open Modal</Button>
+
+      {isOpen && (
+        <Portal>
+          <div className="modal-overlay" onClick={() => setIsOpen(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>Modal Title</h2>
+              <p>Modal content goes here</p>
+              <Button onClick={() => setIsOpen(false)}>Close</Button>
+            </div>
+          </div>
+        </Portal>
+      )}
+    </FluentProvider>
+  );
+}
+```
+
+### Nested Portals
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+
+// Handling nested portals for complex overlay scenarios
+function NestedPortalsExample() {
+  return (
+    <FluentProvider>
+      <Portal>
+        <div className="outer-portal">
+          <h3>Outer Portal Content</h3>
+          <Portal>
+            <div className="inner-portal">
+              <p>Inner Portal Content</p>
+              {/* Virtual parents are handled automatically */}
+            </div>
+          </Portal>
+        </div>
+      </Portal>
+    </FluentProvider>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Always wrap in FluentProvider**: Portal components require FluentProvider for proper theming and RTL support
+- **Use for escaping containers**: Ideal when content needs to break out of overflow:hidden or positioned containers
+- **Manage focus carefully**: Consider focus management when using portals for interactive content like modals
+- **Handle cleanup**: Ensure proper cleanup of event listeners and portal content when components unmount
+
+### Accessibility
+
+- **Focus management**: Use FocusTrapZone or similar utilities for modal-like content in portals
+- **Keyboard navigation**: Ensure proper keyboard navigation between portal content and main content
+- **Screen reader announcements**: Consider using live regions for dynamic portal content
+- **ARIA relationships**: Maintain proper ARIA relationships between trigger elements and portal content
+
+### Performance
+
+- **Conditional rendering**: Only render portal content when needed to avoid unnecessary DOM mutations
+- **Efficient mount nodes**: Reuse mount nodes when possible rather than creating new ones
+- **Memory management**: Properly clean up portal containers and event listeners
+- **Avoid frequent updates**: Minimize frequent portal mounting/unmounting for better performance
+
+## Common Patterns
+
+### Pattern 1: Overlay Component with Portal
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+import { ReactNode } from "react";
+
+// Reusable overlay component using Portal
+interface OverlayProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: ReactNode;
+}
+
+function Overlay({ isOpen, onClose, children }: OverlayProps) {
+  if (!isOpen) return null;
+
+  return (
+    <Portal>
+      <div
+        className="overlay-backdrop"
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          zIndex: 1000,
+        }}
+        onClick={onClose}
+      >
+        <div onClick={(e) => e.stopPropagation()}>{children}</div>
+      </div>
+    </Portal>
+  );
+}
+```
+
+### Pattern 2: Positioned Tooltip with Portal
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+import { useState, useRef, useEffect } from "react";
+
+// Tooltip component that uses Portal for proper positioning
+interface TooltipProps {
+  trigger: ReactNode;
+  content: ReactNode;
+}
+
+function Tooltip({ trigger, content }: TooltipProps) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const updatePosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 10,
+      });
+    }
+  };
+
+  useEffect(() => {
+    if (isVisible) {
+      updatePosition();
+    }
+  }, [isVisible]);
+
+  return (
+    <>
+      <div
+        ref={triggerRef}
+        onMouseEnter={() => setIsVisible(true)}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {trigger}
+      </div>
+      {isVisible && (
+        <Portal>
+          <div
+            style={{
+              position: "fixed",
+              left: position.x,
+              top: position.y,
+              transform: "translate(-50%, -100%)",
+              backgroundColor: "#333",
+              color: "white",
+              padding: "8px 12px",
+              borderRadius: "4px",
+              fontSize: "14px",
+              zIndex: 1001,
+              pointerEvents: "none",
+            }}
+          >
+            {content}
+          </div>
+        </Portal>
+      )}
+    </>
+  );
+}
+```
+
+### Pattern 3: Toast Notification System
+
+```tsx
+import { Portal, FluentProvider } from "@fluentui/react-components";
+import { useState, useCallback } from "react";
+
+// Toast notification system using Portal
+interface Toast {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
+function ToastProvider({ children }: { children: ReactNode }) {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const addToast = useCallback((message: string, type: Toast["type"]) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, message, type }]);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 5000);
+  }, []);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
+  return (
+    <>
+      {children}
+      {toasts.length > 0 && (
+        <Portal>
+          <div
+            style={{
+              position: "fixed",
+              top: "20px",
+              right: "20px",
+              zIndex: 1002,
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+            }}
+          >
+            {toasts.map((toast) => (
+              <div
+                key={toast.id}
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "8px",
+                  backgroundColor:
+                    toast.type === "error"
+                      ? "#ff6b6b"
+                      : toast.type === "success"
+                        ? "#51cf66"
+                        : "#339af0",
+                  color: "white",
+                  cursor: "pointer",
+                }}
+                onClick={() => removeToast(toast.id)}
+              >
+                {toast.message}
+              </div>
+            ))}
+          </div>
+        </Portal>
+      )}
+    </>
+  );
+}
+```

@@ -1,0 +1,392 @@
+# RadioGroup Components
+
+## Overview
+
+### Purpose
+
+Use this component group for radio button group functionality with required shared context
+
+### When to Use
+
+Radio buttons (RadioGroup) let people select a single option from two or more choices. Use radio buttons when:
+
+- There are two to seven mutually exclusive options
+- You have enough screen space and the options are important enough to warrant it
+- All options need to be visible to the user for easy comparison
+- The user must select exactly one option from the available choices
+- You want to make all available options explicit rather than hidden in a dropdown
+
+### Architecture
+
+**Strong Coupling**: The RadioGroup component group requires a hierarchical parent-child structure with shared context management. The RadioGroup component serves as the root provider, managing selection state and radio button group semantics, while individual Radio components depend on this context to function properly.
+
+### Component Interdependencies
+
+The RadioGroup component group has critical interdependencies:
+
+- **RadioGroup** provides the shared context and manages selection state
+- **RadioGroupProvider** establishes the context boundary and accessibility relationships
+- **Radio** components must be descendants of RadioGroup to access selection context
+- All Radio components within a group share the same name attribute for form semantics
+- Selection state is managed centrally by the RadioGroup, with individual Radio components reporting their selection status
+
+## Components
+
+### RadioGroup {Primary Component}
+
+The root component that provides shared context and manages selection state for radio button groups.
+
+**Purpose:** Manages the selection state, provides accessibility context, and coordinates behavior among child Radio components.
+
+**Interface:**
+
+```typescript
+interface RadioGroupProps {
+  children: React.ReactNode; // Required Radio components
+  value?: string; // Currently selected radio button value
+  defaultValue?: string; // Default selected value for uncontrolled usage
+  name?: string; // Form name attribute shared by all radio buttons
+  onChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    data: RadioGroupOnChangeData,
+  ) => void;
+  onValueChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    data: RadioGroupOnChangeData,
+  ) => void;
+  layout?: "vertical" | "horizontal" | "horizontal-stacked"; // Layout direction
+  disabled?: boolean; // Disables entire radio group
+  required?: boolean; // Makes selection required for form validation
+}
+
+interface RadioGroupOnChangeData {
+  value: string;
+}
+```
+
+**Dependencies:** None - serves as the root component
+**Provides:** Selection context, form semantics, and accessibility relationships to child Radio components
+
+**Usage Example:**
+
+```tsx
+import { RadioGroup, Radio } from "@fluentui/react-components";
+
+function BasicExample() {
+  const [value, setValue] = React.useState("option1");
+
+  return (
+    <RadioGroup
+      value={value}
+      onChange={(ev, data) => setValue(data.value)}
+      layout="vertical"
+    >
+      <Radio value="option1" label="Option 1" />
+      <Radio value="option2" label="Option 2" />
+      <Radio value="option3" label="Option 3" />
+    </RadioGroup>
+  );
+}
+```
+
+### Radio {Dependent Component}
+
+Individual radio button components that participate in the radio group selection.
+
+**Purpose:** Represents a single selectable option within a radio group, with proper form semantics and accessibility.
+
+**Interface:**
+
+```typescript
+interface RadioProps {
+  value: string; // Required unique value for this radio option
+  label?: React.ReactNode; // Label text or content for the radio button
+  disabled?: boolean; // Disables this specific radio option
+  onChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    data: RadioOnChangeData,
+  ) => void;
+  labelPosition?: "before" | "after"; // Position of label relative to radio button
+  size?: "medium" | "large"; // Size variant
+  indicator?: React.ReactNode; // Custom indicator content
+}
+
+interface RadioOnChangeData {
+  value: string;
+}
+```
+
+**Context Dependencies:** Must be used within RadioGroup to access selection context and form semantics
+**Parent Requirements:** Must be a descendant of RadioGroup component for proper functionality
+
+**Usage Example:**
+
+```tsx
+// Must be used within RadioGroup
+<RadioGroup value={selectedValue} onChange={handleChange}>
+  <Radio value="option1" label="First Option" disabled={false} />
+  <Radio value="option2" label="Second Option" labelPosition="before" />
+</RadioGroup>
+```
+
+### RadioGroupProvider {Context Provider}
+
+Lower-level context provider for advanced customization scenarios.
+
+**Purpose:** Provides the underlying context without the default RadioGroup component wrapper, allowing for custom layouts and advanced composition patterns.
+
+**Interface:**
+
+```typescript
+interface RadioGroupProviderProps {
+  children: React.ReactNode;
+  value?: string;
+  defaultValue?: string;
+  name?: string;
+  onChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    data: RadioGroupOnChangeData,
+  ) => void;
+  disabled?: boolean;
+  required?: boolean;
+}
+```
+
+**Context Dependencies:** None - serves as context boundary
+**Parent Requirements:** None - can be used as root context provider
+
+**Usage Example:**
+
+```tsx
+import { RadioGroupProvider, Radio } from "@fluentui/react-components";
+
+// Advanced usage with custom layout
+function CustomLayoutExample() {
+  return (
+    <RadioGroupProvider value={value} onChange={handleChange}>
+      <div className="custom-layout">
+        <div className="left-column">
+          <Radio value="option1" label="Option 1" />
+          <Radio value="option2" label="Option 2" />
+        </div>
+        <div className="right-column">
+          <Radio value="option3" label="Option 3" />
+          <Radio value="option4" label="Option 4" />
+        </div>
+      </div>
+    </RadioGroupProvider>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { RadioGroup, Radio } from "@fluentui/react-components";
+
+// Minimal required structure - uncontrolled
+function BasicExample() {
+  return (
+    <RadioGroup defaultValue="option2">
+      <Radio value="option1" label="Option 1" />
+      <Radio value="option2" label="Option 2" />
+      <Radio value="option3" label="Option 3" />
+    </RadioGroup>
+  );
+}
+```
+
+### Advanced Usage
+
+```tsx
+// Complex usage with all features - controlled
+function AdvancedExample() {
+  const [selectedValue, setSelectedValue] = React.useState("option1");
+  const [isDisabled, setIsDisabled] = React.useState(false);
+
+  const handleChange = (event, data) => {
+    setSelectedValue(data.value);
+    console.log("Selected:", data.value);
+  };
+
+  return (
+    <RadioGroup
+      value={selectedValue}
+      onChange={handleChange}
+      layout="horizontal"
+      disabled={isDisabled}
+      required
+      name="preferences"
+    >
+      <Radio value="option1" label="High Performance" disabled={false} />
+      <Radio value="option2" label="Balanced" />
+      <Radio value="option3" label="Power Saving" labelPosition="before" />
+    </RadioGroup>
+  );
+}
+```
+
+### Common Variations
+
+```tsx
+// Vertical layout (default)
+<RadioGroup layout="vertical">
+  <Radio value="top" label="Top Option" />
+  <Radio value="middle" label="Middle Option" />
+  <Radio value="bottom" label="Bottom Option" />
+</RadioGroup>
+
+// Horizontal layout
+<RadioGroup layout="horizontal">
+  <Radio value="left" label="Left" />
+  <Radio value="center" label="Center" />
+  <Radio value="right" label="Right" />
+</RadioGroup>
+
+// With form integration
+<form onSubmit={handleSubmit}>
+  <RadioGroup
+    name="size"
+    required
+    defaultValue="medium"
+  >
+    <Radio value="small" label="Small" />
+    <Radio value="medium" label="Medium" />
+    <Radio value="large" label="Large" />
+  </RadioGroup>
+  <button type="submit">Submit</button>
+</form>
+
+// With conditional options
+<RadioGroup value={selection} onChange={handleChange}>
+  <Radio value="yes" label="Yes" />
+  <Radio value="no" label="No" />
+  {showMaybeOption && (
+    <Radio value="maybe" label="Maybe" />
+  )}
+</RadioGroup>
+```
+
+## Component Relationships
+
+### Data Flow
+
+Selection state flows from the RadioGroup down to individual Radio components through React context. When a Radio is selected, it reports the change back up to the RadioGroup through the onChange callback, which updates the shared selection state.
+
+### Context Sharing
+
+The RadioGroup establishes a React context that provides:
+
+- Current selection value
+- Change handlers
+- Form name attribute
+- Disabled state
+- Required validation state
+
+All child Radio components consume this context to:
+
+- Determine their selected state
+- Access the shared name attribute for form semantics
+- Report selection changes
+- Inherit disabled/required states
+
+### Event Handling
+
+Events flow upward from Radio components to the RadioGroup:
+
+1. User clicks a Radio component
+2. Radio component calls the context-provided onChange handler
+3. RadioGroup updates its internal state
+4. RadioGroup calls any user-provided onChange callback
+5. Context updates cause all Radio components to re-render with new selection state
+
+## Best Practices
+
+### Usage Guidelines
+
+- Always provide a clear label for each radio option to ensure users understand their choices
+- Use radio buttons when users must select exactly one option from 2-7 choices
+- Arrange options vertically when possible, as horizontal layouts can be harder to scan and localize
+- Order options logically (most common first, or in order of complexity/risk) rather than alphabetically
+
+### Accessibility
+
+- RadioGroup automatically manages ARIA relationships between the group and individual radio buttons
+- Each Radio component receives proper `role="radio"` and ARIA attributes
+- The group maintains focus management and keyboard navigation (arrow keys to navigate, space to select)
+- Always provide meaningful labels for screen reader users
+- Use the `required` prop for form validation scenarios
+
+### Performance
+
+- Radio selection state is managed efficiently through React context to minimize re-renders
+- Only the previously selected and newly selected Radio components re-render during selection changes
+- Consider using defaultValue for uncontrolled scenarios to reduce unnecessary state management
+
+## Common Patterns
+
+### Pattern 1: Form Integration
+
+```tsx
+// Integrate with form libraries and validation
+function FormExample() {
+  const { register, handleSubmit, watch } = useForm();
+  const selectedSize = watch("size");
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <RadioGroup
+        name="size"
+        required
+        {...register("size", { required: "Please select a size" })}
+      >
+        <Radio value="xs" label="Extra Small" />
+        <Radio value="s" label="Small" />
+        <Radio value="m" label="Medium" />
+        <Radio value="l" label="Large" />
+        <Radio value="xl" label="Extra Large" />
+      </RadioGroup>
+
+      {selectedSize && <p>You selected: {selectedSize}</p>}
+    </form>
+  );
+}
+```
+
+### Pattern 2: Conditional Rendering with State
+
+```tsx
+// Show/hide additional options based on selection
+function ConditionalExample() {
+  const [paymentMethod, setPaymentMethod] = React.useState("card");
+
+  return (
+    <div>
+      <RadioGroup
+        value={paymentMethod}
+        onChange={(ev, data) => setPaymentMethod(data.value)}
+      >
+        <Radio value="card" label="Credit Card" />
+        <Radio value="paypal" label="PayPal" />
+        <Radio value="bank" label="Bank Transfer" />
+      </RadioGroup>
+
+      {paymentMethod === "card" && (
+        <div>
+          <input placeholder="Card Number" />
+          <input placeholder="Expiry Date" />
+        </div>
+      )}
+
+      {paymentMethod === "bank" && (
+        <div>
+          <input placeholder="Account Number" />
+          <input placeholder="Routing Number" />
+        </div>
+      )}
+    </div>
+  );
+}
+```

@@ -1,0 +1,358 @@
+# InfoButton Component
+
+## Overview
+
+### Purpose
+
+Use this component for standalone informational buttons that trigger contextual help content in a popover. Unlike InfoLabel which combines a label with an info button, InfoButton provides a dedicated button specifically for revealing additional information, explanations, or help content without being tied to form labels or specific UI elements.
+
+### When to Use
+
+- **Standalone help buttons**: When you need an information button that isn't connected to a specific form field or label
+- **Contextual help triggers**: To provide additional details about sections, features, or complex UI areas
+- **Progressive disclosure**: When detailed explanations should be available on demand without cluttering the interface
+- **Help documentation access**: To trigger overlays with instructional content, tips, or guidance
+- **Feature explanations**: When UI sections need supplemental information that doesn't fit naturally in labels
+- **Interactive help systems**: As part of guided tours or help systems where information is triggered on demand
+
+### Architecture
+
+**No Coupling**: InfoButton is a standalone component that can be used independently. It manages its own popover state and provides a simple button interface for triggering informational content display.
+
+## Components
+
+### InfoButton {Primary Component}
+
+**Purpose:** Displays a dedicated information button that reveals additional content in a popover when activated.
+
+**Interface:**
+
+```typescript
+interface InfoButtonProps {
+  children: React.ReactNode; // The content to be displayed in the popover
+  size?: "small" | "medium" | "large"; // Size variant for the button
+  appearance?: "subtle" | "transparent"; // Visual appearance style
+  disabled?: boolean; // Whether the button is disabled
+  iconProps?: React.ComponentProps<typeof InfoIcon>; // Properties for the info icon
+  popoverProps?: Partial<PopoverProps>; // Additional props for the popover
+  className?: string; // Additional CSS class names
+  onOpenChange?: (open: boolean) => void; // Callback for popover state changes
+  "aria-label"?: string; // Accessible label for the button
+}
+```
+
+**Key Features:**
+
+- Self-contained popover management
+- Automatic accessibility with proper ARIA support
+- Flexible content support (text, HTML, React components)
+- Keyboard navigation and focus management
+- Configurable appearance and sizing
+- Event callbacks for state management
+
+**Usage Example:**
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <InfoButton aria-label="Learn more about security features">
+      <div>
+        <strong>Enhanced Security</strong>
+        <p>
+          This feature uses advanced encryption to protect your data and
+          includes multi-factor authentication for additional security.
+        </p>
+      </div>
+    </InfoButton>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Information Display
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function BasicInfoExample() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <span>Account Security Settings</span>
+      <InfoButton aria-label="Security settings information">
+        Configure two-factor authentication, password requirements, and session
+        management to keep your account secure.
+      </InfoButton>
+    </div>
+  );
+}
+```
+
+### Complex Help Content
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function ComplexHelpExample() {
+  const helpContent = (
+    <div style={{ maxWidth: "300px" }}>
+      <h4>Dashboard Widgets</h4>
+      <p>Customize your dashboard by:</p>
+      <ol>
+        <li>Clicking the "+" button to add widgets</li>
+        <li>Dragging widgets to rearrange them</li>
+        <li>Using the settings icon to configure each widget</li>
+        <li>Clicking "x" to remove unwanted widgets</li>
+      </ol>
+      <p>
+        <strong>Tip:</strong> Changes are saved automatically.
+      </p>
+    </div>
+  );
+
+  return (
+    <div className="dashboard-header">
+      <h2>My Dashboard</h2>
+      <InfoButton aria-label="Dashboard help">{helpContent}</InfoButton>
+    </div>
+  );
+}
+```
+
+### Feature Tour Integration
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function FeatureTourExample() {
+  const [tourStep, setTourStep] = useState(0);
+
+  const tourContent = (
+    <div>
+      <h4>Step {tourStep + 1} of 3</h4>
+      <p>
+        Welcome to the new analytics dashboard! This area shows your key
+        metrics.
+      </p>
+      <button onClick={() => setTourStep(tourStep + 1)}>Next</button>
+    </div>
+  );
+
+  return (
+    <div className="analytics-section">
+      <h3>Analytics Overview</h3>
+      <InfoButton
+        aria-label="Feature tour"
+        onOpenChange={(open) => {
+          if (!open) setTourStep(0);
+        }}
+      >
+        {tourContent}
+      </InfoButton>
+    </div>
+  );
+}
+```
+
+### Conditional Information
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function ConditionalInfoExample() {
+  const [userPlan, setUserPlan] = useState("basic");
+
+  const getPlanInfo = () => {
+    switch (userPlan) {
+      case "basic":
+        return "Basic plan: 5GB storage, email support, core features";
+      case "premium":
+        return "Premium plan: 50GB storage, priority support, advanced features";
+      case "enterprise":
+        return "Enterprise plan: Unlimited storage, dedicated support, all features";
+      default:
+        return "Plan information not available";
+    }
+  };
+
+  return (
+    <div className="plan-section">
+      <h3>Current Plan: {userPlan}</h3>
+      <InfoButton aria-label="Plan details">{getPlanInfo()}</InfoButton>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Provide clear aria-labels**: Always include descriptive aria-label text for accessibility
+- **Keep content focused**: InfoButton content should be concise and directly relevant to its context
+- **Position strategically**: Place InfoButtons near the elements they describe for logical information flow
+- **Use appropriate sizing**: Match button size to the importance and context of the information
+
+### Accessibility
+
+- **Keyboard navigation**: InfoButton is included in tab order and can be activated with Enter or Space
+- **Screen reader support**: Provide meaningful aria-label text that describes what information will be revealed
+- **Focus management**: When popover opens, focus is appropriately managed for keyboard users
+- **ARIA attributes**: Component automatically provides proper ARIA states for expanded/collapsed content
+
+### Performance
+
+- **Lazy content rendering**: Consider using dynamic content generation for complex information
+- **Popover optimization**: Popovers are created and destroyed as needed for memory efficiency
+- **Event handling**: Use onOpenChange callback to manage state changes and analytics tracking
+
+## Common Patterns
+
+### Pattern 1: Section Help
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function SectionHelpPattern() {
+  return (
+    <section className="form-section">
+      <div className="section-header">
+        <h3>Payment Information</h3>
+        <InfoButton aria-label="Payment information help">
+          We use industry-standard encryption to protect your payment details.
+          Your information is never stored on our servers and is processed
+          securely through our payment partners.
+        </InfoButton>
+      </div>
+      {/* Form fields */}
+    </section>
+  );
+}
+```
+
+### Pattern 2: Feature Callout
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function FeatureCalloutPattern() {
+  return (
+    <div className="feature-highlight">
+      <div className="feature-badge">NEW</div>
+      <span>Smart Recommendations</span>
+      <InfoButton aria-label="Smart recommendations information">
+        <div>
+          <strong>AI-Powered Suggestions</strong>
+          <p>
+            Our new recommendation engine analyzes your usage patterns to
+            suggest relevant features and optimizations.
+          </p>
+          <ul>
+            <li>Personalized feature suggestions</li>
+            <li>Usage optimization tips</li>
+            <li>Performance insights</li>
+          </ul>
+        </div>
+      </InfoButton>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Status Explanation
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function StatusExplanationPattern() {
+  const [connectionStatus, setConnectionStatus] = useState("connected");
+
+  const getStatusInfo = () => {
+    switch (connectionStatus) {
+      case "connected":
+        return "System is running normally. All services are operational.";
+      case "degraded":
+        return "Some services may be slower than usual. We're working to resolve this.";
+      case "disconnected":
+        return "Connection lost. Please check your network and try again.";
+      default:
+        return "Status unknown. Refresh the page to check current status.";
+    }
+  };
+
+  return (
+    <div className="status-indicator">
+      <div className={`status-dot ${connectionStatus}`}></div>
+      <span>Status: {connectionStatus}</span>
+      <InfoButton aria-label="Status details">{getStatusInfo()}</InfoButton>
+    </div>
+  );
+}
+```
+
+### Pattern 4: Dynamic Help Content
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function DynamicHelpPattern() {
+  const [currentView, setCurrentView] = useState("dashboard");
+
+  const getContextualHelp = () => {
+    const helpContent = {
+      dashboard: "Dashboard shows your key metrics and recent activity.",
+      reports: "Generate and download detailed reports for analysis.",
+      settings: "Configure your account preferences and security options.",
+    };
+
+    return helpContent[currentView] || "Help information not available.";
+  };
+
+  return (
+    <div className="view-header">
+      <h2>{currentView.charAt(0).toUpperCase() + currentView.slice(1)}</h2>
+      <InfoButton aria-label={`${currentView} help`}>
+        {getContextualHelp()}
+      </InfoButton>
+    </div>
+  );
+}
+```
+
+### Pattern 5: Multi-step Information
+
+```tsx
+import { InfoButton } from "@fluentui/react-components";
+
+function MultiStepInfoPattern() {
+  const stepInfo = (
+    <div>
+      <h4>Setup Process</h4>
+      <ol>
+        <li>
+          <strong>Account Verification</strong> - Confirm your email address
+        </li>
+        <li>
+          <strong>Profile Setup</strong> - Add your basic information
+        </li>
+        <li>
+          <strong>Preferences</strong> - Choose your notification settings
+        </li>
+        <li>
+          <strong>Integration</strong> - Connect your external accounts
+        </li>
+      </ol>
+      <p>Each step must be completed before proceeding to the next.</p>
+    </div>
+  );
+
+  return (
+    <div className="setup-progress">
+      <h3>Account Setup</h3>
+      <InfoButton aria-label="Setup process information">{stepInfo}</InfoButton>
+    </div>
+  );
+}
+```

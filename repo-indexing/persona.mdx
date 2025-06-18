@@ -1,0 +1,382 @@
+---
+title: Persona Components
+---
+
+# Persona Components
+
+## Overview
+
+### Purpose
+
+Use this component to display user information with avatar
+
+### When to Use
+
+- **People representation**: Display user profiles, employee cards, contact information, or any interface where you need to represent a person visually
+- **Status communication**: Show online presence, availability status, or out-of-office indicators alongside user information
+- **Contact lists and directories**: Create people-centric interfaces like address books, employee directories, or contact selection flows
+- **Profile headers**: Display user identity in application headers, profile pages, or user account sections
+- **Compact identification**: Show user context in comments, messages, activity feeds, or anywhere user attribution is needed
+- **Multi-persona displays**: Use in conjunction with Facepile for showing multiple people or in PeoplePicker for selection scenarios
+
+### Architecture
+
+**No Coupling**: This is a standalone component that can be used independently. While it integrates well with other components like Facepile and PeoplePicker, it doesn't require any specific parent components or shared context to function properly.
+
+### Component Interdependencies
+
+None - Persona is a self-contained component. However, it is commonly used as a building block in:
+
+- **Facepile**: For displaying multiple personas in a compact layout
+- **PeoplePicker**: For representing selected individuals
+- **SelectedPeopleList**: For showing chosen people in picker scenarios
+
+## Components
+
+### Persona
+
+**Purpose:** Display a person's avatar, name, status, and additional contextual information in a standardized format
+
+**Interface:**
+
+```typescript
+interface IPersonaProps {
+  // Core identity
+  text?: string; // Primary display name
+  secondaryText?: string; // Job title, department, or secondary info
+  tertiaryText?: string; // Status message or additional context
+  optionalText?: string; // Extra information like availability
+
+  // Avatar configuration
+  imageUrl?: string; // Profile picture URL
+  imageInitials?: string; // Fallback initials when no image
+  initialsColor?: PersonaInitialsColor; // Background color for initials
+  allowPhoneInitials?: boolean; // Extract initials from phone numbers
+
+  // Size and layout
+  size?: PersonaSize; // Size variant (size8, size24, size32, size40, size48, size56, size72, size100, size120)
+  coinSize?: number; // Custom avatar size in pixels
+  hidePersonaDetails?: boolean; // Show only avatar without text details
+
+  // Presence and status
+  presence?: PersonaPresence; // Online status (online, away, busy, dnd, offline, blocked)
+  isOutOfOffice?: boolean; // Out of office indicator
+
+  // Accessibility
+  imageAlt?: string; // Alt text for avatar image
+  showOverflowTooltip?: boolean; // Show tooltip for truncated text (default: true)
+
+  // Customization
+  styles?: IPersonaStyles; // Custom styling
+  theme?: ITheme; // Theme override
+  onRenderCoin?: (props?: IPersonaProps) => JSX.Element; // Custom avatar renderer
+  onRenderPersonaDetails?: (props?: IPersonaProps) => JSX.Element; // Custom details renderer
+  onRenderPrimaryText?: (props?: IPersonaProps) => JSX.Element; // Custom primary text renderer
+  onRenderSecondaryText?: (props?: IPersonaProps) => JSX.Element; // Custom secondary text renderer
+  onRenderTertiaryText?: (props?: IPersonaProps) => JSX.Element; // Custom tertiary text renderer
+  onRenderOptionalText?: (props?: IPersonaProps) => JSX.Element; // Custom optional text renderer
+
+  // Interaction
+  onClick?: (ev?: React.MouseEvent<HTMLElement>) => void; // Click handler
+  onMouseMove?: (ev?: React.MouseEvent<HTMLElement>) => void; // Mouse move handler
+  onMouseOut?: (ev?: React.MouseEvent<HTMLElement>) => void; // Mouse out handler
+}
+
+enum PersonaSize {
+  size8 = 0, // Tiny avatar only
+  size24 = 1, // Small avatar + name
+  size32 = 2, // Small avatar + name + secondary text
+  size40 = 3, // Medium avatar + full details
+  size48 = 4, // Default size with full details
+  size56 = 5, // Large avatar + full details
+  size72 = 6, // Extra large avatar + full details
+  size100 = 7, // Profile card size
+  size120 = 8, // Maximum size for profile views
+}
+
+enum PersonaPresence {
+  none = 0,
+  offline = 1,
+  online = 2,
+  away = 3,
+  dnd = 4, // Do not disturb
+  blocked = 5,
+  busy = 6,
+}
+
+enum PersonaInitialsColor {
+  lightBlue = 0,
+  lightGreen = 1,
+  lightPink = 2,
+  magenta = 3,
+  purple = 4,
+  black = 5,
+  teal = 6,
+  cyan = 7,
+  green = 8,
+  darkGreen = 9,
+  darkBlue = 10,
+  darkRed = 11,
+  orange = 12,
+  red = 13,
+  violet = 14,
+  pink = 15,
+  rust = 16,
+  gold = 17,
+  darkMagenta = 18,
+  magentaLight = 19,
+  coolGray = 20,
+  gray = 21,
+  burgundyRed = 22,
+  warmGray = 23,
+  brown = 24,
+}
+```
+
+**Usage Example:**
+
+```tsx
+import {
+  Persona,
+  PersonaSize,
+  PersonaPresence,
+} from "@fluentui/react/lib/Persona";
+
+function Example() {
+  return (
+    <Persona
+      text="Annie Lindqvist"
+      secondaryText="Software Engineer"
+      tertiaryText="In a meeting"
+      optionalText="Available at 4:00pm"
+      imageUrl="https://example.com/annie.jpg"
+      imageInitials="AL"
+      size={PersonaSize.size48}
+      presence={PersonaPresence.busy}
+      imageAlt="Annie Lindqvist, status is busy"
+      onClick={() => console.log("Persona clicked")}
+    />
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic User Display
+
+```tsx
+import { Persona, PersonaSize } from "@fluentui/react/lib/Persona";
+
+// Simple user representation
+function UserCard() {
+  return (
+    <Persona
+      text="John Doe"
+      secondaryText="Product Manager"
+      imageUrl="/images/john-doe.jpg"
+      size={PersonaSize.size48}
+      imageAlt="John Doe"
+    />
+  );
+}
+```
+
+### Presence Indicators
+
+```tsx
+import {
+  Persona,
+  PersonaSize,
+  PersonaPresence,
+} from "@fluentui/react/lib/Persona";
+
+// Show user availability status
+function UserWithStatus() {
+  return (
+    <Persona
+      text="Sarah Wilson"
+      secondaryText="UX Designer"
+      tertiaryText="Focusing"
+      size={PersonaSize.size40}
+      presence={PersonaPresence.dnd}
+      isOutOfOffice={false}
+      imageAlt="Sarah Wilson, status is do not disturb"
+    />
+  );
+}
+```
+
+### Compact Display
+
+```tsx
+// Small personas for lists or limited space
+function CompactPersonaList() {
+  return (
+    <div>
+      <Persona
+        text="Alice Johnson"
+        size={PersonaSize.size24}
+        hidePersonaDetails={true}
+        presence={PersonaPresence.online}
+        imageAlt="Alice Johnson, online"
+      />
+      <Persona
+        text="Bob Smith"
+        size={PersonaSize.size24}
+        hidePersonaDetails={true}
+        presence={PersonaPresence.away}
+        imageAlt="Bob Smith, away"
+      />
+    </div>
+  );
+}
+```
+
+### Custom Avatar Rendering
+
+```tsx
+// Custom coin/avatar appearance
+function CustomPersona() {
+  const customCoinRender = (props) => (
+    <img
+      src={props.imageUrl}
+      alt={props.imageAlt}
+      style={{ borderRadius: "20px", filter: "sepia(30%)" }}
+      width={props.coinSize}
+      height={props.coinSize}
+    />
+  );
+
+  return (
+    <Persona
+      text="Creative User"
+      secondaryText="Artist"
+      size={PersonaSize.size72}
+      onRenderCoin={customCoinRender}
+      imageUrl="/images/artist.jpg"
+      imageAlt="Creative User"
+    />
+  );
+}
+```
+
+### Profile Header
+
+```tsx
+// Large persona for profile pages
+function ProfileHeader() {
+  return (
+    <Persona
+      text="Dr. Emma Chen"
+      secondaryText="Lead Researcher"
+      tertiaryText="Available for consultation"
+      optionalText="Research Division"
+      size={PersonaSize.size120}
+      presence={PersonaPresence.online}
+      imageUrl="/images/dr-chen.jpg"
+      imageAlt="Dr. Emma Chen, available for consultation"
+    />
+  );
+}
+```
+
+### Initials-Only Display
+
+```tsx
+// When no image is available
+function InitialsPersona() {
+  return (
+    <Persona
+      text="Michael Rodriguez"
+      secondaryText="Sales Manager"
+      imageInitials="MR"
+      initialsColor={PersonaInitialsColor.lightBlue}
+      size={PersonaSize.size56}
+      presence={PersonaPresence.online}
+      imageAlt="Michael Rodriguez, online"
+    />
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Choose appropriate size**: Use size24 for compact lists, size32-48 for standard displays, and size72+ for profile cards or headers
+- **Provide meaningful alt text**: Always include descriptive imageAlt text that includes the person's name and current status for accessibility
+- **Handle missing images gracefully**: Use imageInitials as fallback when imageUrl is unavailable
+- **Show relevant information**: Include secondaryText for job titles or roles, tertiaryText for current status, and optionalText for additional context
+- **Use presence indicators judiciously**: Only show presence when relevant to the user's workflow and when status information is current
+
+### Accessibility
+
+- **Color dependency**: For small personas (size32 and below), presence indicators rely only on color. Provide text alternatives or additional context when presence is critical
+- **Screen reader support**: The component provides proper ARIA labels and role information for screen readers
+- **Keyboard navigation**: When interactive (with onClick), the persona receives focus and can be activated with Enter or Space
+- **Tooltip behavior**: By default, truncated text shows in tooltips. Set showOverflowTooltip={false} when tooltips would interfere with other UI (like dropdowns)
+
+### Performance
+
+- **Image optimization**: Use appropriately sized images for the persona size to avoid unnecessary bandwidth
+- **Presence updates**: When showing live presence, implement efficient update mechanisms to avoid excessive re-renders
+- **Custom rendering**: Use onRender\* props sparingly as they can impact performance in lists with many personas
+
+## Common Patterns
+
+### Pattern 1: Contact List Item
+
+```tsx
+// Standard contact representation
+<Persona
+  text="Contact Name"
+  secondaryText="Job Title"
+  tertiaryText="Department"
+  imageUrl="/avatar.jpg"
+  size={PersonaSize.size40}
+  presence={PersonaPresence.online}
+  onClick={handleContactClick}
+  imageAlt="Contact Name, online"
+/>
+```
+
+### Pattern 2: Activity Feed Attribution
+
+```tsx
+// Small persona for activity attribution
+<Persona
+  text="Author Name"
+  secondaryText="2 hours ago"
+  size={PersonaSize.size32}
+  hidePersonaDetails={false}
+  imageUrl="/author.jpg"
+  imageAlt="Author Name"
+/>
+```
+
+### Pattern 3: Out of Office Status
+
+```tsx
+// Show combined presence and out-of-office
+<Persona
+  text="Employee Name"
+  secondaryText="Marketing Director"
+  tertiaryText="Back Monday"
+  size={PersonaSize.size48}
+  presence={PersonaPresence.away}
+  isOutOfOffice={true}
+  imageAlt="Employee Name, away and out of office until Monday"
+/>
+```
+
+### Pattern 4: Phone Number Initials
+
+```tsx
+// Extract initials from phone numbers
+<Persona
+  text="+1 (555) 123-4567"
+  allowPhoneInitials={true}
+  size={PersonaSize.size40}
+  imageAlt="Phone contact"
+/>
+```

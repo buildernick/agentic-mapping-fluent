@@ -1,0 +1,305 @@
+---
+
+# Label Component
+
+## Overview
+
+### Purpose
+
+Use this component for form labels and descriptive text to provide accessible names and titles for form controls, including text fields, checkboxes, radio buttons, dropdown menus, and other interactive elements.
+
+### When to Use
+
+- **Form control labeling**: Provide accessible names for input fields, dropdowns, checkboxes, and other form controls
+- **Field descriptions**: Add descriptive text that explains the purpose or requirements of a form field
+- **Required field indication**: Mark mandatory fields with visual and semantic indicators
+- **Form organization**: Create clear hierarchical structure in forms with consistent labeling patterns
+- **Accessibility compliance**: Ensure proper screen reader support and keyboard navigation through semantic associations
+
+### Architecture
+
+**No Coupling**: Label is a standalone component that can be used independently or in combination with form controls and Field components for enhanced functionality.
+
+### Component Interdependencies
+
+While Label is primarily standalone, it integrates seamlessly with:
+
+- **Field component**: For enhanced form structure with validation messages and hints
+- **Form controls**: Associated through `htmlFor` attribute for accessibility
+- **Input components**: Creates semantic relationships for screen readers
+
+## Components
+
+### Label {Standalone Component}
+
+**Purpose:** Provides accessible labeling for form controls and descriptive text elements
+
+**Interface:**
+
+```typescript
+interface LabelProps {
+  children: React.ReactNode; // The text content of the label
+  htmlFor?: string; // Associates label with form control by matching control's id
+  required?: boolean; // Indicates the associated form control is required
+  strong?: boolean; // Applies bold styling to the label text (v9 only)
+  disabled?: boolean; // Displays label in disabled state (v8 only)
+  className?: string; // Custom CSS classes
+  id?: string; // Unique identifier for the label element
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Label } from "@fluentui/react-components"; // v9
+// or
+import { Label } from "@fluentui/react/lib/Label"; // v8
+import { useId } from "@fluentui/react-utilities";
+
+function BasicLabelExample() {
+  const inputId = useId("username-");
+
+  return (
+    <>
+      <Label htmlFor={inputId} required>
+        Username
+      </Label>
+      <input id={inputId} type="text" />
+    </>
+  );
+}
+```
+
+## Integration Patterns
+
+### Standalone Usage
+
+```tsx
+import { Label } from "@fluentui/react-components";
+
+// Basic descriptive text
+function DescriptiveLabel() {
+  return <Label>Form Section Title</Label>;
+}
+
+// Required field indicator
+function RequiredFieldLabel() {
+  const fieldId = useId("email-");
+  return (
+    <>
+      <Label htmlFor={fieldId} required strong>
+        Email Address
+      </Label>
+      <input id={fieldId} type="email" />
+    </>
+  );
+}
+```
+
+### Field Integration (v9 Pattern)
+
+```tsx
+import { Field, Label, Input } from "@fluentui/react-components";
+
+// Enhanced form field with validation
+function EnhancedFormField() {
+  return (
+    <Field
+      label="Full Name"
+      required
+      validationMessage="Name is required"
+      hint="Enter your first and last name"
+    >
+      <Input />
+    </Field>
+  );
+}
+
+// Manual Field composition
+function ManualFieldComposition() {
+  const inputId = useId("phone-");
+
+  return (
+    <Field>
+      <Label htmlFor={inputId} required>
+        Phone Number
+      </Label>
+      <Input id={inputId} />
+    </Field>
+  );
+}
+```
+
+### Legacy v8 Usage
+
+```tsx
+import { Label } from "@fluentui/react/lib/Label";
+import { TextField } from "@fluentui/react/lib/TextField";
+
+function LegacyFormExample() {
+  const textFieldId = useId("description-");
+
+  return (
+    <>
+      <Label htmlFor={textFieldId}>Description</Label>
+      <TextField id={textFieldId} />
+
+      <Label disabled>Disabled Label</Label>
+      <Label required>Required Field Label</Label>
+    </>
+  );
+}
+```
+
+### Form Group Organization
+
+```tsx
+import { Label, Field, Input, Checkbox } from "@fluentui/react-components";
+
+function FormGroupExample() {
+  return (
+    <div>
+      <Label strong size="large">
+        Personal Information
+      </Label>
+
+      <Field label="First Name" required>
+        <Input />
+      </Field>
+
+      <Field label="Last Name" required>
+        <Input />
+      </Field>
+
+      <Field>
+        <Checkbox label="Subscribe to newsletter" />
+      </Field>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Associate labels with controls**: Always use `htmlFor` attribute to associate labels with form controls for accessibility
+- **Keep labels concise**: Use short, descriptive text that clearly indicates the purpose of the form control
+- **Use sentence-case capitalization**: Only capitalize the first word and proper nouns in label text
+- **Indicate required fields**: Use the `required` prop to mark mandatory fields with appropriate visual indicators
+- **Position labels appropriately**: Place labels close to their associated controls for clear visual relationships
+
+### Accessibility
+
+- **Semantic associations**: Proper `htmlFor` and `id` relationships ensure screen readers can navigate between labels and controls
+- **Required field indication**: The `required` prop provides both visual and semantic indicators for mandatory fields
+- **Focus management**: Labels with proper associations help screen readers announce field purposes when controls receive focus
+- **Keyboard navigation**: Clicking labels with `htmlFor` attributes will focus their associated form controls
+
+### Performance
+
+- **Lightweight rendering**: Labels have minimal overhead and render efficiently
+- **ID generation**: Use `useId` hook for generating unique IDs to avoid conflicts in dynamic forms
+- **Avoid excessive nesting**: Keep label markup simple for optimal rendering performance
+
+## Common Patterns
+
+### Required Field Indication
+
+```tsx
+import { Label, Field, Input } from "@fluentui/react-components";
+
+function RequiredFieldPatterns() {
+  return (
+    <>
+      {/* Using Field component */}
+      <Field label="Email" required>
+        <Input type="email" />
+      </Field>
+
+      {/* Manual label with required indicator */}
+      <Label htmlFor="password" required strong>
+        Password
+      </Label>
+      <input id="password" type="password" />
+    </>
+  );
+}
+```
+
+### Form Section Headers
+
+```tsx
+function FormSectionPattern() {
+  return (
+    <div>
+      <Label strong size="large">
+        Billing Address
+      </Label>
+
+      <Field label="Street Address" required>
+        <Input />
+      </Field>
+
+      <Field label="City" required>
+        <Input />
+      </Field>
+
+      <Field label="Postal Code" required>
+        <Input />
+      </Field>
+    </div>
+  );
+}
+```
+
+### Descriptive Labels with Context
+
+```tsx
+function DescriptiveLabelPattern() {
+  const passwordId = useId("new-password-");
+
+  return (
+    <>
+      <Label htmlFor={passwordId} required>
+        New Password
+      </Label>
+      <input id={passwordId} type="password" aria-describedby="password-hint" />
+      <div id="password-hint">
+        Must be at least 8 characters with one uppercase letter
+      </div>
+    </>
+  );
+}
+```
+
+### Migration from v8 to v9
+
+```tsx
+// v8 Pattern (Legacy)
+import { Label } from "@fluentui/react/lib/Label";
+import { TextField } from "@fluentui/react/lib/TextField";
+
+function V8Pattern() {
+  return (
+    <>
+      <TextField
+        label="Username"
+        required
+        errorMessage="Username is required"
+      />
+    </>
+  );
+}
+
+// v9 Pattern (Recommended)
+import { Field, Input } from "@fluentui/react-components";
+
+function V9Pattern() {
+  return (
+    <Field label="Username" required validationMessage="Username is required">
+      <Input />
+    </Field>
+  );
+}
+```

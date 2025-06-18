@@ -1,0 +1,609 @@
+[
+  {
+    "name": "Accordion",
+    "description": "Use this component group for accordion functionality with required hierarchical parent-child structure",
+    "components": [
+      "Accordion",
+      "AccordionProvider",
+      "AccordionHeader",
+      "AccordionItem",
+      "AccordionItemProvider",
+      "AccordionPanel"
+    ],
+    "relevantFiles": ["@fluentui/react-accordion"]
+  },
+  {
+    "name": "Avatar",
+    "description": "Use this component to display user information with avatar",
+    "components": ["Avatar"],
+    "relevantFiles": ["@fluentui/react-avatar"]
+  },
+  {
+    "name": "AvatarGroup",
+    "description": "Use this component group for displaying collections of avatars with required group context",
+    "components": [
+      "AvatarGroup",
+      "AvatarGroupItem",
+      "AvatarGroupPopover",
+      "AvatarGroupProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-avatar"]
+  },
+  {
+    "name": "Badge",
+    "description": "Use this component for badge display functionality",
+    "components": ["Badge"],
+    "relevantFiles": ["@fluentui/react-badge"]
+  },
+  {
+    "name": "CounterBadge",
+    "description": "Use this component for counter badge functionality",
+    "components": ["CounterBadge"],
+    "relevantFiles": ["@fluentui/react-badge"]
+  },
+  {
+    "name": "PresenceBadge",
+    "description": "Use this component for presence badge functionality",
+    "components": ["PresenceBadge"],
+    "relevantFiles": ["@fluentui/react-badge"]
+  },
+  {
+    "name": "Button",
+    "description": "Use this component for standard button functionality",
+    "components": ["Button"],
+    "relevantFiles": ["@fluentui/react-button"]
+  },
+  {
+    "name": "CompoundButton",
+    "description": "Use this component for compound button functionality",
+    "components": ["CompoundButton"],
+    "relevantFiles": ["@fluentui/react-button"]
+  },
+  {
+    "name": "MenuButton",
+    "description": "Use this component for menu button functionality",
+    "components": ["MenuButton"],
+    "relevantFiles": ["@fluentui/react-button"]
+  },
+  {
+    "name": "SplitButton",
+    "description": "Use this component for split button functionality",
+    "components": ["SplitButton"],
+    "relevantFiles": ["@fluentui/react-button"]
+  },
+  {
+    "name": "ToggleButton",
+    "description": "Use this component for toggle button functionality",
+    "components": ["ToggleButton"],
+    "relevantFiles": ["@fluentui/react-button"]
+  },
+  {
+    "name": "Checkbox",
+    "description": "Use this component for checkbox input controls",
+    "components": ["Checkbox"],
+    "relevantFiles": ["@fluentui/react-checkbox"]
+  },
+  {
+    "name": "Combobox",
+    "description": "Use this component group for combobox, dropdown, and listbox functionality with shared context dependencies",
+    "components": [
+      "Combobox",
+      "Dropdown",
+      "Listbox",
+      "Option",
+      "OptionGroup",
+      "ComboboxProvider",
+      "ListboxProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-combobox"]
+  },
+  {
+    "name": "Divider",
+    "description": "Use this component to create visual separators",
+    "components": ["Divider"],
+    "relevantFiles": ["@fluentui/react-divider"]
+  },
+  {
+    "name": "Input",
+    "description": "Use this component for text input functionality",
+    "components": ["Input"],
+    "relevantFiles": ["@fluentui/react-input"]
+  },
+  {
+    "name": "Image",
+    "description": "Use this component for responsive image display with loading states",
+    "components": ["Image"],
+    "relevantFiles": ["@fluentui/react-image"]
+  },
+  {
+    "name": "Label",
+    "description": "Use this component for form labels and descriptive text",
+    "components": ["Label"],
+    "relevantFiles": ["@fluentui/react-label"]
+  },
+  {
+    "name": "Link",
+    "description": "Use this component for hyperlink functionality",
+    "components": ["Link"],
+    "relevantFiles": ["@fluentui/react-link"]
+  },
+  {
+    "name": "Menu",
+    "description": "Use this component group for dropdown menu functionality with required hierarchical structure and context dependencies",
+    "components": [
+      "Menu",
+      "MenuDivider",
+      "MenuGroup",
+      "MenuGroupContextProvider",
+      "MenuGroupHeader",
+      "MenuItem",
+      "MenuItemLink",
+      "MenuItemCheckbox",
+      "MenuItemSwitch",
+      "MenuItemRadio",
+      "MenuList",
+      "MenuListProvider",
+      "MenuPopover",
+      "MenuProvider",
+      "MenuSplitGroup",
+      "MenuTrigger",
+      "MenuTriggerContextProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-menu"]
+  },
+  {
+    "name": "Persona",
+    "description": "Use this component to display user information with avatar",
+    "components": ["Persona"],
+    "relevantFiles": ["@fluentui/react-persona"]
+  },
+  {
+    "name": "Popover",
+    "description": "Use this component for popover positioning functionality",
+    "components": [
+      "Popover",
+      "PopoverSurface",
+      "PopoverProvider",
+      "PopoverTrigger"
+    ],
+    "relevantFiles": ["@fluentui/react-popover"]
+  },
+  {
+    "name": "Portal",
+    "description": "Use this component to render content in a specific DOM layer",
+    "components": ["Portal"],
+    "relevantFiles": ["@fluentui/react-portal"]
+  },
+  {
+    "name": "RadioGroup",
+    "description": "Use this component group for radio button group functionality with required shared context",
+    "components": ["Radio", "RadioGroup", "RadioGroupProvider"],
+    "relevantFiles": ["@fluentui/react-radio"]
+  },
+  {
+    "name": "Select",
+    "description": "Use this component for dropdown selection functionality",
+    "components": ["Select"],
+    "relevantFiles": ["@fluentui/react-select"]
+  },
+  {
+    "name": "Skeleton",
+    "description": "Use this component to display loading placeholders",
+    "components": ["Skeleton", "SkeletonItem", "SkeletonContextProvider"],
+    "relevantFiles": ["@fluentui/react-skeleton"]
+  },
+  {
+    "name": "Slider",
+    "description": "Use this component for range input functionality",
+    "components": ["Slider"],
+    "relevantFiles": ["@fluentui/react-slider"]
+  },
+  {
+    "name": "SpinButton",
+    "description": "Use this component for numeric input with spin controls",
+    "components": ["SpinButton"],
+    "relevantFiles": ["@fluentui/react-spinbutton"]
+  },
+  {
+    "name": "Spinner",
+    "description": "Use this component to display loading indicators",
+    "components": ["Spinner"],
+    "relevantFiles": ["@fluentui/react-spinner"]
+  },
+  {
+    "name": "Switch",
+    "description": "Use this component for boolean toggle functionality",
+    "components": ["Switch"],
+    "relevantFiles": ["@fluentui/react-switch"]
+  },
+  {
+    "name": "Tabs",
+    "description": "Use this component group for tabbed interface functionality with required context between tab list and individual tabs",
+    "components": ["Tab", "TabList", "TabListProvider"],
+    "relevantFiles": ["@fluentui/react-tabs"]
+  },
+  {
+    "name": "Text",
+    "description": "Use this component for styled text display",
+    "components": ["Text"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Body1",
+    "description": "Use this component for body text styling",
+    "components": ["Body1"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Body1Strong",
+    "description": "Use this component for strong body text styling",
+    "components": ["Body1Strong"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Body1Stronger",
+    "description": "Use this component for stronger body text styling",
+    "components": ["Body1Stronger"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Body2",
+    "description": "Use this component for secondary body text styling",
+    "components": ["Body2"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Caption1",
+    "description": "Use this component for caption text styling",
+    "components": ["Caption1"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Caption1Strong",
+    "description": "Use this component for strong caption text styling",
+    "components": ["Caption1Strong"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Caption1Stronger",
+    "description": "Use this component for stronger caption text styling",
+    "components": ["Caption1Stronger"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Caption2",
+    "description": "Use this component for secondary caption text styling",
+    "components": ["Caption2"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Caption2Strong",
+    "description": "Use this component for strong secondary caption text styling",
+    "components": ["Caption2Strong"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Display",
+    "description": "Use this component for display text styling",
+    "components": ["Display"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "LargeTitle",
+    "description": "Use this component for large title text styling",
+    "components": ["LargeTitle"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Subtitle1",
+    "description": "Use this component for subtitle text styling",
+    "components": ["Subtitle1"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Subtitle2",
+    "description": "Use this component for secondary subtitle text styling",
+    "components": ["Subtitle2"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Subtitle2Stronger",
+    "description": "Use this component for stronger secondary subtitle text styling",
+    "components": ["Subtitle2Stronger"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Title1",
+    "description": "Use this component for primary title text styling",
+    "components": ["Title1"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Title2",
+    "description": "Use this component for secondary title text styling",
+    "components": ["Title2"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Title3",
+    "description": "Use this component for tertiary title text styling",
+    "components": ["Title3"],
+    "relevantFiles": ["@fluentui/react-text"]
+  },
+  {
+    "name": "Textarea",
+    "description": "Use this component for multiline text input functionality",
+    "components": ["Textarea"],
+    "relevantFiles": ["@fluentui/react-textarea"]
+  },
+  {
+    "name": "Tooltip",
+    "description": "Use this component for tooltip functionality",
+    "components": ["Tooltip"],
+    "relevantFiles": ["@fluentui/react-tooltip"]
+  },
+  {
+    "name": "Dialog",
+    "description": "Use this component group for modal dialog functionality with required compositional structure",
+    "components": [
+      "Dialog",
+      "DialogTitle",
+      "DialogTrigger",
+      "DialogBody",
+      "DialogActions",
+      "DialogSurface",
+      "DialogContent",
+      "DialogProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-dialog"]
+  },
+  {
+    "name": "ProgressBar",
+    "description": "Use this component to display progress status",
+    "components": ["ProgressBar"],
+    "relevantFiles": ["@fluentui/react-progress"]
+  },
+  {
+    "name": "Overflow",
+    "description": "Use this component to handle overflow of items in a container",
+    "components": ["Overflow", "OverflowItem", "OverflowDivider"],
+    "relevantFiles": ["@fluentui/react-overflow"]
+  },
+  {
+    "name": "Toolbar",
+    "description": "Use this component group for toolbar functionality with required context sharing between toolbar and its items",
+    "components": [
+      "Toolbar",
+      "ToolbarButton",
+      "ToolbarRadioButton",
+      "ToolbarDivider",
+      "ToolbarGroup",
+      "ToolbarToggleButton",
+      "ToolbarRadioGroup"
+    ],
+    "relevantFiles": ["@fluentui/react-toolbar"]
+  },
+  {
+    "name": "Table",
+    "description": "Use this component group to display tabular data with required hierarchical structure including headers, body, rows, and cells",
+    "components": [
+      "Table",
+      "TableCell",
+      "TableRow",
+      "TableBody",
+      "TableHeader",
+      "TableHeaderCell",
+      "TableResizeHandle",
+      "TableContextProvider",
+      "TableSelectionCell",
+      "TableCellActions",
+      "TableCellLayout",
+      "DataGrid",
+      "DataGridCell",
+      "DataGridRow",
+      "DataGridBody",
+      "DataGridContextProvider",
+      "DataGridHeader",
+      "DataGridHeaderCell",
+      "DataGridSelectionCell",
+      "TableRowIdContextProvider",
+      "ColumnIdContextProvider",
+      "TableHeaderContextProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-table"]
+  },
+  {
+    "name": "Card",
+    "description": "Use this component group for card layouts with strongly coupled header, footer, and preview components",
+    "components": ["Card", "CardFooter", "CardHeader", "CardPreview"],
+    "relevantFiles": ["@fluentui/react-card"]
+  },
+  {
+    "name": "Field",
+    "description": "Use this component for form field functionality",
+    "components": ["Field", "FieldContextProvider"],
+    "relevantFiles": ["@fluentui/react-field"]
+  },
+  {
+    "name": "Tree",
+    "description": "Use this component group for tree view functionality with required hierarchical parent-child relationships",
+    "components": [
+      "FlatTree",
+      "FlatTreeItem",
+      "Tree",
+      "TreeItem",
+      "TreeItemLayout",
+      "TreeItemPersonaLayout",
+      "TreeItemProvider",
+      "TreeProvider",
+      "TreeRootReset"
+    ],
+    "relevantFiles": ["@fluentui/react-tree"]
+  },
+  {
+    "name": "TagGroup",
+    "description": "Use this component group for tag collections with required group context and interaction dependencies",
+    "components": [
+      "Tag",
+      "InteractionTag",
+      "InteractionTagPrimary",
+      "InteractionTagSecondary",
+      "TagGroup"
+    ],
+    "relevantFiles": ["@fluentui/react-tags"]
+  },
+  {
+    "name": "MessageBar",
+    "description": "Use this component group for status messages with required compositional structure",
+    "components": [
+      "MessageBar",
+      "MessageBarTitle",
+      "MessageBarActions",
+      "MessageBarBody",
+      "MessageBarContextProvider",
+      "MessageBarGroup"
+    ],
+    "relevantFiles": ["@fluentui/react-message-bar"]
+  },
+  {
+    "name": "InfoLabel",
+    "description": "Use this component for informational labels",
+    "components": ["InfoLabel"],
+    "relevantFiles": ["@fluentui/react-infolabel"]
+  },
+  {
+    "name": "InfoButton",
+    "description": "Use this component for informational buttons",
+    "components": ["InfoButton"],
+    "relevantFiles": ["@fluentui/react-infobutton"]
+  },
+  {
+    "name": "Drawer",
+    "description": "Use this component group for drawer/panel functionality with required compositional structure",
+    "components": [
+      "Drawer",
+      "OverlayDrawer",
+      "InlineDrawer",
+      "DrawerBody",
+      "DrawerHeader",
+      "DrawerHeaderTitle",
+      "DrawerHeaderNavigation",
+      "DrawerFooter",
+      "DrawerProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-drawer"]
+  },
+  {
+    "name": "Breadcrumb",
+    "description": "Use this component group for navigation breadcrumbs with required hierarchical structure",
+    "components": [
+      "Breadcrumb",
+      "BreadcrumbDivider",
+      "BreadcrumbItem",
+      "BreadcrumbButton",
+      "BreadcrumbProvider"
+    ],
+    "relevantFiles": ["@fluentui/react-breadcrumb"]
+  },
+  {
+    "name": "AriaLiveAnnouncer",
+    "description": "Use this component to announce content changes to screen readers",
+    "components": ["AriaLiveAnnouncer"],
+    "relevantFiles": ["@fluentui/react-aria"]
+  },
+  {
+    "name": "Rating",
+    "description": "Use this component group for rating functionality with required compositional relationships",
+    "components": [
+      "Rating",
+      "RatingItem",
+      "RatingItemProvider",
+      "RatingDisplay"
+    ],
+    "relevantFiles": ["@fluentui/react-rating"]
+  },
+  {
+    "name": "SearchBox",
+    "description": "Use this component for search input functionality",
+    "components": ["SearchBox"],
+    "relevantFiles": ["@fluentui/react-search"]
+  },
+  {
+    "name": "TeachingPopover",
+    "description": "Use this component group for instructional popovers with complex architectural coupling",
+    "components": [
+      "TeachingPopover",
+      "TeachingPopoverHeader",
+      "TeachingPopoverBody",
+      "TeachingPopoverCarouselCard",
+      "TeachingPopoverCarousel",
+      "TeachingPopoverCarouselFooter",
+      "TeachingPopoverCarouselNav",
+      "TeachingPopoverCarouselNavButton",
+      "TeachingPopoverSurface",
+      "TeachingPopoverTitle",
+      "TeachingPopoverTrigger",
+      "TeachingPopoverFooter",
+      "TeachingPopoverCarouselPageCount"
+    ],
+    "relevantFiles": ["@fluentui/react-teaching-popover"]
+  },
+  {
+    "name": "TagPicker",
+    "description": "Use this component group for tag selection functionality with complex interdependent structure",
+    "components": [
+      "TagPicker",
+      "TagPickerInput",
+      "TagPickerList",
+      "TagPickerButton",
+      "TagPickerControl",
+      "TagPickerOption",
+      "TagPickerGroup",
+      "TagPickerOptionGroup"
+    ],
+    "relevantFiles": ["@fluentui/react-tag-picker"]
+  },
+  {
+    "name": "SwatchPicker",
+    "description": "Use this component group for color swatch selection with required group context",
+    "components": [
+      "SwatchPicker",
+      "SwatchPickerProvider",
+      "ColorSwatch",
+      "ImageSwatch",
+      "SwatchPickerRow",
+      "EmptySwatch"
+    ],
+    "relevantFiles": ["@fluentui/react-swatch-picker"]
+  },
+  {
+    "name": "Carousel",
+    "description": "Use this component group for carousel functionality with complex architectural coupling between navigation and content",
+    "components": [
+      "Carousel",
+      "CarouselButton",
+      "CarouselNav",
+      "CarouselNavButton",
+      "CarouselCard",
+      "CarouselAutoplayButton",
+      "CarouselNavImageButton",
+      "CarouselSlider",
+      "CarouselNavContainer",
+      "CarouselProvider",
+      "CarouselViewport"
+    ],
+    "relevantFiles": ["@fluentui/react-carousel"]
+  },
+  {
+    "name": "List",
+    "description": "Use this component group for list functionality with required parent-child relationship",
+    "components": ["List", "ListItem"],
+    "relevantFiles": ["@fluentui/react-list"]
+  },
+  {
+    "name": "ColorPicker",
+    "description": "Use this component group for comprehensive color selection functionality with functional coupling",
+    "components": ["ColorPicker", "ColorSlider", "ColorArea", "AlphaSlider"],
+    "relevantFiles": ["@fluentui/react-color-picker"]
+  }
+]

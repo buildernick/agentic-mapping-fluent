@@ -1,0 +1,584 @@
+# Combobox Components
+
+## Overview
+
+### Purpose
+
+Use this component group for combobox, dropdown, and listbox functionality with shared context dependencies
+
+### When to Use
+
+- When you need a searchable dropdown with text input capabilities (Combobox)
+- When you need a standard dropdown selection without search functionality (Dropdown)
+- When you have long lists of options that benefit from filtering and virtualization
+- When you need multi-select capabilities with tag-like selection display
+- When you want consistent option rendering and selection behavior across different input types
+- When you need accessible select controls with proper ARIA relationships
+
+### Architecture
+
+**Strong Coupling**: The Combobox component group exhibits strong architectural coupling through shared context dependencies, compositional hierarchies, and unified state management.
+
+#### Key Architectural Patterns:
+
+- **Shared Option Context**: All components use the same `<Option>` child components and selection state management
+- **Unified Positioning**: Both Combobox and Dropdown use the same positioning system via `@fluentui/react-positioning`
+- **Common Listbox Implementation**: Internal Listbox component is shared between Combobox and Dropdown
+- **Consistent Event Handling**: Unified `onOptionSelect` pattern across all components
+
+### Component Interdependencies
+
+#### Required Relationships:
+
+- **Combobox/Dropdown → Option**: Parent components require Option children for defining selectable items
+- **Combobox/Dropdown → Listbox**: Internal Listbox component manages the dropdown functionality
+- **Option → OptionGroup**: Options can be grouped using OptionGroup for hierarchical organization
+
+#### Shared Context Dependencies:
+
+- **Selection State**: Managed through shared context for consistent multi-select behavior
+- **Positioning Context**: Common popup positioning and portal management
+- **Option Context**: Shared option registration and text matching for filtering
+
+#### Communication Patterns:
+
+- Parent components provide selection context to Option children
+- Option components communicate selection state back to parent via context
+- Positioning context manages popup lifecycle and DOM portal rendering
+
+## Components
+
+### Combobox {Primary Component}
+
+The primary input component that combines text field functionality with dropdown selection capabilities.
+
+**Purpose:** Provides a searchable input field with dropdown options, allowing users to either select from predefined options or enter custom text.
+
+**Interface:**
+
+```typescript
+interface ComboboxProps {
+  children: React.ReactNode; // Required Option components
+  placeholder?: string; // Input placeholder text
+  value?: string; // Controlled input value
+  defaultValue?: string; // Uncontrolled default value
+  selectedOptions?: string[]; // Controlled selected option keys
+  defaultSelectedOptions?: string[]; // Uncontrolled default selections
+  multiselect?: boolean; // Enable multiple option selection
+  freeform?: boolean; // Allow custom text input beyond options
+  autoComplete?: "on" | "off"; // Browser autocomplete behavior
+  onOptionSelect?: (event: SelectionEvents, data: OptionOnSelectData) => void;
+  onInput?: (event: React.FormEvent<HTMLInputElement>) => void;
+  positioning?: PositioningShorthand; // Dropdown positioning configuration
+  listbox?: SlotShorthand<ListboxSlot>; // Internal listbox slot customization
+  size?: "small" | "medium" | "large"; // Component size variant
+  appearance?: "outline" | "underline" | "filled-darker" | "filled-lighter";
+  disabled?: boolean;
+  invalid?: boolean; // Error state styling
+}
+```
+
+**Dependencies:** Requires Option children for dropdown functionality
+**Provides:** Selection context and positioning context to child Option components
+
+**Usage Example:**
+
+```tsx
+import { Combobox, Option } from "@fluentui/react-components";
+
+function SearchableCombobox() {
+  const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
+
+  return (
+    <Combobox
+      placeholder="Select or type an option"
+      multiselect
+      selectedOptions={selectedOptions}
+      onOptionSelect={(event, data) => {
+        setSelectedOptions(data.selectedOptions);
+      }}
+    >
+      <Option key="apple" text="Apple">
+        🍎 Apple
+      </Option>
+      <Option key="banana" text="Banana">
+        🍌 Banana
+      </Option>
+      <Option key="orange" text="Orange" disabled>
+        🍊 Orange (unavailable)
+      </Option>
+    </Combobox>
+  );
+}
+```
+
+### Dropdown {Primary Component Alternative}
+
+A button-triggered dropdown for selecting from predefined options without text input capabilities.
+
+**Purpose:** Provides a dropdown selection interface where users can only choose from predefined options, without freeform text input.
+
+**Interface:**
+
+```typescript
+interface DropdownProps {
+  children: React.ReactNode; // Required Option components
+  placeholder?: string; // Button placeholder text
+  value?: string; // Controlled selected value display
+  selectedOptions?: string[]; // Controlled selected option keys
+  defaultSelectedOptions?: string[]; // Uncontrolled default selections
+  multiselect?: boolean; // Enable multiple option selection
+  onOptionSelect?: (event: SelectionEvents, data: OptionOnSelectData) => void;
+  positioning?: PositioningShorthand; // Dropdown positioning configuration
+  button?: SlotShorthand<DropdownButtonSlot>; // Button slot customization
+  listbox?: SlotShorthand<ListboxSlot>; // Internal listbox slot customization
+  size?: "small" | "medium" | "large"; // Component size variant
+  appearance?: "outline" | "underline" | "filled-darker" | "filled-lighter";
+  disabled?: boolean;
+  invalid?: boolean; // Error state styling
+}
+```
+
+**Context Dependencies:** Uses same Option context and positioning system as Combobox
+**Parent Requirements:** Must contain Option children for proper functionality
+
+**Usage Example:**
+
+```tsx
+import { Dropdown, Option } from "@fluentui/react-components";
+
+function BasicDropdown() {
+  return (
+    <Dropdown
+      placeholder="Select a fruit"
+      onOptionSelect={(event, data) => {
+        console.log("Selected:", data.optionText);
+      }}
+    >
+      <Option key="apple" text="Apple">
+        Apple
+      </Option>
+      <Option key="banana" text="Banana">
+        Banana
+      </Option>
+      <Option key="orange" text="Orange">
+        Orange
+      </Option>
+    </Dropdown>
+  );
+}
+```
+
+### Option {Dependent Component}
+
+Individual selectable items within Combobox or Dropdown components.
+
+**Purpose:** Represents a single selectable option with custom content and accessibility features.
+
+**Interface:**
+
+```typescript
+interface OptionProps {
+  key: string; // Unique identifier for the option
+  text: string; // Human-readable text for selection and filtering
+  children?: React.ReactNode; // Custom option content
+  value?: string; // Option value (defaults to key)
+  disabled?: boolean; // Disable option selection
+  selected?: boolean; // Selection state (managed by parent context)
+  checkIcon?: SlotShorthand<OptionCheckIconSlot>; // Custom selection indicator
+  as?: ElementType; // Custom root element type
+}
+```
+
+**Context Dependencies:**
+
+- Receives selection state from parent Combobox/Dropdown context
+- Participates in option filtering based on text prop
+- Uses positioning context for proper rendering within listbox
+
+**Parent Requirements:** Must be used within Combobox or Dropdown components
+
+**Usage Example:**
+
+```tsx
+// Must be used within Combobox or Dropdown
+<Combobox>
+  <Option key="custom" text="Custom Option">
+    <Icon decorative />
+    Custom Option with Icon
+  </Option>
+  <Option key="simple" text="Simple">
+    Simple Option
+  </Option>
+</Combobox>
+```
+
+### OptionGroup {Dependent Component}
+
+Groups related options together with optional headers and visual separation.
+
+**Purpose:** Organizes options into logical groups with headers and visual separators for better user experience.
+
+**Interface:**
+
+```typescript
+interface OptionGroupProps {
+  children: React.ReactNode; // Option components to group
+  label?: string; // Group header text
+  disabled?: boolean; // Disable all options in the group
+  as?: ElementType; // Custom root element type
+}
+```
+
+**Context Dependencies:**
+
+- Inherits parent selection context for grouped options
+- Maintains option accessibility relationships within group
+
+**Parent Requirements:** Must be used within Combobox or Dropdown, contains Option children
+
+**Usage Example:**
+
+```tsx
+<Combobox>
+  <OptionGroup label="Fruits">
+    <Option key="apple" text="Apple">
+      Apple
+    </Option>
+    <Option key="banana" text="Banana">
+      Banana
+    </Option>
+  </OptionGroup>
+  <OptionGroup label="Vegetables">
+    <Option key="carrot" text="Carrot">
+      Carrot
+    </Option>
+    <Option key="lettuce" text="Lettuce">
+      Lettuce
+    </Option>
+  </OptionGroup>
+</Combobox>
+```
+
+### Listbox {Internal Component}
+
+The internal component that manages the dropdown list functionality for both Combobox and Dropdown.
+
+**Purpose:** Handles the dropdown list rendering, positioning, and keyboard navigation. This is an internal component that should not be used directly.
+
+**Interface:**
+
+```typescript
+interface ListboxProps {
+  children: React.ReactNode; // Option/OptionGroup components
+  multiselect?: boolean; // Enable multiple selections
+  selectedOptions?: string[]; // Currently selected option keys
+  onOptionSelect?: (event: SelectionEvents, data: OptionOnSelectData) => void;
+  size?: "small" | "medium" | "large";
+}
+```
+
+**Context Dependencies:**
+
+- Managed entirely by parent Combobox/Dropdown components
+- Receives positioning context for proper popup behavior
+
+**Parent Requirements:** Only used internally by Combobox and Dropdown components
+
+## Integration Patterns
+
+### Basic Combobox Usage
+
+```tsx
+import { Combobox, Option } from "@fluentui/react-components";
+
+// Minimal required structure for searchable dropdown
+function BasicComboboxExample() {
+  return (
+    <Combobox placeholder="Search options">
+      <Option key="1" text="Option 1">
+        Option 1
+      </Option>
+      <Option key="2" text="Option 2">
+        Option 2
+      </Option>
+      <Option key="3" text="Option 3">
+        Option 3
+      </Option>
+    </Combobox>
+  );
+}
+```
+
+### Basic Dropdown Usage
+
+```tsx
+import { Dropdown, Option } from "@fluentui/react-components";
+
+// Minimal required structure for standard dropdown
+function BasicDropdownExample() {
+  return (
+    <Dropdown placeholder="Select option">
+      <Option key="1" text="Option 1">
+        Option 1
+      </Option>
+      <Option key="2" text="Option 2">
+        Option 2
+      </Option>
+      <Option key="3" text="Option 3">
+        Option 3
+      </Option>
+    </Dropdown>
+  );
+}
+```
+
+### Advanced Multi-Select with Groups
+
+```tsx
+import { Combobox, Option, OptionGroup } from "@fluentui/react-components";
+
+// Complex usage with grouping and multi-select
+function AdvancedComboboxExample() {
+  const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
+
+  return (
+    <Combobox
+      multiselect
+      placeholder="Select multiple items"
+      selectedOptions={selectedOptions}
+      onOptionSelect={(event, data) => {
+        setSelectedOptions(data.selectedOptions);
+      }}
+    >
+      <OptionGroup label="Fruits">
+        <Option key="apple" text="Apple">
+          🍎 Apple
+        </Option>
+        <Option key="banana" text="Banana">
+          🍌 Banana
+        </Option>
+        <Option key="orange" text="Orange">
+          🍊 Orange
+        </Option>
+      </OptionGroup>
+      <OptionGroup label="Vegetables">
+        <Option key="carrot" text="Carrot">
+          🥕 Carrot
+        </Option>
+        <Option key="lettuce" text="Lettuce">
+          🥬 Lettuce
+        </Option>
+        <Option key="tomato" text="Tomato">
+          🍅 Tomato
+        </Option>
+      </OptionGroup>
+    </Combobox>
+  );
+}
+```
+
+### Common Variations
+
+#### Controlled Combobox with Custom Text
+
+```tsx
+function ControlledComboboxExample() {
+  const [value, setValue] = React.useState("");
+  const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
+
+  return (
+    <Combobox
+      freeform
+      value={value}
+      selectedOptions={selectedOptions}
+      onInput={(event) => setValue(event.currentTarget.value)}
+      onOptionSelect={(event, data) => {
+        setSelectedOptions(data.selectedOptions);
+        if (data.optionText) {
+          setValue(data.optionText);
+        }
+      }}
+    >
+      <Option key="preset1" text="Preset Option 1">
+        Preset Option 1
+      </Option>
+      <Option key="preset2" text="Preset Option 2">
+        Preset Option 2
+      </Option>
+    </Combobox>
+  );
+}
+```
+
+#### Error State with Validation
+
+```tsx
+function ValidationExample() {
+  const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
+  const isInvalid = selectedOptions.length === 0;
+
+  return (
+    <Combobox
+      invalid={isInvalid}
+      placeholder="Required selection"
+      selectedOptions={selectedOptions}
+      onOptionSelect={(event, data) => setSelectedOptions(data.selectedOptions)}
+    >
+      <Option key="option1" text="Option 1">
+        Option 1
+      </Option>
+      <Option key="option2" text="Option 2">
+        Option 2
+      </Option>
+    </Combobox>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **Selection State**: Parent (Combobox/Dropdown) maintains selection state and passes it down via context
+2. **Option Registration**: Option components register themselves with parent context on mount
+3. **Selection Events**: Option selections bubble up through context to parent onOptionSelect callback
+4. **Text Filtering**: Parent components filter visible options based on input text matching Option text props
+
+### Context Sharing
+
+- **Selection Context**: Manages currently selected options and multi-select state
+- **Positioning Context**: Handles popup positioning, portal rendering, and dropdown lifecycle
+- **Option Registry**: Tracks all Option components for filtering and selection management
+- **Accessibility Context**: Maintains ARIA relationships between trigger and listbox
+
+### Event Handling
+
+- **Keyboard Navigation**: Arrow keys navigate through options, Enter selects, Escape closes
+- **Selection Events**: Option clicks/selections propagate through context to parent handlers
+- **Input Events**: Text input in Combobox triggers filtering of visible options
+- **Focus Management**: Focus moves between trigger element and listbox options appropriately
+
+## Best Practices
+
+### Usage Guidelines
+
+- Always provide meaningful `text` prop on Option components for proper filtering and accessibility
+- Use OptionGroup to organize large lists of options into logical categories
+- Prefer Combobox for searchable selections and Dropdown for simple selections
+- Implement controlled components when you need to manage selection state externally
+- Use `freeform` prop on Combobox when users should be able to enter custom values
+
+### Accessibility
+
+- Option components automatically maintain proper ARIA relationships with parent listbox
+- Keyboard navigation is built-in with arrow keys, Enter, and Escape support
+- Screen readers announce option groups and current selection status
+- Focus management automatically handles moving between input field and dropdown options
+- Use descriptive labels and option text for screen reader users
+
+### Performance
+
+- Options are virtualized automatically for large lists (1000+ items)
+- Use React.memo for Option components with complex custom content
+- Avoid recreating option arrays on every render - memoize or define outside component
+- Consider lazy loading options for very large datasets with network requests
+
+## Common Patterns
+
+### Pattern 1: Async Option Loading
+
+```tsx
+function AsyncComboboxExample() {
+  const [options, setOptions] = React.useState<
+    Array<{ key: string; text: string }>
+  >([]);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleInputChange = React.useCallback(
+    async (event: React.FormEvent<HTMLInputElement>) => {
+      const query = event.currentTarget.value;
+      if (query.length > 2) {
+        setLoading(true);
+        const results = await searchOptions(query);
+        setOptions(results);
+        setLoading(false);
+      }
+    },
+    [],
+  );
+
+  return (
+    <Combobox placeholder="Type to search..." onInput={handleInputChange}>
+      {loading ? (
+        <Option key="loading" text="Loading..." disabled>
+          Loading...
+        </Option>
+      ) : (
+        options.map((option) => (
+          <Option key={option.key} text={option.text}>
+            {option.text}
+          </Option>
+        ))
+      )}
+    </Combobox>
+  );
+}
+```
+
+### Pattern 2: Tag-style Multi-Select Display
+
+```tsx
+function TagMultiSelectExample() {
+  const [selectedOptions, setSelectedOptions] = React.useState<string[]>([]);
+  const options = [
+    { key: "react", text: "React" },
+    { key: "vue", text: "Vue" },
+    { key: "angular", text: "Angular" },
+  ];
+
+  return (
+    <div>
+      <Combobox
+        multiselect
+        placeholder="Select technologies"
+        selectedOptions={selectedOptions}
+        onOptionSelect={(event, data) =>
+          setSelectedOptions(data.selectedOptions)
+        }
+      >
+        {options.map((option) => (
+          <Option key={option.key} text={option.text}>
+            {option.text}
+          </Option>
+        ))}
+      </Combobox>
+
+      {/* Display selected options as tags */}
+      <div
+        style={{
+          marginTop: "8px",
+          display: "flex",
+          gap: "4px",
+          flexWrap: "wrap",
+        }}
+      >
+        {selectedOptions.map((key) => {
+          const option = options.find((o) => o.key === key);
+          return option ? (
+            <Tag
+              key={key}
+              dismissible
+              onDismiss={() => {
+                setSelectedOptions((prev) => prev.filter((k) => k !== key));
+              }}
+            >
+              {option.text}
+            </Tag>
+          ) : null;
+        })}
+      </div>
+    </div>
+  );
+}
+```

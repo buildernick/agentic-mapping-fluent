@@ -1,0 +1,510 @@
+# Caption2Strong Components
+
+## Overview
+
+### Purpose
+
+Use this component for strong secondary caption text styling
+
+### When to Use
+
+The Caption2Strong component is designed for emphasized secondary caption-level text content that requires more visual weight than standard Caption2 text. Use Caption2Strong when you need:
+
+- Secondary metadata, timestamps, or auxiliary information that needs to be emphasized while maintaining the smallest readable font size
+- Important minimal supporting text that provides critical context and requires visual emphasis
+- Status indicators, alerts, or system messages in caption size that need to stand out without becoming too prominent
+- Emphasized helper text, warnings, or guidance that supports primary content with stronger visual weight
+- Key timestamps, version numbers, or copyright text that should be noticeable but still minimal
+- Form validation messages or error text that needs emphasis at the smallest text size
+- Important footnotes, disclaimers, or supplementary information that users should notice
+- Enhanced visibility for critical fine print, legal text, or terms that must be both minimal and emphasized
+- Small but important labels for data points, interface elements, or metadata that require user attention
+
+### Architecture
+
+**No Coupling** - Caption2Strong is a standalone typography component that doesn't require other components to function. It's part of the broader typography system but operates independently, providing emphasized styling at the smallest caption text size available in the Fluent Design System hierarchy.
+
+### Component Interdependencies
+
+Caption2Strong has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related variants for different emphasis levels and font sizes, representing the emphasized version of the smallest text size in the caption family.
+
+## Components
+
+### Caption2Strong {Standalone Component}
+
+**Purpose:** Provides emphasized secondary caption text styling that adheres to the Fluent Design System's typography standards. This component ensures consistent minimal font sizing with stronger font weight, appropriate line height, and spacing for emphasized secondary caption-level content while maintaining excellent readability at the smallest recommended text size.
+
+**Interface:**
+
+```typescript
+interface Caption2StrongProps {
+  /**
+   * The content to be rendered as emphasized secondary caption text
+   */
+  children?: React.ReactNode;
+
+  /**
+   * The HTML element or React component to render
+   * @default 'span'
+   */
+  as?: React.ElementType;
+
+  /**
+   * Applies block-level styling (display: block)
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Prevents text wrapping (white-space: nowrap)
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Applies text truncation with ellipsis on overflow
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Text alignment
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Applies the italic font style to the content
+   * @default false
+   */
+  italic?: boolean;
+
+  /**
+   * Applies the strikethrough text decoration to the content
+   * @default false
+   */
+  strikethrough?: boolean;
+
+  /**
+   * Applies the underline text decoration to the content
+   * @default false
+   */
+  underline?: boolean;
+
+  /**
+   * Wraps the text content on white spaces
+   * @default true
+   */
+  wrap?: boolean;
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Caption2Strong } from "@fluentui/react-components";
+
+function Example() {
+  return <Caption2Strong>Important: Last updated 2 minutes ago</Caption2Strong>;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Caption2Strong } from "@fluentui/react-components";
+
+// Simple emphasized secondary caption text content
+function BasicExample() {
+  return <Caption2Strong>Critical info</Caption2Strong>;
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Caption2Strong } from "@fluentui/react-components";
+
+// Using semantic HTML elements for proper accessibility and meaning
+function SemanticExample() {
+  return (
+    <>
+      <Caption2Strong as="span">Version 1.2.3 (Critical)</Caption2Strong>
+
+      <Caption2Strong as="time">Updated now</Caption2Strong>
+
+      <Caption2Strong as="small">
+        © 2024 Company Name - All Rights Reserved
+      </Caption2Strong>
+
+      <Caption2Strong as="div">Important helper text</Caption2Strong>
+
+      <Caption2Strong as="mark">Highlighted metadata</Caption2Strong>
+    </>
+  );
+}
+```
+
+### Layout and Display Variations
+
+```tsx
+import { Caption2Strong } from "@fluentui/react-components";
+
+// Different layout configurations for emphasized secondary caption text
+function LayoutExample() {
+  return (
+    <>
+      {/* Inline emphasized secondary caption text (default) */}
+      <Caption2Strong>Priority timestamp</Caption2Strong>
+
+      {/* Block-level emphasized secondary caption text */}
+      <Caption2Strong block>Important disclaimer text</Caption2Strong>
+
+      {/* Non-wrapping emphasized secondary caption text */}
+      <Caption2Strong nowrap>Critical Version: 1.0.0-beta</Caption2Strong>
+
+      {/* Truncated emphasized secondary caption text with ellipsis */}
+      <Caption2Strong truncate>
+        Very important secondary information that will be truncated with
+        ellipsis but remains emphasized
+      </Caption2Strong>
+    </>
+  );
+}
+```
+
+### Text Styling and Decoration
+
+```tsx
+import { Caption2Strong } from "@fluentui/react-components";
+
+// Additional text styling options for emphasized secondary caption content
+function StylingExample() {
+  return (
+    <>
+      <Caption2Strong italic>Important disclaimer</Caption2Strong>
+
+      <Caption2Strong underline>Critical terms of service</Caption2Strong>
+
+      <Caption2Strong strikethrough>Deprecated critical feature</Caption2Strong>
+
+      <Caption2Strong italic underline>
+        Very important fine print
+      </Caption2Strong>
+    </>
+  );
+}
+```
+
+### Text Alignment
+
+```tsx
+import { Caption2Strong } from "@fluentui/react-components";
+
+// Text alignment options for emphasized secondary caption content
+function AlignmentExample() {
+  return (
+    <>
+      <Caption2Strong align="start" block>
+        Important left-aligned timestamp
+      </Caption2Strong>
+      <Caption2Strong align="center" block>
+        Critical centered footer text
+      </Caption2Strong>
+      <Caption2Strong align="end" block>
+        Important right-aligned version info
+      </Caption2Strong>
+      <Caption2Strong align="justify" block>
+        Important justified fine print that spans multiple lines and requires
+        emphasis
+      </Caption2Strong>
+    </>
+  );
+}
+```
+
+## Component Relationships
+
+### Typography Hierarchy
+
+Caption2Strong is part of a comprehensive typography system that provides emphasized styling at the smallest text size in the Fluent Design System hierarchy:
+
+- **Display**: Largest text for major headings
+- **LargeTitle**: Large titles for section headers
+- **Title1, Title2, Title3**: Hierarchical title sizes
+- **Subtitle1, Subtitle2, Subtitle2Stronger**: Subtitle variations with different emphasis levels
+- **Body1, Body1Strong, Body1Stronger**: Body text variants with increasing emphasis
+- **Body2**: Smaller body text for secondary content
+- **Caption1, Caption1Strong, Caption1Stronger**: Standard and emphasized caption text
+- **Caption2**: Smallest caption text for minimal information
+- **Caption2Strong**: Smallest emphasized caption text for important minimal information (this component)
+
+### Related Components
+
+```tsx
+import {
+  Caption1,
+  Caption1Strong,
+  Caption2,
+  Caption2Strong,
+  Body1,
+  Body2,
+  Subtitle1,
+  Card,
+  CardHeader,
+  CardFooter,
+} from "@fluentui/react-components";
+
+function TypographyHierarchyExample() {
+  return (
+    <Card>
+      <CardHeader>
+        <Subtitle1>Product Information</Subtitle1>
+      </CardHeader>
+
+      <Body1>
+        This is the main product description with important details.
+      </Body1>
+
+      <Body2>Additional product features and specifications.</Body2>
+
+      <div className="metadata">
+        <Caption1>Status: Available</Caption1>
+        <Caption1Strong>Price: $299.99</Caption1Strong>
+        <Caption2>SKU: PRD-12345</Caption2>
+        <Caption2Strong>Limited Stock!</Caption2Strong>
+      </div>
+
+      <CardFooter>
+        <Caption2>Last updated: {lastUpdated}</Caption2>
+        <Caption2Strong>Critical update required</Caption2Strong>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+### Emphasis Hierarchy within Caption Family
+
+```tsx
+import {
+  Caption1,
+  Caption1Strong,
+  Caption2,
+  Caption2Strong,
+} from "@fluentui/react-components";
+
+// Demonstrating different emphasis levels within caption text
+function CaptionEmphasisExample() {
+  return (
+    <div className="caption-hierarchy">
+      <Caption1>Standard caption information</Caption1>
+      <Caption1Strong>Important caption information</Caption1Strong>
+      <Caption2>Standard minimal information</Caption2>
+      <Caption2Strong>Important minimal information</Caption2Strong>
+    </div>
+  );
+}
+```
+
+### Common UI Patterns
+
+```tsx
+import {
+  Caption1,
+  Caption1Strong,
+  Caption2,
+  Caption2Strong,
+  Body1,
+} from "@fluentui/react-components";
+
+// Data table with hierarchical caption text and emphasis
+function DataTableExample() {
+  return (
+    <div className="data-grid">
+      {data.map((item) => (
+        <div key={item.id} className="data-row">
+          <Body1>{item.title}</Body1>
+          {item.description && <Body2>{item.description}</Body2>}
+          {item.category && <Caption1>{item.category}</Caption1>}
+          {item.priority && <Caption1Strong>{item.priority}</Caption1Strong>}
+          {item.metadata && <Caption2>{item.metadata}</Caption2>}
+          {item.urgentInfo && (
+            <Caption2Strong>{item.urgentInfo}</Caption2Strong>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Caption2Strong for the smallest text content that needs emphasis while maintaining readability and accessibility
+- Perfect for critical timestamps, important version numbers, emphasized copyright text, or other supplementary information that requires attention
+- Combine with semantic HTML elements using the `as` prop for proper accessibility and meaning
+- Use sparingly - the emphasis is most effective when used selectively for truly important minimal content
+- Ideal for status messages, alerts, important helper text, or critical metadata that provides context while demanding attention
+- Ensure the emphasized text truly warrants the visual weight to maintain the effectiveness of the typography hierarchy
+
+### Accessibility
+
+- Ensure excellent color contrast when using Caption2Strong due to its small size, especially when emphasized
+- Use semantic HTML elements (time, small, mark, etc.) with the `as` prop for screen reader compatibility
+- Consider that very small text may be difficult for users with visual impairments, even when emphasized
+- Provide alternative ways to access important information presented in Caption2Strong for accessibility compliance
+- The stronger visual weight helps with accessibility by making important minimal content more noticeable
+
+### Performance
+
+- Caption2Strong renders efficiently as it's a lightweight wrapper around the base Text component
+- Use Caption2Strong consistently throughout your application to maintain typography performance
+- The component inherits all performance optimizations from the underlying FluentUI Text component
+- Use emphasis judiciously to avoid performance impact from overuse of styled text components
+
+## Common Patterns
+
+### Pattern 1: Status and Alert Messages
+
+```tsx
+// Example showing status and alert message usage
+import {
+  Caption1,
+  Caption2,
+  Caption2Strong,
+  Body1,
+} from "@fluentui/react-components";
+
+function StatusExample() {
+  return (
+    <div className="status-panel">
+      <Body1>System Status Dashboard</Body1>
+      <div className="status-items">
+        <Caption1>Last check: 2 minutes ago</Caption1>
+        <Caption2>All systems operational</Caption2>
+        <Caption2Strong>Action required: Update pending</Caption2Strong>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Form Validation and Critical Helper Text
+
+```tsx
+// Example showing form field validation and critical helper text
+import {
+  Label,
+  Input,
+  Caption2,
+  Caption2Strong,
+} from "@fluentui/react-components";
+
+function FormValidationExample() {
+  return (
+    <div className="form-field">
+      <Label htmlFor="password">Password</Label>
+      <Input id="password" type="password" />
+      <Caption2>Must be at least 8 characters</Caption2>
+      <Caption2Strong>Password strength: Weak</Caption2Strong>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Enhanced Metadata and Critical Information
+
+```tsx
+// Example showing enhanced metadata and critical information
+import {
+  Caption2,
+  Caption2Strong,
+  Body1,
+  Link,
+} from "@fluentui/react-components";
+
+function MetadataExample() {
+  return (
+    <article>
+      <Body1>Important article content</Body1>
+      <div className="article-metadata">
+        <Caption2>Published by John Doe</Caption2>
+        <Caption2 as="time">2 hours ago</Caption2>
+        <Caption2Strong>Breaking news</Caption2Strong>
+        <Caption2Strong>Updated 5 min ago</Caption2Strong>
+      </div>
+    </article>
+  );
+}
+```
+
+### Pattern 4: Footer with Important Legal Information
+
+```tsx
+// Example showing footer with emphasized legal text
+import { Caption2, Caption2Strong, Link } from "@fluentui/react-components";
+
+function FooterExample() {
+  return (
+    <footer>
+      <Caption2>© 2024 Company Name. All rights reserved.</Caption2>
+      <div className="legal-links">
+        <Link as={Caption2} href="/privacy">
+          Privacy Policy
+        </Link>
+        <Link as={Caption2Strong} href="/terms">
+          Terms of Service (Updated)
+        </Link>
+      </div>
+      <Caption2>Version 2.1.4 | Build 20240115</Caption2>
+      <Caption2Strong>Critical security update available</Caption2Strong>
+    </footer>
+  );
+}
+```
+
+### Pattern 5: Data Grid with Priority Information
+
+```tsx
+// Example showing data grid with priority and emphasized information
+import {
+  Caption1,
+  Caption2,
+  Caption2Strong,
+  Body1,
+  Body2,
+} from "@fluentui/react-components";
+
+function DataGridExample() {
+  return (
+    <div className="data-grid">
+      {items.map((item) => (
+        <div key={item.id} className="grid-item">
+          <Body1>{item.title}</Body1>
+          <Body2>{item.description}</Body2>
+          <div className="item-metadata">
+            <Caption1>Category: {item.category}</Caption1>
+            <Caption2>ID: {item.id}</Caption2>
+            {item.isPriority && <Caption2Strong>High Priority</Caption2Strong>}
+            {item.isUrgent && <Caption2Strong>Urgent</Caption2Strong>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+```

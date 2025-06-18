@@ -1,0 +1,403 @@
+# MenuButton Component
+
+## Overview
+
+### Purpose
+
+Use this component for menu button functionality
+
+### When to Use
+
+The MenuButton component is ideal for scenarios where you need to provide users with a button that triggers a dropdown menu containing multiple action options. This component should be used when:
+
+- **Space-efficient interfaces**: When you have multiple related actions but limited UI space
+- **Grouped actions**: When you want to group related actions under a single trigger point
+- **Secondary actions**: When providing additional options that don't warrant their own dedicated buttons
+- **Navigation with options**: When a primary action has multiple variants or sub-actions
+- **Command interfaces**: In toolbars, command bars, or action panels where users need quick access to multiple functions
+
+Common use cases include:
+
+- **Toolbar actions**: "New" button with options for different document types
+- **Export/share menus**: Single button with multiple format or sharing options
+- **Settings menus**: Button that reveals configuration or preference options
+- **Context-sensitive actions**: Actions that change based on current selection or context
+- **Bulk operations**: Actions that can be performed on selected items
+
+### Architecture
+
+**No Coupling**: This is a standalone component that combines button and menu functionality into a single, self-contained element. It internally manages the relationship between the button trigger and the associated menu without requiring external composition.
+
+The MenuButton encapsulates:
+
+- Button trigger behavior with proper accessibility attributes
+- Menu positioning and display logic
+- Keyboard navigation for both button and menu states
+- Focus management between trigger and menu items
+- ARIA relationship establishment between button and menu
+
+## Components
+
+### MenuButton
+
+**Purpose:** Provides a button that opens a dropdown menu when activated, combining trigger and menu functionality in a single component.
+
+**Interface:**
+
+```typescript
+interface MenuButtonProps extends Omit<ButtonProps, "children"> {
+  // Menu content and behavior
+  menu: React.ReactElement | MenuProps;
+  menuTrigger?: "click" | "hover" | "context";
+
+  // Button content
+  children?: React.ReactNode;
+  icon?: React.ReactElement;
+
+  // Positioning
+  positioning?: PositioningShorthand;
+
+  // Visual styling
+  appearance?: "primary" | "outline" | "subtle" | "secondary" | "transparent";
+  shape?: "rounded" | "circular" | "square";
+  size?: "small" | "medium" | "large";
+
+  // State
+  disabled?: boolean;
+  disabledFocusable?: boolean;
+
+  // Callbacks
+  onOpenChange?: (e: OpenChangeEvent, data: OnOpenChangeData) => void;
+}
+
+interface MenuProps {
+  children: React.ReactNode;
+  positioning?: PositioningShorthand;
+  onOpenChange?: (e: OpenChangeEvent, data: OnOpenChangeData) => void;
+}
+```
+
+**Key Features:**
+
+- **Integrated menu management**: Handles menu open/close state internally
+- **Accessible by default**: Provides proper ARIA attributes and keyboard navigation
+- **Flexible content**: Supports any menu content including dividers, icons, and nested items
+- **Consistent styling**: Inherits button styling patterns from the Fluent design system
+
+**Usage Example:**
+
+```tsx
+import {
+  MenuButton,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuDivider,
+} from "@fluentui/react-components";
+import {
+  MoreHorizontalIcon,
+  EditIcon,
+  DeleteIcon,
+  ShareIcon,
+} from "@fluentui/react-icons";
+
+function BasicMenuButton() {
+  return (
+    <MenuButton
+      icon={<MoreHorizontalIcon />}
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuItem icon={<EditIcon />}>Edit</MenuItem>
+            <MenuItem icon={<ShareIcon />}>Share</MenuItem>
+            <MenuDivider />
+            <MenuItem icon={<DeleteIcon />}>Delete</MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    >
+      Actions
+    </MenuButton>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Action Menu
+
+```tsx
+import {
+  MenuButton,
+  Menu,
+  MenuItem,
+  MenuList,
+} from "@fluentui/react-components";
+import { ChevronDownIcon } from "@fluentui/react-icons";
+
+// Simple action menu with text options
+function ActionMenu() {
+  return (
+    <MenuButton
+      icon={<ChevronDownIcon />}
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuItem>Save</MenuItem>
+            <MenuItem>Save As...</MenuItem>
+            <MenuItem>Export</MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    >
+      File
+    </MenuButton>
+  );
+}
+```
+
+### Icon-Only Menu Button
+
+```tsx
+import {
+  MenuButton,
+  Menu,
+  MenuItem,
+  MenuList,
+} from "@fluentui/react-components";
+import {
+  MoreVerticalIcon,
+  EditIcon,
+  CopyIcon,
+  DeleteIcon,
+} from "@fluentui/react-icons";
+
+// Compact menu button for limited space
+function IconMenuButton() {
+  return (
+    <MenuButton
+      icon={<MoreVerticalIcon />}
+      appearance="subtle"
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuItem icon={<EditIcon />}>Edit</MenuItem>
+            <MenuItem icon={<CopyIcon />}>Copy</MenuItem>
+            <MenuItem icon={<DeleteIcon />}>Delete</MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    />
+  );
+}
+```
+
+### Controlled Menu Button
+
+```tsx
+import {
+  MenuButton,
+  Menu,
+  MenuItem,
+  MenuList,
+} from "@fluentui/react-components";
+import { useState } from "react";
+
+// Menu button with controlled open state
+function ControlledMenuButton() {
+  const [open, setOpen] = useState(false);
+
+  const handleMenuAction = (action: string) => {
+    console.log(`Action: ${action}`);
+    setOpen(false); // Close menu after action
+  };
+
+  return (
+    <MenuButton
+      menu={
+        <Menu open={open} onOpenChange={(e, data) => setOpen(data.open)}>
+          <MenuList>
+            <MenuItem onClick={() => handleMenuAction("create")}>
+              Create New
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuAction("import")}>
+              Import
+            </MenuItem>
+            <MenuItem onClick={() => handleMenuAction("template")}>
+              From Template
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    >
+      New Document
+    </MenuButton>
+  );
+}
+```
+
+### Complex Menu with Grouping
+
+```tsx
+import {
+  MenuButton,
+  Menu,
+  MenuItem,
+  MenuList,
+  MenuDivider,
+  MenuGroup,
+  MenuGroupHeader,
+} from "@fluentui/react-components";
+
+// Menu with grouped items and headers
+function GroupedMenuButton() {
+  return (
+    <MenuButton
+      appearance="primary"
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuGroup>
+              <MenuGroupHeader>Document Actions</MenuGroupHeader>
+              <MenuItem>New Document</MenuItem>
+              <MenuItem>Open Recent</MenuItem>
+            </MenuGroup>
+            <MenuDivider />
+            <MenuGroup>
+              <MenuGroupHeader>Share Options</MenuGroupHeader>
+              <MenuItem>Share Link</MenuItem>
+              <MenuItem>Export PDF</MenuItem>
+              <MenuItem>Send Email</MenuItem>
+            </MenuGroup>
+          </MenuList>
+        </Menu>
+      }
+    >
+      Document Options
+    </MenuButton>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Use descriptive labels**: The button text should clearly indicate what type of actions the menu contains
+- **Group related actions**: Organize menu items logically and use dividers to separate different types of actions
+- **Limit menu depth**: Avoid deeply nested submenus; consider alternative navigation patterns for complex hierarchies
+- **Provide visual cues**: Use icons in menu items to help users quickly identify options
+- **Consider keyboard users**: Ensure all menu items are accessible via keyboard navigation
+- **Handle loading states**: For menu items that trigger async operations, provide appropriate feedback
+
+### Accessibility
+
+- **ARIA attributes**: MenuButton automatically provides `aria-haspopup` and `aria-expanded` attributes
+- **Keyboard navigation**: Supports Arrow keys, Enter, Space, and Escape for full keyboard operation
+- **Focus management**: Properly manages focus between button and menu items
+- **Screen reader support**: Menu structure is properly announced to assistive technologies
+- **High contrast**: Follows Fluent design system contrast requirements for both light and dark themes
+
+### Performance
+
+- **Lazy menu rendering**: Menu content is only rendered when opened, improving initial page load
+- **Event delegation**: Use event handlers efficiently to avoid performance issues with large menus
+- **Minimize re-renders**: Use React.memo or useMemo for complex menu content that doesn't change frequently
+- **Portal rendering**: Menu content is rendered in a portal to avoid z-index and positioning issues
+
+## Common Patterns
+
+### Pattern 1: Toolbar Action Menu
+
+```tsx
+// Common pattern for toolbar buttons with multiple related actions
+function ToolbarMenuButton() {
+  return (
+    <MenuButton
+      size="small"
+      appearance="subtle"
+      icon={<FormatIcon />}
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuItem icon={<BoldIcon />}>Bold</MenuItem>
+            <MenuItem icon={<ItalicIcon />}>Italic</MenuItem>
+            <MenuItem icon={<UnderlineIcon />}>Underline</MenuItem>
+            <MenuDivider />
+            <MenuItem icon={<FontColorIcon />}>Text Color</MenuItem>
+            <MenuItem icon={<HighlightIcon />}>Highlight</MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    >
+      Format
+    </MenuButton>
+  );
+}
+```
+
+### Pattern 2: Context Menu Button
+
+```tsx
+// Pattern for context-sensitive actions based on selection
+function ContextMenuButton({ selectedItems }: { selectedItems: Item[] }) {
+  const hasSelection = selectedItems.length > 0;
+  const isMultipleSelection = selectedItems.length > 1;
+
+  return (
+    <MenuButton
+      disabled={!hasSelection}
+      icon={<ActionsIcon />}
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuItem disabled={!hasSelection}>
+              Edit {isMultipleSelection ? "Items" : "Item"}
+            </MenuItem>
+            <MenuItem disabled={!hasSelection}>
+              Duplicate {isMultipleSelection ? "Items" : "Item"}
+            </MenuItem>
+            <MenuDivider />
+            <MenuItem disabled={!hasSelection}>
+              Delete {isMultipleSelection ? "Items" : "Item"}
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    >
+      Actions ({selectedItems.length})
+    </MenuButton>
+  );
+}
+```
+
+### Pattern 3: Split Button Alternative
+
+```tsx
+// Alternative to split button using MenuButton
+function CreateMenuButton() {
+  const handleDefaultAction = () => {
+    // Primary action - create blank document
+    console.log("Creating blank document...");
+  };
+
+  return (
+    <MenuButton
+      appearance="primary"
+      menu={
+        <Menu>
+          <MenuList>
+            <MenuItem onClick={handleDefaultAction}>Blank Document</MenuItem>
+            <MenuDivider />
+            <MenuItem>From Template</MenuItem>
+            <MenuItem>Import File</MenuItem>
+            <MenuItem>From URL</MenuItem>
+          </MenuList>
+        </Menu>
+      }
+    >
+      Create
+    </MenuButton>
+  );
+}
+```

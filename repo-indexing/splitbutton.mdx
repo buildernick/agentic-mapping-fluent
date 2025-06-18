@@ -1,0 +1,423 @@
+# SplitButton Component
+
+## Overview
+
+### Purpose
+
+Use the SplitButton component to provide a primary action button alongside a secondary menu button, allowing users to perform a default action or select from additional options.
+
+### When to Use
+
+SplitButton is ideal for scenarios where:
+
+- You have a primary action that users perform most often (like "Save" or "New")
+- You want to provide additional related actions without cluttering the interface
+- You need to offer variations of the primary action (like "Save" with options for "Save As", "Save Template")
+- You want to maintain a clean interface while providing power user functionality
+- The primary action and menu items are logically related
+- You need to reduce cognitive load by presenting the most common action prominently
+
+Common use cases include:
+
+- File operations (New Document, New from Template, New Blank)
+- Save operations (Save, Save As, Save Copy)
+- Share functionality (Share, Share Link, Share via Email)
+- Download options (Download, Download PDF, Download ZIP)
+- Import/Export actions with different formats
+
+### Architecture
+
+**No Coupling**: SplitButton is achieved by configuring standard Button components with the `split` prop, making it a standalone component pattern rather than a separate component group.
+
+The SplitButton pattern transforms a regular button into a composite control with:
+
+- A primary action area (left side) that executes the main action
+- A menu trigger area (right side) that opens a contextual menu
+- Visual separation between the two interactive areas
+
+## Components
+
+### SplitButton (Button with split=true)
+
+**Purpose:** Provides a dual-purpose button with a primary action and an expandable menu for secondary actions.
+
+**Interface:**
+
+```typescript
+interface ISplitButtonProps extends IButtonProps {
+  // Core split button configuration
+  split: true; // Required to enable split button functionality
+  splitButtonAriaLabel: string; // Accessible label for the menu button portion
+  menuProps: IContextualMenuProps; // Configuration for the dropdown menu
+
+  // Primary button properties
+  text: string; // Text displayed on the primary button
+  onClick: () => void; // Handler for primary button click
+  primary?: boolean; // Whether to style as primary button
+  disabled?: boolean; // Disables both primary and menu portions
+  primaryDisabled?: boolean; // Disables only the primary action, menu remains functional
+
+  // Optional enhancements
+  iconProps?: IIconProps; // Icon to display on the button
+  styles?: IButtonStyles; // Custom styling including split-specific styles
+  keytipProps?: IKeytipProps; // Keyboard shortcut hints
+  allowDisabledFocus?: boolean; // Allows focus on disabled button for accessibility
+  checked?: boolean; // Visual state for toggle-like behavior
+
+  // Accessibility
+  "aria-roledescription"?: string; // Should typically be "split button"
+  ariaLabel?: string; // Label for the entire split button
+}
+```
+
+**Key Split-Specific Style Properties:**
+
+```typescript
+interface ISplitButtonStyles {
+  splitButtonContainer?: IStyle; // Container for the entire split button
+  splitButtonMenuButton?: IStyle; // Styling for the menu trigger button
+  splitButtonDivider?: IStyle; // Visual separator between primary and menu areas
+  splitButtonMenuIcon?: IStyle; // Icon in the menu trigger area (usually chevron down)
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { DefaultButton } from "@fluentui/react/lib/Button";
+import { IContextualMenuProps } from "@fluentui/react";
+
+const menuProps: IContextualMenuProps = {
+  items: [
+    {
+      key: "save",
+      text: "Save",
+      iconProps: { iconName: "Save" },
+    },
+    {
+      key: "saveAs",
+      text: "Save As...",
+      iconProps: { iconName: "SaveAs" },
+    },
+    {
+      key: "saveTemplate",
+      text: "Save as Template",
+      iconProps: { iconName: "PageTemplate" },
+    },
+  ],
+};
+
+function DocumentEditor() {
+  const handlePrimarySave = () => {
+    // Handle the primary save action
+    console.log("Performing quick save");
+  };
+
+  return (
+    <DefaultButton
+      text="Save"
+      split
+      splitButtonAriaLabel="See more save options"
+      aria-roledescription="split button"
+      onClick={handlePrimarySave}
+      menuProps={menuProps}
+      iconProps={{ iconName: "Save" }}
+    />
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { DefaultButton } from "@fluentui/react/lib/Button";
+import { IContextualMenuProps } from "@fluentui/react";
+
+// Minimal split button configuration
+function BasicSplitButton() {
+  const menuProps: IContextualMenuProps = {
+    items: [
+      { key: "option1", text: "Option 1" },
+      { key: "option2", text: "Option 2" },
+    ],
+  };
+
+  return (
+    <DefaultButton
+      text="Action"
+      split
+      splitButtonAriaLabel="See more options"
+      aria-roledescription="split button"
+      onClick={() => console.log("Primary action")}
+      menuProps={menuProps}
+    />
+  );
+}
+```
+
+### Primary Split Button
+
+```tsx
+// Styled as primary button with enhanced visual prominence
+function PrimarySplitButton() {
+  return (
+    <DefaultButton
+      text="Create"
+      primary
+      split
+      splitButtonAriaLabel="See more creation options"
+      aria-roledescription="split button"
+      onClick={handleCreate}
+      menuProps={menuProps}
+    />
+  );
+}
+```
+
+### Split Button with Custom Styling
+
+```tsx
+import { IButtonStyles } from "@fluentui/react/lib/Button";
+
+const customSplitButtonStyles: IButtonStyles = {
+  splitButtonMenuButton: {
+    backgroundColor: "white",
+    width: 28,
+    border: "none",
+  },
+  splitButtonMenuIcon: {
+    fontSize: "7px",
+  },
+  splitButtonDivider: {
+    backgroundColor: "#c8c8c8",
+    width: 1,
+    right: 26,
+    position: "absolute",
+    top: 4,
+    bottom: 4,
+  },
+  splitButtonContainer: {
+    selectors: {
+      ":hover": { backgroundColor: "#f3f2f1" },
+    },
+  },
+};
+
+function CustomStyledSplitButton() {
+  return (
+    <DefaultButton
+      text="Custom Action"
+      split
+      splitButtonAriaLabel="See more options"
+      aria-roledescription="split button"
+      styles={customSplitButtonStyles}
+      onClick={handleAction}
+      menuProps={menuProps}
+    />
+  );
+}
+```
+
+### Icon Split Button
+
+```tsx
+import { IconButton } from "@fluentui/react/lib/Button";
+
+function IconSplitButton() {
+  return (
+    <IconButton
+      split
+      iconProps={{ iconName: "Add" }}
+      splitButtonAriaLabel="See more creation options"
+      aria-roledescription="split button"
+      ariaLabel="Create new item"
+      onClick={handleCreate}
+      menuProps={menuProps}
+    />
+  );
+}
+```
+
+### Disabled State Variations
+
+```tsx
+// Completely disabled split button
+function DisabledSplitButton() {
+  return (
+    <DefaultButton
+      text="Action"
+      split
+      disabled
+      allowDisabledFocus
+      splitButtonAriaLabel="Options unavailable"
+      aria-roledescription="split button"
+      onClick={handleAction}
+      menuProps={menuProps}
+    />
+  );
+}
+
+// Primary action disabled, menu still functional
+function PrimaryDisabledSplitButton() {
+  return (
+    <DefaultButton
+      text="Action"
+      split
+      primaryDisabled
+      splitButtonAriaLabel="See available options"
+      aria-roledescription="split button"
+      onClick={handleAction}
+      menuProps={menuProps}
+    />
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Always provide a meaningful `splitButtonAriaLabel` that describes what the menu contains
+- Include `aria-roledescription="split button"` for screen reader compatibility
+- Ensure the primary action is the most commonly used option
+- Keep menu items logically related to the primary action
+- Use clear, descriptive text for both the primary button and menu items
+- Limit menu items to avoid overwhelming users (typically 3-7 items)
+
+### Accessibility
+
+- The split button creates a single tab stop with two interactive areas
+- Use appropriate ARIA labels to distinguish between primary action and menu trigger
+- Ensure keyboard navigation works properly (Enter for primary action, Space or Arrow keys for menu)
+- Provide sufficient color contrast for all button states
+- Test with screen readers to ensure proper announcement of functionality
+
+### Performance
+
+- Menu items are loaded when the button is created, not on-demand
+- Consider lazy loading for complex menu content if performance is a concern
+- Use memoization for stable menu props to prevent unnecessary re-renders
+
+## Common Patterns
+
+### File Operations Pattern
+
+```tsx
+const fileMenuProps: IContextualMenuProps = {
+  items: [
+    {
+      key: "newBlank",
+      text: "New Blank Document",
+      iconProps: { iconName: "Page" },
+    },
+    {
+      key: "newTemplate",
+      text: "New from Template",
+      iconProps: { iconName: "PageTemplate" },
+    },
+    {
+      key: "newFromExisting",
+      text: "New from Existing",
+      iconProps: { iconName: "OpenFile" },
+    },
+  ],
+};
+
+function FileCreationSplitButton() {
+  return (
+    <DefaultButton
+      text="New Document"
+      primary
+      split
+      splitButtonAriaLabel="See more document creation options"
+      aria-roledescription="split button"
+      onClick={() => createBlankDocument()}
+      menuProps={fileMenuProps}
+      iconProps={{ iconName: "Add" }}
+    />
+  );
+}
+```
+
+### Save Operations Pattern
+
+```tsx
+const saveMenuProps: IContextualMenuProps = {
+  items: [
+    {
+      key: "save",
+      text: "Save",
+      iconProps: { iconName: "Save" },
+    },
+    {
+      key: "saveAs",
+      text: "Save As...",
+      iconProps: { iconName: "SaveAs" },
+    },
+    {
+      key: "saveACopy",
+      text: "Save a Copy",
+      iconProps: { iconName: "Copy" },
+    },
+    { key: "divider", itemType: ContextualMenuItemType.Divider },
+    {
+      key: "exportPdf",
+      text: "Export as PDF",
+      iconProps: { iconName: "PDF" },
+    },
+  ],
+};
+
+function SaveSplitButton() {
+  return (
+    <DefaultButton
+      text="Save"
+      split
+      splitButtonAriaLabel="See more save and export options"
+      aria-roledescription="split button"
+      onClick={() => quickSave()}
+      menuProps={saveMenuProps}
+    />
+  );
+}
+```
+
+### Share Actions Pattern
+
+```tsx
+const shareMenuProps: IContextualMenuProps = {
+  items: [
+    {
+      key: "shareLink",
+      text: "Get Link",
+      iconProps: { iconName: "Link" },
+    },
+    {
+      key: "shareEmail",
+      text: "Share via Email",
+      iconProps: { iconName: "Mail" },
+    },
+    {
+      key: "shareTeams",
+      text: "Share to Teams",
+      iconProps: { iconName: "TeamsLogo" },
+    },
+  ],
+};
+
+function ShareSplitButton() {
+  return (
+    <DefaultButton
+      text="Share"
+      split
+      splitButtonAriaLabel="See more sharing options"
+      aria-roledescription="split button"
+      onClick={() => openShareDialog()}
+      menuProps={shareMenuProps}
+      iconProps={{ iconName: "Share" }}
+    />
+  );
+}
+```

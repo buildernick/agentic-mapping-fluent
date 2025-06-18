@@ -1,0 +1,395 @@
+# Display Component
+
+## Overview
+
+### Purpose
+
+Use this component for display text styling
+
+### When to Use
+
+The Display component is designed for the largest, most prominent text in your application. Use Display when you need:
+
+- Hero headings and main page titles that need maximum visual impact
+- Primary text elements that serve as the visual focal point of a page or section
+- Marketing copy or promotional text that requires attention-grabbing typography
+- Brand or product names that need to stand out prominently
+- Main headings for landing pages, splash screens, or hero sections
+- Typography that establishes hierarchy at the highest level of your content structure
+
+### Architecture
+
+**No Coupling** - Display is a standalone typography component that doesn't require other components to function. It's part of the broader typography system but operates independently, providing the largest text styling option in the hierarchy.
+
+### Component Interdependencies
+
+Display has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related components for different text levels and emphasis.
+
+## Components
+
+### Display {Standalone Component}
+
+**Purpose:** Provides the largest text styling in the Fluent Design System's typography hierarchy. This component ensures consistent styling for the most prominent headings and display text that needs maximum visual impact.
+
+**Interface:**
+
+```typescript
+interface DisplayProps {
+  /**
+   * The content to be rendered as display text
+   */
+  children?: React.ReactNode;
+
+  /**
+   * The HTML element or React component to render
+   * @default 'span'
+   */
+  as?: React.ElementType;
+
+  /**
+   * Applies block-level styling (display: block)
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Prevents text wrapping (white-space: nowrap)
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Applies text truncation with ellipsis on overflow
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Text alignment
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Display } from "@fluentui/react-text";
+
+function Example() {
+  return <Display>Welcome to Our Platform</Display>;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Display } from "@fluentui/react-text";
+
+// Simple display text
+function BasicExample() {
+  return <Display>Hero Title</Display>;
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Display } from "@fluentui/react-text";
+
+// Using semantic HTML elements
+function SemanticExample() {
+  return (
+    <>
+      <Display as="h1">Main Page Heading</Display>
+
+      <Display as="div">Brand Name Display</Display>
+    </>
+  );
+}
+```
+
+### Layout and Display Variations
+
+```tsx
+import { Display } from "@fluentui/react-text";
+
+// Different layout configurations
+function LayoutExample() {
+  return (
+    <>
+      {/* Inline display text (default) */}
+      <Display>Brand Name</Display>
+
+      {/* Block-level display text */}
+      <Display block>Welcome to Our Application</Display>
+
+      {/* Non-wrapping display text */}
+      <Display nowrap>Company Name That Should Not Wrap</Display>
+
+      {/* Truncated display text with ellipsis */}
+      <Display truncate>
+        Very Long Product Name That Might Need Truncation
+      </Display>
+    </>
+  );
+}
+```
+
+### Text Alignment
+
+```tsx
+import { Display } from "@fluentui/react-text";
+
+// Text alignment options for hero sections
+function AlignmentExample() {
+  return (
+    <>
+      <Display align="start" block as="h1">
+        Left-aligned Hero Title
+      </Display>
+      <Display align="center" block as="h1">
+        Centered Brand Name
+      </Display>
+      <Display align="end" block as="h1">
+        Right-aligned Product Title
+      </Display>
+    </>
+  );
+}
+```
+
+## Component Relationships
+
+### Typography Hierarchy
+
+Display is at the top of the typography hierarchy, providing the largest text styling:
+
+- **Display**: Largest text for major headings (this component)
+- **LargeTitle**: Large titles for section headers
+- **Title1, Title2, Title3**: Hierarchical title sizes
+- **Subtitle1, Subtitle2**: Subtitle variations
+- **Body1, Body2**: Body text variations
+- **Caption1, Caption2**: Small text for captions and labels
+
+### Related Components
+
+```tsx
+import {
+  Display,
+  LargeTitle,
+  Title1,
+  Body1,
+  Subtitle1,
+} from "@fluentui/react-text";
+
+function HeroSectionExample() {
+  return (
+    <section>
+      <Display as="h1" align="center" block>
+        Transform Your Business
+      </Display>
+
+      <Subtitle1 as="p" align="center" block>
+        Innovative solutions for modern challenges
+      </Subtitle1>
+
+      <Body1 as="p" align="center" block>
+        Discover how our platform can help you achieve your goals with
+        cutting-edge technology and expert support.
+      </Body1>
+    </section>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Display sparingly - typically only one per page or section for maximum impact
+- Combine with semantic HTML elements using the `as` prop for proper accessibility and SEO
+- Ensure Display text is concise and impactful, as it draws the most attention
+- Consider responsive design when using Display text to ensure readability across devices
+- Use block-level Display for full-width hero headings and inline for brand names or labels
+
+### Accessibility
+
+- Always use appropriate heading levels (`as="h1"`, `as="h2"`, etc.) to maintain document structure
+- Ensure sufficient color contrast when customizing Display text colors
+- Test with screen readers to ensure proper heading hierarchy and navigation
+- Provide alternative text descriptions for truncated Display text when necessary
+- Consider font size scaling for users with visual impairments
+
+### Performance
+
+- Display components are lightweight with minimal rendering overhead
+- Use consistent typography components rather than custom CSS to maintain design system coherence
+- Avoid excessive nesting or complex styling that might impact rendering performance
+
+### Design Consistency
+
+- Stick to the typography hierarchy provided by the design system
+- Use Display only for the most important headings that need maximum visual impact
+- Maintain consistent spacing and layout when combining Display with other typography components
+- Consider the visual weight of Display text in relation to other page elements
+
+## Common Patterns
+
+### Pattern 1: Hero Section
+
+```tsx
+import { Display, Subtitle1, Body1, Button } from "@fluentui/react-components";
+
+function HeroSection() {
+  return (
+    <div style={{ textAlign: "center", padding: "60px 20px" }}>
+      <Display as="h1" block>
+        Welcome to the Future
+      </Display>
+      <Subtitle1 as="p" block style={{ marginTop: "16px" }}>
+        Innovative solutions for tomorrow's challenges
+      </Subtitle1>
+      <Body1
+        as="p"
+        block
+        style={{ marginTop: "24px", maxWidth: "600px", margin: "24px auto 0" }}
+      >
+        Join thousands of businesses that have transformed their operations with
+        our platform.
+      </Body1>
+      <Button appearance="primary" style={{ marginTop: "32px" }}>
+        Get Started
+      </Button>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Product Landing Page
+
+```tsx
+import { Display, Title2, Body1 } from "@fluentui/react-text";
+import { Card } from "@fluentui/react-components";
+
+function ProductLanding({ productName, tagline, description }) {
+  return (
+    <Card style={{ padding: "40px", textAlign: "center" }}>
+      <Display as="h1" block>
+        {productName}
+      </Display>
+      <Title2 as="h2" block style={{ marginTop: "16px", opacity: 0.8 }}>
+        {tagline}
+      </Title2>
+      <Body1 as="p" block style={{ marginTop: "24px" }}>
+        {description}
+      </Body1>
+    </Card>
+  );
+}
+```
+
+### Pattern 3: Brand Header
+
+```tsx
+import { Display, Body2 } from "@fluentui/react-text";
+import { Link } from "@fluentui/react-components";
+
+function BrandHeader() {
+  return (
+    <header style={{ display: "flex", alignItems: "center", padding: "20px" }}>
+      <Link href="/" style={{ textDecoration: "none" }}>
+        <Display as="span">BrandName</Display>
+      </Link>
+      <Body2 style={{ marginLeft: "12px", opacity: 0.7 }}>Tagline</Body2>
+    </header>
+  );
+}
+```
+
+### Pattern 4: Section Headers
+
+```tsx
+import { Display, Divider, Body1 } from "@fluentui/react-components";
+
+function SectionWithDisplayHeader({ title, content }) {
+  return (
+    <section style={{ marginBottom: "48px" }}>
+      <Display as="h2" block align="center">
+        {title}
+      </Display>
+      <Divider style={{ margin: "24px 0" }} />
+      <Body1 as="p" block>
+        {content}
+      </Body1>
+    </section>
+  );
+}
+```
+
+### Pattern 5: Responsive Display Text
+
+```tsx
+import { Display } from "@fluentui/react-text";
+
+function ResponsiveHero() {
+  return (
+    <div style={{ padding: "40px 20px" }}>
+      <Display
+        as="h1"
+        block
+        align="center"
+        style={{
+          // Responsive font sizing
+          fontSize: "clamp(2rem, 5vw, 4rem)",
+          lineHeight: 1.2,
+        }}
+      >
+        Responsive Hero Title
+      </Display>
+    </div>
+  );
+}
+```
+
+### Pattern 6: Marketing Banner
+
+```tsx
+import { Display, Button } from "@fluentui/react-components";
+
+function MarketingBanner({ title, ctaText, onCtaClick }) {
+  return (
+    <div
+      style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "white",
+        padding: "60px 20px",
+        textAlign: "center",
+      }}
+    >
+      <Display as="h1" block style={{ color: "inherit" }}>
+        {title}
+      </Display>
+      <Button
+        appearance="secondary"
+        style={{ marginTop: "32px" }}
+        onClick={onCtaClick}
+      >
+        {ctaText}
+      </Button>
+    </div>
+  );
+}
+```

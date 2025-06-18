@@ -1,0 +1,793 @@
+---
+title: TagPicker Components
+---
+
+# TagPicker Components
+
+## Overview
+
+### Purpose
+
+Use this component group for tag selection functionality with complex interdependent structure
+
+### When to Use
+
+- **Tag Management**: When users need to add, remove, and organize multiple tags or labels
+- **Multi-selection Filtering**: For filtering content by multiple criteria represented as tags
+- **User Input with Suggestions**: When providing type-ahead suggestions for tag selection
+- **Content Categorization**: For categorizing documents, files, or data with multiple tags
+- **Dynamic Input Lists**: When users need to build lists of items with autocomplete functionality
+- **Form Fields**: For complex form inputs that require multiple selections with search capability
+
+### Architecture
+
+**Strong Coupling**: The TagPicker component group requires a complex interdependent structure with shared context and compositional hierarchy. Components work together to provide a complete tag selection experience with input handling, suggestion management, and selection state.
+
+### Component Interdependencies
+
+- **TagPicker**: Root component that provides context and orchestrates all child components
+- **TagPickerInput**: Input field component that requires TagPicker context for suggestion handling
+- **TagPickerList**: Suggestion list component that depends on shared filter state from TagPicker
+- **TagPickerButton**: Action buttons that operate on the shared selection state
+- **TagPickerControl**: Wrapper component for input controls within the TagPicker context
+- **TagPickerOption**: Individual suggestion items that require parent list context
+- **TagPickerGroup**: Grouping component for organizing suggestions
+- **TagPickerOptionGroup**: Grouped option container that manages related suggestions
+
+## Components
+
+### TagPicker {Primary Component}
+
+The main component that orchestrates tag selection functionality and provides context to all child components.
+
+**Purpose:** Root component that manages tag selection state, suggestion filtering, and provides context for all picker interactions
+
+**Interface:**
+
+```typescript
+interface TagPickerProps {
+  children: React.ReactNode; // Required child components (TagPickerInput, TagPickerList, etc.)
+  onResolveSuggestions: (
+    filterText: string,
+    tagList?: ITag[],
+  ) => ITag[] | Promise<ITag[]>; // Core suggestion resolution function
+  getTextFromItem: (item: ITag) => string; // Extract display text from tag items
+  selectedItems?: ITag[]; // Currently selected tags
+  onSelectionChanged?: (items: ITag[]) => void; // Callback when selection changes
+  onItemSelected?: (item: ITag) => ITag | null; // Validate/transform selected items
+  disabled?: boolean; // Disable the entire picker
+  removeButtonAriaLabel?: string; // Accessibility label for remove buttons
+  selectionAriaLabel?: string; // Accessibility label for selection area
+  pickerSuggestionsProps?: IBasePickerSuggestionsProps; // Configuration for suggestion behavior
+  itemLimit?: number; // Maximum number of selected items
+  pickerCalloutProps?: ICalloutProps; // Callout positioning and behavior
+  inputProps?: IInputProps; // Properties passed to input component
+  componentRef?: React.RefObject<IBasePicker<ITag>>; // Reference to picker instance
+}
+
+interface ITag {
+  key: string; // Unique identifier
+  name: string; // Display name
+  [key: string]: any; // Additional properties
+}
+
+interface IBasePickerSuggestionsProps {
+  suggestionsHeaderText?: string; // Header text for suggestions
+  noResultsFoundText?: string; // Text when no suggestions found
+  searchForMoreText?: string; // Text for "search for more" option
+  suggestionsAvailableAlertText?: string; // Screen reader announcement
+  suggestionsClassName?: string; // CSS class for suggestions container
+}
+```
+
+**Dependencies:** None (root component)
+**Provides:** TagPicker context including selection state, suggestion filtering, and input coordination to all child components
+
+**Usage Example:**
+
+```tsx
+import {
+  TagPicker,
+  TagPickerInput,
+  TagPickerList,
+} from "@fluentui/react-components";
+
+function BasicTagPicker() {
+  const handleResolveSuggestions = (filterText: string, tagList?: ITag[]) => {
+    return availableTags.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(filterText.toLowerCase()) &&
+        !tagList?.some((selectedTag) => selectedTag.key === tag.key),
+    );
+  };
+
+  return (
+    <TagPicker
+      onResolveSuggestions={handleResolveSuggestions}
+      getTextFromItem={(item) => item.name}
+      removeButtonAriaLabel="Remove tag"
+      selectionAriaLabel="Selected tags"
+    >
+      <TagPickerInput placeholder="Type to add tags..." />
+      <TagPickerList />
+    </TagPicker>
+  );
+}
+```
+
+### TagPickerInput {Dependent Component}
+
+Input field component that handles user typing and triggers suggestion resolution.
+
+**Purpose:** Provides text input functionality with integrated suggestion triggering and keyboard navigation
+
+**Interface:**
+
+```typescript
+interface TagPickerInputProps {
+  placeholder?: string; // Input placeholder text
+  disabled?: boolean; // Disable input field
+  autoComplete?: "on" | "off"; // Browser autocomplete behavior
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void; // Input blur handler
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void; // Input focus handler
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void; // Input change handler
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void; // Keyboard event handler
+  id?: string; // Input element ID for accessibility
+  "aria-label"?: string; // Accessibility label
+  "aria-describedby"?: string; // Accessibility description reference
+}
+```
+
+**Context Dependencies:** Requires TagPicker context for suggestion triggering and selection management
+**Parent Requirements:** Must be used within TagPicker component for proper functionality
+
+**Usage Example:**
+
+```tsx
+// Must be used within TagPicker
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerInput
+    placeholder="Type to add tags..."
+    onFocus={() => console.log("Input focused")}
+    aria-label="Tag input field"
+  />
+  <TagPickerList />
+</TagPicker>
+```
+
+### TagPickerList {Dependent Component}
+
+Container component that displays filtered suggestions and handles selection.
+
+**Purpose:** Displays filtered tag suggestions and manages suggestion selection and keyboard navigation
+
+**Interface:**
+
+```typescript
+interface TagPickerListProps {
+  onRenderSuggestion?: (
+    suggestion: ITag,
+    props: ITagPickerSuggestionProps,
+  ) => React.ReactNode; // Custom suggestion renderer
+  suggestionsHeaderText?: string; // Override header text from picker props
+  noResultsFoundText?: string; // Override no results text from picker props
+  className?: string; // Additional CSS classes
+  calloutProps?: ICalloutProps; // Callout configuration for suggestion dropdown
+  suggestionsContainerAriaLabel?: string; // Accessibility label for suggestions container
+}
+
+interface ITagPickerSuggestionProps {
+  item: ITag; // The suggestion item
+  index: number; // Item index in list
+  isSelected: boolean; // Whether item is currently highlighted
+  onClick: (item: ITag) => void; // Selection handler
+}
+```
+
+**Context Dependencies:** Requires TagPicker context for filtered suggestions and selection handling
+**Parent Requirements:** Must be used within TagPicker component for suggestion data
+
+**Usage Example:**
+
+```tsx
+// Must be used within TagPicker
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerInput placeholder="Type to search..." />
+  <TagPickerList
+    suggestionsHeaderText="Available Tags"
+    noResultsFoundText="No matching tags found"
+    onRenderSuggestion={(suggestion) => (
+      <div className="custom-suggestion">{suggestion.name}</div>
+    )}
+  />
+</TagPicker>
+```
+
+### TagPickerControl {Dependent Component}
+
+Wrapper component for input controls and selected items display.
+
+**Purpose:** Provides layout and styling container for input controls and selected tag visualization
+
+**Interface:**
+
+```typescript
+interface TagPickerControlProps {
+  children: React.ReactNode; // Input and selected items
+  className?: string; // Additional CSS classes
+  disabled?: boolean; // Disabled state styling
+  hasError?: boolean; // Error state styling
+  required?: boolean; // Required field styling
+}
+```
+
+**Context Dependencies:** Uses TagPicker context for state-based styling
+**Parent Requirements:** Must be used within TagPicker component
+
+**Usage Example:**
+
+```tsx
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerControl className="custom-control-styling">
+    <TagPickerInput placeholder="Add tags..." />
+  </TagPickerControl>
+  <TagPickerList />
+</TagPicker>
+```
+
+### TagPickerButton {Dependent Component}
+
+Action button component for picker operations.
+
+**Purpose:** Provides action buttons for picker operations like clearing all selections or triggering suggestions
+
+**Interface:**
+
+```typescript
+interface TagPickerButtonProps {
+  children: React.ReactNode; // Button content
+  onClick?: () => void; // Click handler
+  disabled?: boolean; // Disabled state
+  variant?: "clear" | "expand" | "custom"; // Button type
+  "aria-label"?: string; // Accessibility label
+}
+```
+
+**Context Dependencies:** Accesses TagPicker context for selection state operations
+**Parent Requirements:** Must be used within TagPicker component
+
+**Usage Example:**
+
+```tsx
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerControl>
+    <TagPickerInput placeholder="Add tags..." />
+    <TagPickerButton variant="clear" aria-label="Clear all tags">
+      Clear All
+    </TagPickerButton>
+  </TagPickerControl>
+  <TagPickerList />
+</TagPicker>
+```
+
+### TagPickerOption {Dependent Component}
+
+Individual suggestion item component within the suggestion list.
+
+**Purpose:** Renders individual tag suggestions with proper interaction and accessibility support
+
+**Interface:**
+
+```typescript
+interface TagPickerOptionProps {
+  item: ITag; // The tag item to display
+  index: number; // Position in suggestion list
+  onSelect?: (item: ITag) => void; // Selection handler
+  isSelected?: boolean; // Highlight state
+  className?: string; // Additional styling
+  children?: React.ReactNode; // Custom content
+}
+```
+
+**Context Dependencies:** Requires TagPickerList context for selection handling
+**Parent Requirements:** Must be used within TagPickerList or TagPickerOptionGroup
+
+**Usage Example:**
+
+```tsx
+// Typically used internally by TagPickerList, but can be customized
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerInput placeholder="Type to search..." />
+  <TagPickerList
+    onRenderSuggestion={(suggestion, props) => (
+      <TagPickerOption
+        item={suggestion.item}
+        index={props.index}
+        isSelected={props.isSelected}
+        onSelect={props.onClick}
+      >
+        <span className="tag-name">{suggestion.item.name}</span>
+        <span className="tag-category">{suggestion.item.category}</span>
+      </TagPickerOption>
+    )}
+  />
+</TagPicker>
+```
+
+### TagPickerGroup {Dependent Component}
+
+Grouping component for organizing related suggestions.
+
+**Purpose:** Provides visual and semantic grouping of related tag suggestions
+
+**Interface:**
+
+```typescript
+interface TagPickerGroupProps {
+  label: string; // Group label
+  children: React.ReactNode; // TagPickerOption components
+  className?: string; // Additional styling
+  headerClassName?: string; // Header styling
+}
+```
+
+**Context Dependencies:** Works within TagPickerList context for grouped suggestions
+**Parent Requirements:** Must be used within TagPickerList component
+
+**Usage Example:**
+
+```tsx
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerInput placeholder="Type to search..." />
+  <TagPickerList>
+    <TagPickerGroup label="Categories">
+      <TagPickerOption item={categorySuggestion1} />
+      <TagPickerOption item={categorySuggestion2} />
+    </TagPickerGroup>
+    <TagPickerGroup label="Recent">
+      <TagPickerOption item={recentSuggestion1} />
+      <TagPickerOption item={recentSuggestion2} />
+    </TagPickerGroup>
+  </TagPickerList>
+</TagPicker>
+```
+
+### TagPickerOptionGroup {Dependent Component}
+
+Container component for grouped options with enhanced functionality.
+
+**Purpose:** Advanced grouping container with collapsible sections and group-level operations
+
+**Interface:**
+
+```typescript
+interface TagPickerOptionGroupProps {
+  label: string; // Group label
+  children: React.ReactNode; // TagPickerOption components
+  collapsible?: boolean; // Allow collapse/expand
+  defaultExpanded?: boolean; // Initial expansion state
+  onToggle?: (expanded: boolean) => void; // Expansion change handler
+  groupActions?: React.ReactNode; // Group-level action buttons
+  className?: string; // Additional styling
+}
+```
+
+**Context Dependencies:** Requires TagPickerList context for grouped suggestion management
+**Parent Requirements:** Must be used within TagPickerList component
+
+**Usage Example:**
+
+```tsx
+<TagPicker
+  onResolveSuggestions={handleSuggestions}
+  getTextFromItem={getTextFromItem}
+>
+  <TagPickerInput placeholder="Type to search..." />
+  <TagPickerList>
+    <TagPickerOptionGroup
+      label="Project Tags"
+      collapsible
+      defaultExpanded={true}
+      onToggle={(expanded) => console.log("Group expanded:", expanded)}
+    >
+      <TagPickerOption item={projectTag1} />
+      <TagPickerOption item={projectTag2} />
+    </TagPickerOptionGroup>
+  </TagPickerList>
+</TagPicker>
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import {
+  TagPicker,
+  TagPickerInput,
+  TagPickerList,
+  TagPickerControl,
+} from "@fluentui/react-components";
+
+// Minimal required structure
+function BasicTagPicker() {
+  const [selectedTags, setSelectedTags] = useState<ITag[]>([]);
+
+  const handleResolveSuggestions = (filterText: string, tagList?: ITag[]) => {
+    return availableTags.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(filterText.toLowerCase()) &&
+        !tagList?.some((selectedTag) => selectedTag.key === tag.key),
+    );
+  };
+
+  return (
+    <TagPicker
+      onResolveSuggestions={handleResolveSuggestions}
+      getTextFromItem={(item) => item.name}
+      selectedItems={selectedTags}
+      onSelectionChanged={setSelectedTags}
+      removeButtonAriaLabel="Remove tag"
+      selectionAriaLabel="Selected tags"
+    >
+      <TagPickerControl>
+        <TagPickerInput placeholder="Type to add tags..." />
+      </TagPickerControl>
+      <TagPickerList />
+    </TagPicker>
+  );
+}
+```
+
+### Advanced Usage
+
+```tsx
+// Complex usage with all features
+function AdvancedTagPicker() {
+  const [selectedTags, setSelectedTags] = useState<ITag[]>([]);
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const handleResolveSuggestions = async (
+    filterText: string,
+    tagList?: ITag[],
+  ) => {
+    // Async suggestion resolution with API call
+    const response = await fetch(`/api/tags?search=${filterText}`);
+    const suggestions = await response.json();
+
+    return suggestions.filter(
+      (tag: ITag) =>
+        !tagList?.some((selectedTag) => selectedTag.key === tag.key),
+    );
+  };
+
+  const handleItemSelected = (item: ITag): ITag | null => {
+    // Validate selection and prevent duplicates
+    if (selectedTags.some((tag) => tag.key === item.key)) {
+      return null; // Prevent duplicate selection
+    }
+    return item;
+  };
+
+  const customSuggestionRenderer = (
+    suggestion: ITag,
+    props: ITagPickerSuggestionProps,
+  ) => (
+    <TagPickerOption
+      item={suggestion}
+      index={props.index}
+      isSelected={props.isSelected}
+      onSelect={props.onClick}
+    >
+      <div className="custom-suggestion">
+        <span className="tag-name">{suggestion.name}</span>
+        <span className="tag-category">{suggestion.category}</span>
+        <span className="tag-count">{suggestion.usageCount} uses</span>
+      </div>
+    </TagPickerOption>
+  );
+
+  return (
+    <TagPicker
+      onResolveSuggestions={handleResolveSuggestions}
+      getTextFromItem={(item) => item.name}
+      selectedItems={selectedTags}
+      onSelectionChanged={setSelectedTags}
+      onItemSelected={handleItemSelected}
+      disabled={isDisabled}
+      removeButtonAriaLabel="Remove tag"
+      selectionAriaLabel="Selected tags"
+      itemLimit={10}
+      pickerSuggestionsProps={{
+        suggestionsHeaderText: "Available Tags",
+        noResultsFoundText: "No matching tags found",
+        searchForMoreText: "Search for more tags...",
+      }}
+      pickerCalloutProps={{ doNotLayer: true }}
+    >
+      <TagPickerControl className="advanced-control">
+        <TagPickerInput
+          placeholder="Type to search tags..."
+          onFocus={() => console.log("Input focused")}
+          onBlur={() => console.log("Input blurred")}
+        />
+        <TagPickerButton
+          variant="clear"
+          onClick={() => setSelectedTags([])}
+          aria-label="Clear all selected tags"
+        >
+          Clear All
+        </TagPickerButton>
+      </TagPickerControl>
+      <TagPickerList onRenderSuggestion={customSuggestionRenderer}>
+        <TagPickerOptionGroup
+          label="Recent Tags"
+          collapsible
+          defaultExpanded={true}
+        >
+          {/* Recent tags populated by suggestion resolver */}
+        </TagPickerOptionGroup>
+        <TagPickerOptionGroup label="Popular Tags" collapsible>
+          {/* Popular tags populated by suggestion resolver */}
+        </TagPickerOptionGroup>
+      </TagPickerList>
+    </TagPicker>
+  );
+}
+```
+
+### Common Variations
+
+```tsx
+// Inline suggestions (no dropdown)
+function InlineTagPicker() {
+  return (
+    <TagPicker
+      onResolveSuggestions={handleSuggestions}
+      getTextFromItem={getTextFromItem}
+      pickerCalloutProps={{ doNotLayer: true }}
+      itemLimit={5}
+    >
+      <TagPickerInput placeholder="Type to add tags..." />
+      <TagPickerList />
+    </TagPicker>
+  );
+}
+
+// Disabled state
+function DisabledTagPicker() {
+  return (
+    <TagPicker
+      onResolveSuggestions={handleSuggestions}
+      getTextFromItem={getTextFromItem}
+      disabled={true}
+    >
+      <TagPickerControl>
+        <TagPickerInput placeholder="Tags disabled..." />
+      </TagPickerControl>
+      <TagPickerList />
+    </TagPicker>
+  );
+}
+
+// Custom remove icon
+function CustomIconTagPicker() {
+  return (
+    <TagPicker
+      onResolveSuggestions={handleSuggestions}
+      getTextFromItem={getTextFromItem}
+      removeButtonIconProps={{ iconName: "Delete" }}
+    >
+      <TagPickerInput placeholder="Type to add tags..." />
+      <TagPickerList />
+    </TagPicker>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **Input → Suggestion Resolution**: TagPickerInput captures user typing and triggers onResolveSuggestions in TagPicker
+2. **Suggestions → Display**: TagPicker filters suggestions and passes them to TagPickerList for display
+3. **Selection → State**: TagPickerOption selection events bubble up through TagPickerList to TagPicker for state management
+4. **State → UI Updates**: TagPicker state changes trigger re-renders of TagPickerControl (selected items) and TagPickerList (filtered suggestions)
+
+### Context Sharing
+
+- **TagPickerContext**: Primary context providing selection state, suggestion data, and event handlers
+- **SuggestionContext**: Nested context within TagPickerList for suggestion-specific operations
+- **SelectionContext**: Manages selected items and provides remove functionality
+
+### Event Handling
+
+- **Keyboard Navigation**: TagPickerInput handles arrow keys and delegates to TagPickerList for suggestion navigation
+- **Selection Events**: TagPickerOption click events bubble through TagPickerList to TagPicker's selection management
+- **Focus Management**: TagPicker coordinates focus between input field and suggestion list for accessibility
+
+## Best Practices
+
+### Usage Guidelines
+
+- Always provide meaningful `onResolveSuggestions` function for dynamic suggestion filtering
+- Use `getTextFromItem` to extract display text consistently across all components
+- Implement proper `onItemSelected` validation to prevent invalid or duplicate selections
+- Set appropriate `itemLimit` to prevent performance issues with large tag collections
+- Use `pickerCalloutProps={{ doNotLayer: true }}` for inline suggestions in containers with overflow restrictions
+
+### Accessibility
+
+- Provide descriptive `removeButtonAriaLabel` and `selectionAriaLabel` for screen readers
+- Use proper ARIA relationships between TagPickerInput and TagPickerList components
+- Ensure keyboard navigation works smoothly between input field and suggestion list
+- Announce suggestion count changes with `suggestionsAvailableAlertText`
+- Support keyboard shortcuts for common operations (Escape to close, Enter to select)
+
+### Performance
+
+- Implement debouncing in `onResolveSuggestions` for async operations to prevent excessive API calls
+- Use React.memo for TagPickerOption components when rendering large suggestion lists
+- Consider virtualization for TagPickerList when dealing with hundreds of suggestions
+- Optimize suggestion filtering algorithms to handle real-time typing performance
+
+## Common Patterns
+
+### Pattern 1: Async Suggestion Loading with Debouncing
+
+```tsx
+import { debounce } from "lodash";
+
+function AsyncTagPicker() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const debouncedResolve = useMemo(
+    () =>
+      debounce(async (filterText: string, tagList?: ITag[]) => {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/tags?search=${filterText}`);
+          const suggestions = await response.json();
+          return suggestions.filter(
+            (tag: ITag) =>
+              !tagList?.some((selectedTag) => selectedTag.key === tag.key),
+          );
+        } finally {
+          setIsLoading(false);
+        }
+      }, 300),
+    [],
+  );
+
+  return (
+    <TagPicker
+      onResolveSuggestions={debouncedResolve}
+      getTextFromItem={(item) => item.name}
+    >
+      <TagPickerInput placeholder="Search tags..." />
+      <TagPickerList>
+        {isLoading && <div>Loading suggestions...</div>}
+      </TagPickerList>
+    </TagPicker>
+  );
+}
+```
+
+### Pattern 2: Grouped Suggestions with Category Management
+
+```tsx
+function CategorizedTagPicker() {
+  const handleResolveSuggestions = (filterText: string, tagList?: ITag[]) => {
+    const filtered = allTags.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(filterText.toLowerCase()) &&
+        !tagList?.some((selectedTag) => selectedTag.key === tag.key),
+    );
+
+    // Group by category
+    return filtered.reduce(
+      (groups, tag) => {
+        const category = tag.category || "Other";
+        if (!groups[category]) groups[category] = [];
+        groups[category].push(tag);
+        return groups;
+      },
+      {} as Record<string, ITag[]>,
+    );
+  };
+
+  return (
+    <TagPicker
+      onResolveSuggestions={handleResolveSuggestions}
+      getTextFromItem={(item) => item.name}
+    >
+      <TagPickerInput placeholder="Search by category..." />
+      <TagPickerList>
+        {Object.entries(suggestions).map(([category, tags]) => (
+          <TagPickerOptionGroup
+            key={category}
+            label={category}
+            collapsible
+            defaultExpanded={category === "Recent"}
+          >
+            {tags.map((tag) => (
+              <TagPickerOption key={tag.key} item={tag} />
+            ))}
+          </TagPickerOptionGroup>
+        ))}
+      </TagPickerList>
+    </TagPicker>
+  );
+}
+```
+
+### Pattern 3: Validation and Custom Selection Logic
+
+```tsx
+function ValidatedTagPicker() {
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const handleItemSelected = (item: ITag): ITag | null => {
+    // Clear previous errors
+    setValidationError(null);
+
+    // Custom validation logic
+    if (item.name.length < 3) {
+      setValidationError("Tag name must be at least 3 characters");
+      return null;
+    }
+
+    if (selectedTags.some((tag) => tag.category === item.category)) {
+      setValidationError(
+        `Only one tag per category (${item.category}) allowed`,
+      );
+      return null;
+    }
+
+    // Transform item if needed
+    return {
+      ...item,
+      name: item.name.toLowerCase(),
+      addedAt: new Date().toISOString(),
+    };
+  };
+
+  return (
+    <div>
+      <TagPicker
+        onResolveSuggestions={handleSuggestions}
+        getTextFromItem={(item) => item.name}
+        onItemSelected={handleItemSelected}
+      >
+        <TagPickerControl hasError={!!validationError}>
+          <TagPickerInput placeholder="Select validated tags..." />
+        </TagPickerControl>
+        <TagPickerList />
+      </TagPicker>
+      {validationError && (
+        <div className="error-message" role="alert">
+          {validationError}
+        </div>
+      )}
+    </div>
+  );
+}
+```

@@ -1,0 +1,699 @@
+# Drawer Components
+
+## Overview
+
+### Purpose
+
+Use this component group for drawer/panel functionality with required compositional structure
+
+### When to Use
+
+- **Navigation drawers**: For primary navigation that slides from the side of the screen, allowing users to navigate between sections while maintaining context
+- **Contextual content**: When you need to display supplementary information or forms without losing the current page context
+- **Progressive disclosure**: For showing detailed information about selected items in lists or tables without navigating away
+- **Settings and configuration**: When providing access to application settings or detailed configuration options
+- **Multi-step workflows**: For guiding users through complex processes while keeping the main interface visible
+- **Content filtering and search**: When offering advanced filtering or search capabilities that don't warrant a full page
+
+### Architecture
+
+**Strong Coupling**: The Drawer component group requires a compositional hierarchy where multiple components work together to create a cohesive drawer experience. Components share context through the DrawerProvider and maintain specific parent-child relationships for proper functionality.
+
+### Component Interdependencies
+
+- **Required parent-child relationships**: Drawer serves as the root container with DrawerHeader, DrawerBody, and optional DrawerFooter as children
+- **Shared context dependencies**: DrawerProvider manages state and configuration that flows to all child components
+- **Communication patterns**: Components communicate through shared context for state management, scroll awareness, and responsive behavior
+
+## Components
+
+### Drawer {Primary Component}
+
+The main container that defines the drawer's behavior and appearance
+
+**Purpose:** Serves as the root component that establishes the drawer type (overlay or inline), position, size, and manages overall visibility and interaction patterns
+
+**Interface:**
+
+```typescript
+interface DrawerProps {
+  children?: React.ReactNode; // Required child components (DrawerHeader, DrawerBody, DrawerFooter)
+  open?: boolean; // Controls visibility of the drawer
+  defaultOpen?: boolean; // Initial open state on first render
+  type?: "overlay" | "inline"; // Drawer behavior - overlay covers content, inline sits beside
+  position?: "start" | "end" | "bottom"; // Position relative to the main content
+  size?: "small" | "medium" | "large" | "full"; // Width/height of the drawer
+  modalType?: boolean; // Enables backdrop scrim for overlay drawers
+  inertTrapFocus?: boolean; // Enables focus trapping per HTML dialog specification
+  separator?: boolean; // Renders separator border for inline drawers
+  onOpenChange?: (
+    event: DrawerOpenChangeEvent,
+    data: DrawerOpenChangeData,
+  ) => void; // Callback when visibility changes
+}
+```
+
+**Dependencies:** None (root component)
+**Provides:** Drawer context to all child components, manages focus, handles responsive behavior
+
+**Usage Example:**
+
+```tsx
+import { Drawer, DrawerHeader, DrawerBody } from "@fluentui/react-components";
+
+function Example() {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <Drawer
+      type="overlay"
+      position="end"
+      size="medium"
+      open={isOpen}
+      onOpenChange={(_, { open }) => setIsOpen(open)}
+    >
+      <DrawerHeader>
+        <DrawerHeaderTitle>Settings</DrawerHeaderTitle>
+      </DrawerHeader>
+      <DrawerBody>
+        <p>Drawer content goes here</p>
+      </DrawerBody>
+    </Drawer>
+  );
+}
+```
+
+### OverlayDrawer {Specialized Component}
+
+A specialized version of Drawer with overlay-specific behavior
+
+**Purpose:** Provides an intrusive surface that covers main content, demanding user attention with modal behavior and backdrop
+
+**Interface:**
+
+```typescript
+interface OverlayDrawerProps extends DrawerProps {
+  // Inherits all Drawer props with type fixed to 'overlay'
+  type: "overlay";
+  modalType?: boolean; // Controls backdrop and modal behavior
+  inertTrapFocus?: boolean; // Focus trapping behavior
+}
+```
+
+**Context Dependencies:** Requires DrawerProvider context for state management
+**Parent Requirements:** Can be used as standalone or within DrawerProvider
+
+**Usage Example:**
+
+```tsx
+<OverlayDrawer
+  open={isOpen}
+  position="end"
+  size="large"
+  modalType={true}
+  onOpenChange={(_, { open }) => setIsOpen(open)}
+>
+  <DrawerHeader>
+    <DrawerHeaderTitle>Modal Settings</DrawerHeaderTitle>
+  </DrawerHeader>
+  <DrawerBody>
+    <p>This drawer blocks interaction with background content</p>
+  </DrawerBody>
+</OverlayDrawer>
+```
+
+### InlineDrawer {Specialized Component}
+
+A specialized version of Drawer for side-by-side content display
+
+**Purpose:** Provides a passive surface that sits alongside main content, allowing simultaneous interaction with both areas
+
+**Interface:**
+
+```typescript
+interface InlineDrawerProps extends DrawerProps {
+  // Inherits all Drawer props with type fixed to 'inline'
+  type: "inline";
+  separator?: boolean; // Shows separator border between drawer and main content
+}
+```
+
+**Context Dependencies:** Requires DrawerProvider context for responsive behavior
+**Parent Requirements:** Can be used as standalone or within DrawerProvider
+
+**Usage Example:**
+
+```tsx
+<InlineDrawer open={isOpen} position="start" size="medium" separator={true}>
+  <DrawerHeader>
+    <DrawerHeaderTitle>Navigation</DrawerHeaderTitle>
+  </DrawerHeader>
+  <DrawerBody>
+    <nav>Navigation content that doesn't block main area</nav>
+  </DrawerBody>
+</InlineDrawer>
+```
+
+### DrawerHeader {Structural Component}
+
+Contains the header section with title and optional actions
+
+**Purpose:** Provides a consistent header area for titles, close buttons, and header navigation while maintaining proper semantic structure
+
+**Interface:**
+
+```typescript
+interface DrawerHeaderProps {
+  children?: React.ReactNode; // Typically DrawerHeaderTitle and action buttons
+  className?: string;
+  // Extends standard div properties
+}
+```
+
+**Context Dependencies:** Uses drawer context for styling and scroll state awareness
+**Parent Requirements:** Must be used within Drawer, OverlayDrawer, or InlineDrawer
+
+**Usage Example:**
+
+```tsx
+<DrawerHeader>
+  <DrawerHeaderTitle
+    action={
+      <Button
+        appearance="subtle"
+        icon={<Dismiss24Regular />}
+        onClick={() => setIsOpen(false)}
+      />
+    }
+  >
+    Drawer Title
+  </DrawerHeaderTitle>
+</DrawerHeader>
+```
+
+### DrawerHeaderTitle {Content Component}
+
+Displays the main title and optional action elements in the header
+
+**Purpose:** Provides semantic heading structure with integrated action area for consistent header layout and accessibility
+
+**Interface:**
+
+```typescript
+interface DrawerHeaderTitleProps {
+  children?: React.ReactNode; // Title text content
+  action?: React.ReactNode; // Action buttons (typically close button)
+  heading?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "div"; // Semantic heading level
+  className?: string;
+}
+```
+
+**Context Dependencies:** Inherits styling from drawer context
+**Parent Requirements:** Must be used within DrawerHeader
+
+**Usage Example:**
+
+```tsx
+<DrawerHeaderTitle
+  heading="h2"
+  action={
+    <Button
+      appearance="subtle"
+      aria-label="Close drawer"
+      icon={<Dismiss24Regular />}
+      onClick={() => setIsOpen(false)}
+    />
+  }
+>
+  User Settings
+</DrawerHeaderTitle>
+```
+
+### DrawerHeaderNavigation {Navigation Component}
+
+Provides navigation structure within the drawer header
+
+**Purpose:** Creates semantic navigation area for breadcrumbs, tabs, or other navigation elements within the drawer header
+
+**Interface:**
+
+```typescript
+interface DrawerHeaderNavigationProps {
+  children?: React.ReactNode; // Navigation elements like breadcrumbs or tabs
+  className?: string;
+  // Extends standard nav properties
+}
+```
+
+**Context Dependencies:** Uses drawer context for styling consistency
+**Parent Requirements:** Must be used within DrawerHeader
+
+**Usage Example:**
+
+```tsx
+<DrawerHeader>
+  <DrawerHeaderTitle>Settings</DrawerHeaderTitle>
+  <DrawerHeaderNavigation>
+    <Breadcrumb>
+      <BreadcrumbItem>Account</BreadcrumbItem>
+      <BreadcrumbItem>Privacy</BreadcrumbItem>
+    </Breadcrumb>
+  </DrawerHeaderNavigation>
+</DrawerHeader>
+```
+
+### DrawerBody {Content Component}
+
+Houses the main content and supports scrolling behavior
+
+**Purpose:** Provides the primary content area with proper scroll behavior, responsive design, and integration with header/footer components
+
+**Interface:**
+
+```typescript
+interface DrawerBodyProps {
+  children?: React.ReactNode; // Main drawer content
+  className?: string;
+  // Extends standard div properties
+}
+```
+
+**Context Dependencies:** Uses drawer context for scroll state management and responsive behavior
+**Parent Requirements:** Must be used within Drawer, OverlayDrawer, or InlineDrawer
+
+**Usage Example:**
+
+```tsx
+<DrawerBody>
+  <div style={{ padding: "16px" }}>
+    <Label>Email Notifications</Label>
+    <Switch label="Daily digest" />
+    <Switch label="Weekly summary" />
+
+    <Label>Privacy Settings</Label>
+    <Checkbox label="Make profile public" />
+    <Checkbox label="Allow data collection" />
+  </div>
+</DrawerBody>
+```
+
+### DrawerFooter {Action Component}
+
+Contains action buttons and footer content with scroll awareness
+
+**Purpose:** Provides a consistent footer area for primary and secondary actions while maintaining visibility during content scrolling
+
+**Interface:**
+
+```typescript
+interface DrawerFooterProps {
+  children?: React.ReactNode; // Footer content, typically action buttons
+  className?: string;
+  // Extends standard footer properties
+}
+```
+
+**Context Dependencies:** Uses drawer context for scroll state and responsive styling
+**Parent Requirements:** Must be used within Drawer, OverlayDrawer, or InlineDrawer
+
+**Usage Example:**
+
+```tsx
+<DrawerFooter>
+  <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+    <Button appearance="secondary" onClick={() => setIsOpen(false)}>
+      Cancel
+    </Button>
+    <Button appearance="primary" onClick={handleSave}>
+      Save Changes
+    </Button>
+  </div>
+</DrawerFooter>
+```
+
+### DrawerProvider {Context Component}
+
+Manages shared state and configuration for drawer components
+
+**Purpose:** Provides context for state management, responsive behavior, and configuration sharing across drawer components
+
+**Interface:**
+
+```typescript
+interface DrawerProviderProps {
+  children?: React.ReactNode; // Drawer components that need shared context
+  value?: DrawerContextValue; // Context configuration
+}
+```
+
+**Context Dependencies:** None (root context provider)
+**Parent Requirements:** Should wrap drawer components that need shared state
+
+**Usage Example:**
+
+```tsx
+<DrawerProvider>
+  <Drawer type="inline" open={navOpen} position="start">
+    <DrawerHeader>
+      <DrawerHeaderTitle>Navigation</DrawerHeaderTitle>
+    </DrawerHeader>
+    <DrawerBody>
+      <nav>Main navigation content</nav>
+    </DrawerBody>
+  </Drawer>
+
+  <Drawer type="overlay" open={settingsOpen} position="end">
+    <DrawerHeader>
+      <DrawerHeaderTitle>Settings</DrawerHeaderTitle>
+    </DrawerHeader>
+    <DrawerBody>
+      <p>Settings content</p>
+    </DrawerBody>
+  </Drawer>
+</DrawerProvider>
+```
+
+## Integration Patterns
+
+### Basic Overlay Drawer
+
+```tsx
+import {
+  Drawer,
+  DrawerHeader,
+  DrawerHeaderTitle,
+  DrawerBody,
+  DrawerFooter,
+  Button,
+} from "@fluentui/react-components";
+import { Dismiss24Regular } from "@fluentui/react-icons";
+
+function BasicOverlayExample() {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <>
+      <Button onClick={() => setIsOpen(true)}>Open Settings</Button>
+
+      <Drawer
+        type="overlay"
+        position="end"
+        size="medium"
+        open={isOpen}
+        onOpenChange={(_, { open }) => setIsOpen(open)}
+      >
+        <DrawerHeader>
+          <DrawerHeaderTitle
+            action={
+              <Button
+                appearance="subtle"
+                aria-label="Close"
+                icon={<Dismiss24Regular />}
+                onClick={() => setIsOpen(false)}
+              />
+            }
+          >
+            User Settings
+          </DrawerHeaderTitle>
+        </DrawerHeader>
+
+        <DrawerBody>
+          <div style={{ padding: "16px" }}>
+            <p>Settings content goes here</p>
+          </div>
+        </DrawerBody>
+
+        <DrawerFooter>
+          <div
+            style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}
+          >
+            <Button appearance="secondary" onClick={() => setIsOpen(false)}>
+              Cancel
+            </Button>
+            <Button appearance="primary">Save</Button>
+          </div>
+        </DrawerFooter>
+      </Drawer>
+    </>
+  );
+}
+```
+
+### Navigation Inline Drawer
+
+```tsx
+import {
+  InlineDrawer,
+  DrawerHeader,
+  DrawerHeaderTitle,
+  DrawerBody,
+  Button,
+} from "@fluentui/react-components";
+
+function NavigationDrawerExample() {
+  const [isNavOpen, setIsNavOpen] = React.useState(true);
+
+  return (
+    <div style={{ display: "flex", height: "100vh" }}>
+      <InlineDrawer
+        open={isNavOpen}
+        position="start"
+        size="medium"
+        separator={true}
+      >
+        <DrawerHeader>
+          <DrawerHeaderTitle
+            action={
+              <Button appearance="subtle" onClick={() => setIsNavOpen(false)}>
+                Collapse
+              </Button>
+            }
+          >
+            Navigation
+          </DrawerHeaderTitle>
+        </DrawerHeader>
+
+        <DrawerBody>
+          <nav style={{ padding: "16px" }}>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              <li>
+                <Button appearance="transparent">Dashboard</Button>
+              </li>
+              <li>
+                <Button appearance="transparent">Projects</Button>
+              </li>
+              <li>
+                <Button appearance="transparent">Settings</Button>
+              </li>
+            </ul>
+          </nav>
+        </DrawerBody>
+      </InlineDrawer>
+
+      <main style={{ flex: 1, padding: "16px" }}>
+        {!isNavOpen && (
+          <Button onClick={() => setIsNavOpen(true)}>Show Navigation</Button>
+        )}
+        <h1>Main Content Area</h1>
+        <p>Content that remains accessible when drawer is open</p>
+      </main>
+    </div>
+  );
+}
+```
+
+### Multiple Drawers with Provider
+
+```tsx
+import {
+  DrawerProvider,
+  Drawer,
+  DrawerHeader,
+  DrawerHeaderTitle,
+  DrawerBody,
+  Button,
+} from "@fluentui/react-components";
+
+function MultipleDrawersExample() {
+  const [leftOpen, setLeftOpen] = React.useState(false);
+  const [rightOpen, setRightOpen] = React.useState(false);
+
+  return (
+    <DrawerProvider>
+      <div>
+        <Button onClick={() => setLeftOpen(true)}>Open Navigation</Button>
+        <Button onClick={() => setRightOpen(true)}>Open Details</Button>
+      </div>
+
+      <Drawer
+        type="inline"
+        position="start"
+        open={leftOpen}
+        onOpenChange={(_, { open }) => setLeftOpen(open)}
+      >
+        <DrawerHeader>
+          <DrawerHeaderTitle>Navigation</DrawerHeaderTitle>
+        </DrawerHeader>
+        <DrawerBody>
+          <nav>Navigation content</nav>
+        </DrawerBody>
+      </Drawer>
+
+      <Drawer
+        type="overlay"
+        position="end"
+        open={rightOpen}
+        onOpenChange={(_, { open }) => setRightOpen(open)}
+      >
+        <DrawerHeader>
+          <DrawerHeaderTitle>Details Panel</DrawerHeaderTitle>
+        </DrawerHeader>
+        <DrawerBody>
+          <p>Detail information overlay</p>
+        </DrawerBody>
+      </Drawer>
+    </DrawerProvider>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+- **DrawerProvider** manages shared configuration and responsive behavior
+- **Drawer/OverlayDrawer/InlineDrawer** controls visibility, positioning, and interaction patterns
+- **DrawerHeader** provides title area and manages header-specific styling
+- **DrawerHeaderTitle** handles semantic heading structure and action integration
+- **DrawerHeaderNavigation** creates navigation context within header
+- **DrawerBody** manages content scrolling and responsive layout
+- **DrawerFooter** maintains action visibility with scroll state awareness
+
+### Context Sharing
+
+- **DrawerProvider**: Shares responsive breakpoints and global drawer configuration
+- **Drawer context**: Provides scroll state, size information, and interaction patterns to all child components
+- **Theme context**: All components inherit theme-aware styling and color schemes
+
+### Event Handling
+
+- **onOpenChange**: Bubbles up from user interactions (close button, backdrop click, escape key)
+- **Scroll events**: DrawerBody communicates scroll state to DrawerFooter for styling adjustments
+- **Focus management**: OverlayDrawer handles focus trapping and restoration for accessibility
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Use OverlayDrawer for critical actions** that require user attention and temporary interruption of main workflow
+- **Use InlineDrawer for persistent navigation** or contextual information that enhances the main content experience
+- **Always include a close action** in DrawerHeader for overlay drawers to ensure users can dismiss the drawer
+- **Implement proper focus management** by using inertTrapFocus for overlay drawers and maintaining logical tab order
+
+### Accessibility
+
+- **Semantic structure**: Use proper heading levels in DrawerHeaderTitle to maintain document outline
+- **Focus management**: Overlay drawers should trap focus and restore it when closed
+- **ARIA labels**: Provide meaningful aria-label attributes for close buttons and drawer regions
+- **Keyboard navigation**: Support Escape key to close overlay drawers and maintain logical tab order
+
+### Performance
+
+- **Conditional rendering**: Use open prop to conditionally render drawer content and avoid unnecessary DOM updates
+- **Scroll optimization**: DrawerBody automatically handles virtual scrolling for large content areas
+- **Responsive behavior**: Drawers automatically adapt to different screen sizes and orientations
+
+## Common Patterns
+
+### Settings and Configuration Panel
+
+```tsx
+function SettingsDrawer({ isOpen, onClose }) {
+  return (
+    <OverlayDrawer
+      open={isOpen}
+      position="end"
+      size="large"
+      onOpenChange={(_, { open }) => !open && onClose()}
+    >
+      <DrawerHeader>
+        <DrawerHeaderTitle
+          action={
+            <Button
+              appearance="subtle"
+              aria-label="Close settings"
+              icon={<Dismiss24Regular />}
+              onClick={onClose}
+            />
+          }
+        >
+          Application Settings
+        </DrawerHeaderTitle>
+        <DrawerHeaderNavigation>
+          <TabList>
+            <Tab>General</Tab>
+            <Tab>Privacy</Tab>
+            <Tab>Notifications</Tab>
+          </TabList>
+        </DrawerHeaderNavigation>
+      </DrawerHeader>
+
+      <DrawerBody>
+        <SettingsForm />
+      </DrawerBody>
+
+      <DrawerFooter>
+        <div
+          style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}
+        >
+          <Button appearance="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button appearance="primary" onClick={handleSave}>
+            Save Settings
+          </Button>
+        </div>
+      </DrawerFooter>
+    </OverlayDrawer>
+  );
+}
+```
+
+### Responsive Navigation
+
+```tsx
+function ResponsiveNavigation() {
+  const [isMobile, setIsMobile] = React.useState(false);
+  const [navOpen, setNavOpen] = React.useState(!isMobile);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setNavOpen(!mobile); // Auto-open on desktop, closed on mobile
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <Drawer
+      type={isMobile ? "overlay" : "inline"}
+      position="start"
+      size={isMobile ? "full" : "medium"}
+      open={navOpen}
+      onOpenChange={(_, { open }) => setNavOpen(open)}
+    >
+      <DrawerHeader>
+        <DrawerHeaderTitle>Menu</DrawerHeaderTitle>
+      </DrawerHeader>
+
+      <DrawerBody>
+        <Navigation onNavigate={() => isMobile && setNavOpen(false)} />
+      </DrawerBody>
+    </Drawer>
+  );
+}
+```

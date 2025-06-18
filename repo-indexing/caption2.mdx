@@ -1,0 +1,391 @@
+# Caption2 Components
+
+## Overview
+
+### Purpose
+
+Use this component for secondary caption text styling
+
+### When to Use
+
+The Caption2 component is designed for minimal, secondary caption-level text content that provides the smallest readable font size in the Fluent Design System typography hierarchy. Use Caption2 when you need:
+
+- Secondary metadata, timestamps, or auxiliary information that doesn't compete with primary content
+- Minimal supporting text that provides context without drawing attention away from main content
+- Small text for footnotes, disclaimers, or supplementary information that users may reference but isn't critical
+- Consistent typography for the smallest text content that maintains readability while preserving visual hierarchy
+- Helper text, tips, or guidance that supports primary content without being prominent
+- Small status indicators, version numbers, or copyright text that needs to be present but unobtrusive
+- Label text for less important form fields, data points, or interface elements that provide secondary context
+- Fine print, legal text, or terms that must be displayed but shouldn't dominate the interface
+
+### Architecture
+
+**No Coupling** - Caption2 is a standalone typography component that doesn't require other components to function. It's part of the broader typography system but operates independently, providing the smallest caption-level text styling available in the Fluent Design System hierarchy.
+
+### Component Interdependencies
+
+Caption2 has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related variants for different emphasis levels and font sizes, representing the smallest text size in the caption family.
+
+## Components
+
+### Caption2 {Standalone Component}
+
+**Purpose:** Provides the smallest caption text styling that adheres to the Fluent Design System's typography standards. This component ensures consistent minimal font sizing, appropriate font weight, line height, and spacing for secondary caption-level content while maintaining excellent readability at the smallest recommended text size.
+
+**Interface:**
+
+```typescript
+interface Caption2Props {
+  /**
+   * The content to be rendered as secondary caption text
+   */
+  children?: React.ReactNode;
+
+  /**
+   * The HTML element or React component to render
+   * @default 'span'
+   */
+  as?: React.ElementType;
+
+  /**
+   * Applies block-level styling (display: block)
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Prevents text wrapping (white-space: nowrap)
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Applies text truncation with ellipsis on overflow
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Text alignment
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Applies the italic font style to the content
+   * @default false
+   */
+  italic?: boolean;
+
+  /**
+   * Applies the strikethrough text decoration to the content
+   * @default false
+   */
+  strikethrough?: boolean;
+
+  /**
+   * Applies the underline text decoration to the content
+   * @default false
+   */
+  underline?: boolean;
+
+  /**
+   * Wraps the text content on white spaces
+   * @default true
+   */
+  wrap?: boolean;
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Caption2 } from "@fluentui/react-components";
+
+function Example() {
+  return <Caption2>Last updated 2 minutes ago</Caption2>;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Caption2 } from "@fluentui/react-components";
+
+// Simple secondary caption text content
+function BasicExample() {
+  return <Caption2>Additional info</Caption2>;
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Caption2 } from "@fluentui/react-components";
+
+// Using semantic HTML elements for proper accessibility and meaning
+function SemanticExample() {
+  return (
+    <>
+      <Caption2 as="span">Version 1.2.3</Caption2>
+
+      <Caption2 as="time">2 min ago</Caption2>
+
+      <Caption2 as="small">© 2024 Company Name</Caption2>
+
+      <Caption2 as="div">Helper text</Caption2>
+    </>
+  );
+}
+```
+
+### Layout and Display Variations
+
+```tsx
+import { Caption2 } from "@fluentui/react-components";
+
+// Different layout configurations for secondary caption text
+function LayoutExample() {
+  return (
+    <>
+      {/* Inline secondary caption text (default) */}
+      <Caption2>Inline timestamp</Caption2>
+
+      {/* Block-level secondary caption text */}
+      <Caption2 block>Block-level disclaimer text</Caption2>
+
+      {/* Non-wrapping secondary caption text */}
+      <Caption2 nowrap>Version: 1.0.0-beta</Caption2>
+
+      {/* Truncated secondary caption text with ellipsis */}
+      <Caption2 truncate>
+        Very long secondary information that will be truncated with ellipsis
+      </Caption2>
+    </>
+  );
+}
+```
+
+### Text Styling and Decoration
+
+```tsx
+import { Caption2 } from "@fluentui/react-components";
+
+// Additional text styling options for secondary caption content
+function StylingExample() {
+  return (
+    <>
+      <Caption2 italic>Optional disclaimer</Caption2>
+
+      <Caption2 underline>Terms of service</Caption2>
+
+      <Caption2 strikethrough>Deprecated feature</Caption2>
+
+      <Caption2 italic underline>
+        Important fine print
+      </Caption2>
+    </>
+  );
+}
+```
+
+### Text Alignment
+
+```tsx
+import { Caption2 } from "@fluentui/react-components";
+
+// Text alignment options for secondary caption content
+function AlignmentExample() {
+  return (
+    <>
+      <Caption2 align="start" block>
+        Left-aligned timestamp
+      </Caption2>
+      <Caption2 align="center" block>
+        Centered footer text
+      </Caption2>
+      <Caption2 align="end" block>
+        Right-aligned version info
+      </Caption2>
+      <Caption2 align="justify" block>
+        Justified fine print that spans multiple lines
+      </Caption2>
+    </>
+  );
+}
+```
+
+## Component Relationships
+
+### Typography Hierarchy
+
+Caption2 is part of a comprehensive typography system that provides the smallest text size in the Fluent Design System hierarchy:
+
+- **Display**: Largest text for major headings
+- **LargeTitle**: Large titles for section headers
+- **Title1, Title2, Title3**: Hierarchical title sizes
+- **Subtitle1, Subtitle2**: Subtitle variations
+- **Body1, Body1Strong, Body1Stronger**: Body text variants
+- **Body2**: Smaller body text for secondary content
+- **Caption1, Caption1Strong, Caption1Stronger**: Standard and emphasized caption text
+- **Caption2**: Smallest caption text for minimal information (this component)
+
+### Related Components
+
+```tsx
+import {
+  Caption1,
+  Caption2,
+  Body1,
+  Body2,
+  Subtitle1,
+  Card,
+  CardHeader,
+  CardFooter,
+} from "@fluentui/react-components";
+
+function TypographyHierarchyExample() {
+  return (
+    <Card>
+      <CardHeader>
+        <Subtitle1>Product Information</Subtitle1>
+      </CardHeader>
+
+      <Body1>
+        This is the main product description with important details.
+      </Body1>
+
+      <Body2>Additional product features and specifications.</Body2>
+
+      <div className="metadata">
+        <Caption1>Status: Available</Caption1>
+        <Caption2>SKU: PRD-12345</Caption2>
+      </div>
+
+      <CardFooter>
+        <Caption2>Last updated: {lastUpdated}</Caption2>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+### Common UI Patterns
+
+```tsx
+import { Caption1, Caption2, Body1 } from "@fluentui/react-components";
+
+// Data table with hierarchical caption text
+function DataTableExample() {
+  return (
+    <div className="data-grid">
+      {data.map((item) => (
+        <div key={item.id} className="data-row">
+          <Body1>{item.title}</Body1>
+          {item.description && <Body2>{item.description}</Body2>}
+          {item.category && <Caption1>{item.category}</Caption1>}
+          {item.metadata && <Caption2>{item.metadata}</Caption2>}
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Caption2 for the smallest text content that still needs to be readable and accessible
+- Perfect for timestamps, version numbers, copyright text, or other supplementary information
+- Combine with semantic HTML elements using the `as` prop for proper accessibility and meaning
+- Avoid using Caption2 for critical information - use larger text components for important content
+- Ideal for footer text, disclaimers, helper text, or metadata that provides context without competing for attention
+
+### Accessibility
+
+- Ensure sufficient color contrast when using Caption2 due to its small size
+- Use semantic HTML elements (time, small, etc.) with the `as` prop for screen reader compatibility
+- Consider that very small text may be difficult for users with visual impairments
+- Provide alternative ways to access information presented in Caption2 for accessibility compliance
+
+### Performance
+
+- Caption2 renders efficiently as it's a lightweight wrapper around the base Text component
+- Use Caption2 consistently throughout your application to maintain typography performance
+- The component inherits all performance optimizations from the underlying FluentUI Text component
+
+## Common Patterns
+
+### Pattern 1: Timestamp and Metadata Display
+
+```tsx
+// Example showing timestamp and metadata usage
+import { Caption1, Caption2, Body1 } from "@fluentui/react-components";
+
+function PostExample() {
+  return (
+    <article>
+      <Body1>Article title and main content here</Body1>
+      <div className="post-metadata">
+        <Caption1>Published by John Doe</Caption1>
+        <Caption2 as="time">2 hours ago</Caption2>
+        <Caption2>Reading time: 5 min</Caption2>
+      </div>
+    </article>
+  );
+}
+```
+
+### Pattern 2: Form Helper Text
+
+```tsx
+// Example showing form field helper text
+import { Label, Input, Caption2 } from "@fluentui/react-components";
+
+function FormFieldExample() {
+  return (
+    <div className="form-field">
+      <Label htmlFor="password">Password</Label>
+      <Input id="password" type="password" />
+      <Caption2>Must be at least 8 characters with special symbols</Caption2>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Footer and Legal Text
+
+```tsx
+// Example showing footer and legal text usage
+import { Caption2, Link } from "@fluentui/react-components";
+
+function FooterExample() {
+  return (
+    <footer>
+      <Caption2>© 2024 Company Name. All rights reserved.</Caption2>
+      <div className="legal-links">
+        <Link as={Caption2} href="/privacy">
+          Privacy Policy
+        </Link>
+        <Link as={Caption2} href="/terms">
+          Terms of Service
+        </Link>
+      </div>
+      <Caption2>Version 2.1.4 | Build 20240115</Caption2>
+    </footer>
+  );
+}
+```

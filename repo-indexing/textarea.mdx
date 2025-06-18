@@ -1,0 +1,391 @@
+---
+
+# Textarea Components
+
+## Overview
+
+### Purpose
+
+Use this component for multiline text input functionality
+
+### When to Use
+
+The Textarea component is ideal for:
+
+- **Long-form text input** - Comments, descriptions, messages, feedback, or any content that requires multiple lines
+- **Rich content entry** - Blog posts, documentation, notes, or detailed explanations where users need ample space
+- **Form fields requiring detailed input** - Address fields, project descriptions, user bios, or custom instructions
+- **Resizable text areas** - When users need to adjust the input area size based on content volume
+- **Controlled and uncontrolled scenarios** - Both stateful form management and simple text capture
+
+### Architecture
+
+This is a **standalone component** with no coupling to other components. The Textarea operates independently and can be used directly or integrated with form layout components like Field and Label for enhanced accessibility and structure.
+
+## Components
+
+### Textarea
+
+**Purpose:** Provides a multiline text input interface with resize capabilities and comprehensive form integration support.
+
+**Interface:**
+
+```typescript
+interface TextareaProps {
+  // Value management
+  value?: string; // Controlled value
+  defaultValue?: string; // Initial value for uncontrolled usage
+
+  // User interaction
+  placeholder?: string; // Hint text displayed when empty
+  disabled?: boolean; // Prevents user interaction
+  readOnly?: boolean; // Allows viewing but prevents editing
+
+  // Layout and sizing
+  rows?: number; // Number of visible text lines
+  cols?: number; // Visible width of the control
+  resize?: "none" | "both" | "horizontal" | "vertical"; // Resize behavior
+
+  // Event handlers
+  onChange?: (event: React.ChangeEvent<HTMLTextAreaElement>) => void; // Value change callback
+  onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void; // Focus event handler
+  onBlur?: (event: React.FocusEvent<HTMLTextAreaElement>) => void; // Blur event handler
+
+  // Accessibility
+  "aria-label"?: string; // Accessible label
+  "aria-describedby"?: string; // References to describing elements
+  id?: string; // Unique identifier
+
+  // Form integration
+  name?: string; // Form field name
+  required?: boolean; // Indicates required field
+  autoComplete?: string; // Browser autocomplete behavior
+
+  // Styling
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Textarea } from "@fluentui/react-components";
+
+function BasicTextareaExample() {
+  const [value, setValue] = React.useState("");
+
+  return (
+    <Textarea
+      placeholder="Tell us about yourself..."
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      rows={3}
+      resize="vertical"
+    />
+  );
+}
+```
+
+## Integration Patterns
+
+### Standalone Usage
+
+```tsx
+import { Textarea } from "@fluentui/react-components";
+
+// Basic uncontrolled textarea
+function SimpleTextarea() {
+  return (
+    <Textarea placeholder="Enter your message..." rows={4} defaultValue="" />
+  );
+}
+```
+
+### Controlled Component Pattern
+
+```tsx
+import React, { useState } from "react";
+import { Textarea } from "@fluentui/react-components";
+
+function ControlledTextarea() {
+  const [content, setContent] = useState("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(event.target.value);
+  };
+
+  return (
+    <div>
+      <Textarea
+        value={content}
+        onChange={handleChange}
+        placeholder="Write your thoughts..."
+        rows={5}
+        resize="both"
+      />
+      <p>Character count: {content.length}</p>
+    </div>
+  );
+}
+```
+
+### Form Integration with Field Component
+
+```tsx
+import { Field, Label, Textarea } from "@fluentui/react-components";
+
+function FormIntegratedTextarea() {
+  return (
+    <Field>
+      <Label htmlFor="description" required>
+        Project Description
+      </Label>
+      <Textarea
+        id="description"
+        name="description"
+        placeholder="Describe your project goals and requirements..."
+        rows={6}
+        resize="vertical"
+        required
+      />
+    </Field>
+  );
+}
+```
+
+### Resize Behavior Variations
+
+```tsx
+import { Textarea } from "@fluentui/react-components";
+
+function ResizeExamples() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      {/* No resize */}
+      <Textarea placeholder="Fixed size textarea" rows={3} resize="none" />
+
+      {/* Vertical resize only */}
+      <Textarea placeholder="Vertical resize only" rows={3} resize="vertical" />
+
+      {/* Both directions */}
+      <Textarea
+        placeholder="Resize in both directions"
+        rows={3}
+        resize="both"
+      />
+    </div>
+  );
+}
+```
+
+### Validation and Error States
+
+```tsx
+import { Field, Label, Textarea } from "@fluentui/react-components";
+
+function ValidatedTextarea() {
+  const [value, setValue] = useState("");
+  const [error, setError] = useState("");
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = event.target.value;
+    setValue(newValue);
+
+    if (newValue.length < 10) {
+      setError("Please provide at least 10 characters");
+    } else if (newValue.length > 500) {
+      setError("Maximum 500 characters allowed");
+    } else {
+      setError("");
+    }
+  };
+
+  return (
+    <Field validationMessage={error} validationState={error ? "error" : "none"}>
+      <Label htmlFor="feedback">Feedback</Label>
+      <Textarea
+        id="feedback"
+        value={value}
+        onChange={handleChange}
+        placeholder="Share your feedback..."
+        rows={4}
+        resize="vertical"
+      />
+    </Field>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Set appropriate initial size** - Use the `rows` prop to establish a suitable default height that accommodates expected content length
+- **Enable appropriate resize behavior** - Allow vertical resizing for most use cases, but consider disabling resize for fixed layouts
+- **Provide clear placeholder text** - Use descriptive placeholders that explain the expected content format and purpose
+- **Implement character limits when needed** - For constrained input scenarios, provide visual feedback about character count and limits
+
+### Accessibility
+
+- **Always provide labels** - Use the `Field` and `Label` components or `aria-label` for proper accessibility support
+- **Support keyboard navigation** - The component inherently supports standard keyboard navigation including Tab, Shift+Tab, and text editing shortcuts
+- **Use descriptive placeholders** - Placeholder text should clearly indicate the purpose and expected format of the input
+- **Implement proper error states** - Use `aria-describedby` to associate error messages with the textarea for screen reader users
+
+### Performance
+
+- **Optimize controlled components** - For large text content, consider debouncing onChange handlers to improve performance
+- **Handle resize efficiently** - When using programmatic resize detection, implement efficient event handlers to avoid performance issues
+- **Consider virtualization** - For very long content, consider implementing virtual scrolling or pagination strategies
+
+## Common Patterns
+
+### Comment or Feedback Form
+
+```tsx
+import { Field, Label, Textarea, Button } from "@fluentui/react-components";
+
+function CommentForm() {
+  const [comment, setComment] = useState("");
+
+  const handleSubmit = () => {
+    console.log("Submitting comment:", comment);
+    setComment(""); // Clear after submission
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <Field>
+        <Label htmlFor="comment">Your Comment</Label>
+        <Textarea
+          id="comment"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Share your thoughts..."
+          rows={4}
+          resize="vertical"
+        />
+      </Field>
+      <Button
+        appearance="primary"
+        onClick={handleSubmit}
+        disabled={comment.trim().length === 0}
+      >
+        Post Comment
+      </Button>
+    </div>
+  );
+}
+```
+
+### Auto-expanding Textarea with Character Count
+
+```tsx
+import { Field, Label, Textarea } from "@fluentui/react-components";
+
+function AutoExpandingTextarea() {
+  const [content, setContent] = useState("");
+  const maxLength = 280;
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newContent = event.target.value;
+    if (newContent.length <= maxLength) {
+      setContent(newContent);
+    }
+  };
+
+  return (
+    <Field>
+      <Label htmlFor="tweet">Compose Tweet</Label>
+      <Textarea
+        id="tweet"
+        value={content}
+        onChange={handleChange}
+        placeholder="What's happening?"
+        rows={3}
+        resize="none"
+        style={{ minHeight: "60px" }}
+      />
+      <div
+        style={{
+          textAlign: "right",
+          fontSize: "12px",
+          color: content.length > maxLength * 0.9 ? "red" : "gray",
+          marginTop: "4px",
+        }}
+      >
+        {content.length}/{maxLength}
+      </div>
+    </Field>
+  );
+}
+```
+
+### Multi-step Form with Textarea
+
+```tsx
+import { Field, Label, Textarea, Button } from "@fluentui/react-components";
+
+function MultiStepFormTextarea() {
+  const [formData, setFormData] = useState({
+    summary: "",
+    details: "",
+    notes: "",
+  });
+
+  const updateField =
+    (field: string) => (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: event.target.value,
+      }));
+    };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <Field>
+        <Label htmlFor="summary" required>
+          Executive Summary
+        </Label>
+        <Textarea
+          id="summary"
+          value={formData.summary}
+          onChange={updateField("summary")}
+          placeholder="Brief overview of the proposal..."
+          rows={2}
+          resize="vertical"
+          required
+        />
+      </Field>
+
+      <Field>
+        <Label htmlFor="details" required>
+          Detailed Description
+        </Label>
+        <Textarea
+          id="details"
+          value={formData.details}
+          onChange={updateField("details")}
+          placeholder="Provide comprehensive details..."
+          rows={6}
+          resize="vertical"
+          required
+        />
+      </Field>
+
+      <Field>
+        <Label htmlFor="notes">Additional Notes</Label>
+        <Textarea
+          id="notes"
+          value={formData.notes}
+          onChange={updateField("notes")}
+          placeholder="Any additional information..."
+          rows={3}
+          resize="vertical"
+        />
+      </Field>
+    </div>
+  );
+}
+```

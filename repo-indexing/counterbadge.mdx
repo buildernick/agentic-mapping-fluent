@@ -1,0 +1,277 @@
+# CounterBadge Components
+
+## Overview
+
+### Purpose
+
+Use this component for counter badge functionality
+
+### When to Use
+
+CounterBadge is specifically designed for displaying numerical indicators within applications. Use it when you need to:
+
+- Show notification counts on buttons, icons, or other UI elements
+- Display numerical status indicators (e.g., unread messages, pending items)
+- Provide visual feedback for counters that change dynamically
+- Indicate quantity or frequency in compact spaces
+- Create visual emphasis for important numerical information
+
+Common scenarios include:
+
+- Shopping cart item counts
+- Notification badges on navigation items
+- Message or email unread counts
+- Task completion indicators
+- Alert or warning counts
+
+### Architecture
+
+**No Coupling**: CounterBadge is a standalone component that can be used independently without requiring specific parent components or shared context. It extends the base Badge functionality with specialized counter display features.
+
+### Component Interdependencies
+
+CounterBadge has no architectural dependencies and can be used as a standalone component. It inherits base styling and behavior patterns from the Fluent UI badge system but does not require other components to function.
+
+## Components
+
+### CounterBadge {Standalone Component}
+
+**Purpose:** Displays numerical values in a compact badge format with customizable appearance and sizing options.
+
+**Interface:**
+
+```typescript
+interface CounterBadgeProps extends BadgeProps {
+  /**
+   * The count to display in the badge.
+   */
+  count: number;
+
+  /**
+   * Whether to display the badge as a dot (without a number).
+   * @default false
+   */
+  dot?: boolean;
+
+  /**
+   * The size of the badge.
+   * @default 'medium'
+   */
+  size?: "small" | "medium" | "large" | "extra-large";
+
+  /**
+   * The appearance of the badge.
+   * @default 'filled'
+   */
+  appearance?: "filled" | "ghost" | "outline";
+
+  /**
+   * The color scheme of the badge.
+   * @default 'brand'
+   */
+  color?:
+    | "brand"
+    | "danger"
+    | "important"
+    | "informative"
+    | "severe"
+    | "subtle"
+    | "success"
+    | "warning";
+
+  /**
+   * Custom shape for the badge.
+   * @default 'circular'
+   */
+  shape?: "circular" | "rounded";
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { CounterBadge } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <div>
+      {/* Basic counter badge */}
+      <CounterBadge count={5} />
+
+      {/* Large danger badge */}
+      <CounterBadge count={99} size="large" color="danger" />
+
+      {/* Dot indicator without number */}
+      <CounterBadge dot color="important" />
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { CounterBadge } from "@fluentui/react-components";
+
+// Simple notification counter
+function BasicExample() {
+  return <CounterBadge count={3} />;
+}
+```
+
+### Advanced Usage
+
+```tsx
+import { CounterBadge, Button } from "@fluentui/react-components";
+
+// Complex usage with dynamic counts and integration
+function AdvancedExample() {
+  const [notifications, setNotifications] = React.useState(12);
+  const [messages, setMessages] = React.useState(5);
+
+  return (
+    <div>
+      {/* Button with counter badge icon */}
+      <Button
+        icon={<CounterBadge count={notifications} color="danger" />}
+        onClick={() => setNotifications(0)}
+      >
+        Notifications
+      </Button>
+
+      {/* Large counter with different appearances */}
+      <CounterBadge
+        count={messages}
+        size="large"
+        appearance="outline"
+        color="informative"
+      />
+
+      {/* Conditional dot indicator */}
+      {notifications > 0 && <CounterBadge dot color="severe" size="small" />}
+    </div>
+  );
+}
+```
+
+### Common Variations
+
+```tsx
+// Size variations
+<CounterBadge count={1} size="small" />
+<CounterBadge count={12} size="medium" />
+<CounterBadge count={99} size="large" />
+<CounterBadge count={999} size="extra-large" />
+
+// Appearance variations
+<CounterBadge count={5} appearance="filled" />
+<CounterBadge count={5} appearance="ghost" />
+<CounterBadge count={5} appearance="outline" />
+
+// Color variations for different contexts
+<CounterBadge count={3} color="brand" />      {/* Default/primary actions */}
+<CounterBadge count={7} color="danger" />     {/* Errors, critical alerts */}
+<CounterBadge count={2} color="warning" />    {/* Warnings, cautions */}
+<CounterBadge count={1} color="success" />    {/* Completed items */}
+<CounterBadge count={9} color="informative" /> {/* General information */}
+
+// Dot variations for simple indicators
+<CounterBadge dot color="danger" />     {/* Simple alert indicator */}
+<CounterBadge dot color="success" />    {/* Active/online status */}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use CounterBadge to display numerical information that requires immediate attention or provides quick status understanding
+- Choose appropriate colors based on the semantic meaning: danger for errors/urgent items, success for completed tasks, warning for cautions
+- Consider using the dot variant when you only need to indicate presence/absence rather than specific counts
+- Place CounterBadge near related UI elements (buttons, icons, navigation items) to provide clear context
+- For very large numbers (>999), consider using abbreviated formats or different UI patterns
+
+### Accessibility
+
+- CounterBadge automatically provides appropriate ARIA attributes for screen readers
+- The numerical content is announced to assistive technologies
+- Color alone should not be the only means of conveying information; ensure sufficient contrast
+- Consider providing additional context through aria-label when the badge's purpose isn't obvious from surrounding content
+
+### Performance
+
+- CounterBadge renders efficiently as a lightweight component with minimal DOM impact
+- Dynamic count updates trigger minimal re-renders when used with proper state management
+- Consider memoization for frequently updated counters to optimize performance
+
+## Common Patterns
+
+### Pattern 1: Navigation with Notification Counts
+
+```tsx
+import { CounterBadge, Button } from "@fluentui/react-components";
+
+function NavigationWithCounts() {
+  return (
+    <nav>
+      <Button icon={<CounterBadge count={7} color="danger" size="small" />}>
+        Messages
+      </Button>
+
+      <Button icon={<CounterBadge count={3} color="warning" size="small" />}>
+        Tasks
+      </Button>
+
+      <Button icon={<CounterBadge dot color="success" />}>Online Status</Button>
+    </nav>
+  );
+}
+```
+
+### Pattern 2: Dynamic Counter Updates
+
+```tsx
+import { CounterBadge } from "@fluentui/react-components";
+
+function DynamicCounterExample() {
+  const [count, setCount] = React.useState(0);
+
+  const incrementCount = () => setCount((prev) => prev + 1);
+  const resetCount = () => setCount(0);
+
+  return (
+    <div>
+      <CounterBadge
+        count={count}
+        color={count > 10 ? "danger" : "brand"}
+        size={count > 5 ? "large" : "medium"}
+      />
+
+      <button onClick={incrementCount}>Add Item</button>
+      <button onClick={resetCount}>Clear</button>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Shopping Cart Integration
+
+```tsx
+import { CounterBadge, Button } from "@fluentui/react-components";
+
+function ShoppingCartBadge({ itemCount }: { itemCount: number }) {
+  return (
+    <Button
+      appearance="subtle"
+      icon={
+        itemCount > 0 ? (
+          <CounterBadge count={itemCount} color="brand" size="small" />
+        ) : undefined
+      }
+    >
+      Cart {itemCount > 0 && `(${itemCount})`}
+    </Button>
+  );
+}
+```

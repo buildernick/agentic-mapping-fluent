@@ -1,0 +1,695 @@
+# Carousel Components
+
+## Overview
+
+### Purpose
+
+Use this component group for carousel functionality with complex architectural coupling between navigation and content
+
+### When to Use
+
+Use Carousel components when you need to display a collection of content items (images, cards, or custom content) that users can navigate through sequentially or by jumping to specific positions. Carousels are ideal for:
+
+- **Image galleries**: Showcasing multiple images with smooth navigation
+- **Product showcases**: Displaying product cards with navigation controls
+- **Content feeds**: Presenting articles, posts, or media in a swipeable format
+- **Step-by-step content**: Guiding users through multi-step processes or tutorials
+- **Dashboard widgets**: Rotating through different data views or metrics
+- **Banner rotations**: Cycling through promotional content or announcements
+
+### Architecture
+
+**Critical/Strong Coupling**: The Carousel component group requires complex architectural coupling between navigation and content components. The system follows a provider-consumer pattern where CarouselProvider manages shared state, CarouselViewport controls content display, and various navigation components coordinate user interactions.
+
+### Component Interdependencies
+
+The Carousel component group follows a sophisticated state management pattern with strict compositional requirements:
+
+- **CarouselProvider** serves as the root context provider managing carousel state and configuration
+- **Carousel** acts as the main container orchestrating the overall carousel behavior
+- **CarouselViewport** contains and manages the visible content area with scroll behavior
+- **CarouselSlider** manages the horizontal layout and positioning of carousel items
+- **CarouselCard** represents individual items within the carousel content flow
+- **CarouselNavContainer** provides a container for all navigation controls
+- **CarouselNav** supplies index-based navigation functionality
+- **CarouselNavButton** handles individual navigation button interactions
+- **CarouselNavImageButton** provides image-based navigation thumbnails
+- **CarouselButton** handles sequential navigation (previous/next)
+- **CarouselAutoplayButton** manages automatic content rotation functionality
+
+## Components
+
+### CarouselProvider {Primary Component}
+
+**Purpose:** The root context provider that manages carousel state, configuration, and provides shared context to all child components.
+
+**Interface:**
+
+```typescript
+interface CarouselProviderProps {
+  children: React.ReactNode; // Required Carousel and navigation components
+  defaultValue?: string; // Initial active item identifier
+  value?: string; // Controlled active item identifier
+  onValueChange?: (
+    event: CarouselValueChangeEvent,
+    data: CarouselValueChangeData,
+  ) => void; // Active item change callback
+  circular?: boolean; // Whether navigation wraps around at the ends
+  autoplay?: boolean; // Whether to automatically advance items
+  autoplayInterval?: number; // Milliseconds between automatic advances
+  pauseOnHover?: boolean; // Whether to pause autoplay on hover
+  orientation?: "horizontal" | "vertical"; // Scroll direction
+}
+```
+
+**Provides:** CarouselContextValue containing state management, navigation handlers, and configuration options
+
+**Usage Example:**
+
+```tsx
+import {
+  CarouselProvider,
+  Carousel,
+  CarouselViewport,
+  CarouselSlider,
+  CarouselCard,
+} from "@fluentui/react-carousel";
+
+function BasicCarouselExample() {
+  return (
+    <CarouselProvider defaultValue="item-1">
+      <Carousel>
+        <CarouselViewport>
+          <CarouselSlider>
+            <CarouselCard value="item-1">Content 1</CarouselCard>
+            <CarouselCard value="item-2">Content 2</CarouselCard>
+            <CarouselCard value="item-3">Content 3</CarouselCard>
+          </CarouselSlider>
+        </CarouselViewport>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```
+
+### Carousel {Container Component}
+
+**Purpose:** The main container component that orchestrates carousel behavior and provides the foundational structure for content and navigation.
+
+**Interface:**
+
+```typescript
+interface CarouselProps {
+  children: React.ReactNode; // Required CarouselViewport and optional navigation components
+  className?: string; // Additional CSS classes
+  role?: string; // ARIA role for accessibility
+  "aria-label"?: string; // Accessibility label
+  "aria-labelledby"?: string; // Reference to labeling element
+}
+```
+
+**Context Dependencies:** Requires CarouselProvider context for state management
+**Provides:** Container structure and accessibility attributes
+
+**Usage Example:**
+
+```tsx
+<CarouselProvider>
+  <Carousel aria-label="Image gallery">
+    <CarouselViewport>{/* Carousel content */}</CarouselViewport>
+    {/* Optional navigation components */}
+  </Carousel>
+</CarouselProvider>
+```
+
+### CarouselViewport {Content Container}
+
+**Purpose:** Manages the visible content area, controlling overflow behavior and serving as the scroll container for carousel items.
+
+**Interface:**
+
+```typescript
+interface CarouselViewportProps {
+  children: React.ReactNode; // Required CarouselSlider component
+  className?: string; // Additional CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Context Dependencies:** Requires Carousel and CarouselProvider context
+**Parent Requirements:** Must be within Carousel component
+**Provides:** Scroll container and viewport management for carousel content
+
+**Usage Example:**
+
+```tsx
+<Carousel>
+  <CarouselViewport>
+    <CarouselSlider>{/* Carousel items */}</CarouselSlider>
+  </CarouselViewport>
+</Carousel>
+```
+
+### CarouselSlider {Layout Manager}
+
+**Purpose:** Manages the horizontal or vertical layout and positioning of carousel items, handling scroll positioning and item arrangement.
+
+**Interface:**
+
+```typescript
+interface CarouselSliderProps {
+  children: React.ReactNode; // CarouselCard components
+  className?: string; // Additional CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Context Dependencies:** Requires CarouselViewport, Carousel, and CarouselProvider context
+**Parent Requirements:** Must be direct child of CarouselViewport
+**Provides:** Item layout management and scroll positioning
+
+**Usage Example:**
+
+```tsx
+<CarouselViewport>
+  <CarouselSlider>
+    <CarouselCard value="slide-1">Slide 1 Content</CarouselCard>
+    <CarouselCard value="slide-2">Slide 2 Content</CarouselCard>
+    <CarouselCard value="slide-3">Slide 3 Content</CarouselCard>
+  </CarouselSlider>
+</CarouselViewport>
+```
+
+### CarouselCard {Content Item}
+
+**Purpose:** Represents individual items within the carousel, managing item-specific state and content display.
+
+**Interface:**
+
+```typescript
+interface CarouselCardProps {
+  children: React.ReactNode; // Content for this carousel item
+  value: string; // Required unique identifier for the item
+  className?: string; // Additional CSS classes
+  style?: React.CSSProperties; // Inline styles
+  "aria-label"?: string; // Accessibility label for the item
+}
+```
+
+**Context Dependencies:** Requires CarouselSlider and CarouselProvider context for visibility and navigation
+**Parent Requirements:** Must be child of CarouselSlider
+
+**Usage Example:**
+
+```tsx
+<CarouselSlider>
+  <CarouselCard value="product-1" aria-label="Product 1">
+    <img src="product1.jpg" alt="Product 1" />
+    <h3>Product Title</h3>
+    <p>Product description...</p>
+  </CarouselCard>
+</CarouselSlider>
+```
+
+### CarouselNavContainer {Navigation Container}
+
+**Purpose:** Provides a container for all carousel navigation controls, managing layout and spacing of navigation elements.
+
+**Interface:**
+
+```typescript
+interface CarouselNavContainerProps {
+  children: React.ReactNode; // Navigation components (CarouselButton, CarouselNav, etc.)
+  layout?: "inline" | "overlay"; // Navigation positioning strategy
+  position?: "start" | "center" | "end"; // Alignment within container
+  className?: string; // Additional CSS classes
+}
+```
+
+**Context Dependencies:** Requires Carousel and CarouselProvider context
+**Parent Requirements:** Typically within Carousel component
+
+**Usage Example:**
+
+```tsx
+<Carousel>
+  <CarouselViewport>{/* Carousel content */}</CarouselViewport>
+  <CarouselNavContainer layout="inline" position="center">
+    <CarouselButton navigation="prev" />
+    <CarouselNav />
+    <CarouselButton navigation="next" />
+  </CarouselNavContainer>
+</Carousel>
+```
+
+### CarouselButton {Sequential Navigation}
+
+**Purpose:** Provides previous/next navigation buttons for sequential movement through carousel items.
+
+**Interface:**
+
+```typescript
+interface CarouselButtonProps {
+  navigation: "prev" | "next"; // Direction of navigation
+  disabled?: boolean; // Whether the button is disabled
+  children?: React.ReactNode; // Custom button content
+  "aria-label"?: string; // Accessibility label
+  onClick?: (event: React.MouseEvent) => void; // Additional click handler
+}
+```
+
+**Context Dependencies:** Requires CarouselProvider context for navigation functionality
+**Parent Requirements:** Typically within CarouselNavContainer
+
+**Usage Example:**
+
+```tsx
+<CarouselNavContainer>
+  <CarouselButton navigation="prev" aria-label="Previous image" />
+  <CarouselButton navigation="next" aria-label="Next image" />
+</CarouselNavContainer>
+```
+
+### CarouselNav {Index Navigation}
+
+**Purpose:** Provides index-based pagination buttons allowing users to jump to any specific item within the carousel.
+
+**Interface:**
+
+```typescript
+interface CarouselNavProps {
+  children?: (value: string, index: number) => React.ReactNode; // Custom button render function
+  className?: string; // Additional CSS classes
+  renderButton?: (value: string, index: number) => React.ReactNode; // Alternative render prop
+}
+```
+
+**Context Dependencies:** Requires CarouselProvider context for available items and current state
+**Parent Requirements:** Typically within CarouselNavContainer
+
+**Usage Example:**
+
+```tsx
+<CarouselNav>
+  {(value, index) => (
+    <CarouselNavButton aria-label={`Go to slide ${index + 1}`} value={value} />
+  )}
+</CarouselNav>
+```
+
+### CarouselNavButton {Index Navigation Button}
+
+**Purpose:** Individual navigation button for jumping to specific carousel items, with active state management.
+
+**Interface:**
+
+```typescript
+interface CarouselNavButtonProps {
+  value: string; // The carousel item value this button navigates to
+  children?: React.ReactNode; // Custom button content
+  className?: string; // Additional CSS classes
+  "aria-label"?: string; // Accessibility label
+  onClick?: (event: React.MouseEvent) => void; // Additional click handler
+}
+```
+
+**Context Dependencies:** Requires CarouselProvider context for active state and navigation
+**Parent Requirements:** Typically used within CarouselNav render function
+
+**Usage Example:**
+
+```tsx
+<CarouselNav>
+  {(value, index) => (
+    <CarouselNavButton value={value} aria-label={`Slide ${index + 1}`}>
+      {index + 1}
+    </CarouselNavButton>
+  )}
+</CarouselNav>
+```
+
+### CarouselNavImageButton {Thumbnail Navigation}
+
+**Purpose:** Provides image-based navigation buttons with thumbnail previews for visual content carousels.
+
+**Interface:**
+
+```typescript
+interface CarouselNavImageButtonProps {
+  value: string; // The carousel item value this button navigates to
+  src: string; // Thumbnail image source
+  alt: string; // Alternative text for the thumbnail
+  className?: string; // Additional CSS classes
+  onClick?: (event: React.MouseEvent) => void; // Additional click handler
+}
+```
+
+**Context Dependencies:** Requires CarouselProvider context for active state and navigation
+**Parent Requirements:** Typically within CarouselNav or CarouselNavContainer
+
+**Usage Example:**
+
+```tsx
+<CarouselNavContainer>
+  <CarouselNavImageButton
+    value="image-1"
+    src="thumb1.jpg"
+    alt="Preview of image 1"
+  />
+  <CarouselNavImageButton
+    value="image-2"
+    src="thumb2.jpg"
+    alt="Preview of image 2"
+  />
+</CarouselNavContainer>
+```
+
+### CarouselAutoplayButton {Autoplay Control}
+
+**Purpose:** Provides play/pause control for automatic carousel progression, managing autoplay state.
+
+**Interface:**
+
+```typescript
+interface CarouselAutoplayButtonProps {
+  children?: React.ReactNode; // Custom button content
+  playLabel?: string; // Aria label when in play state
+  pauseLabel?: string; // Aria label when in pause state
+  className?: string; // Additional CSS classes
+  onClick?: (event: React.MouseEvent) => void; // Additional click handler
+}
+```
+
+**Context Dependencies:** Requires CarouselProvider context for autoplay state management
+**Parent Requirements:** Typically within CarouselNavContainer
+
+**Usage Example:**
+
+```tsx
+<CarouselNavContainer>
+  <CarouselAutoplayButton
+    playLabel="Start slideshow"
+    pauseLabel="Pause slideshow"
+  />
+</CarouselNavContainer>
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import {
+  CarouselProvider,
+  Carousel,
+  CarouselViewport,
+  CarouselSlider,
+  CarouselCard,
+  CarouselNavContainer,
+  CarouselButton,
+} from "@fluentui/react-carousel";
+
+// Minimal required structure
+function BasicCarousel() {
+  return (
+    <CarouselProvider defaultValue="slide-1">
+      <Carousel>
+        <CarouselViewport>
+          <CarouselSlider>
+            <CarouselCard value="slide-1">First slide content</CarouselCard>
+            <CarouselCard value="slide-2">Second slide content</CarouselCard>
+            <CarouselCard value="slide-3">Third slide content</CarouselCard>
+          </CarouselSlider>
+        </CarouselViewport>
+        <CarouselNavContainer>
+          <CarouselButton navigation="prev" />
+          <CarouselButton navigation="next" />
+        </CarouselNavContainer>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```
+
+### Advanced Usage with Full Navigation
+
+```tsx
+// Complex usage with all navigation features
+function AdvancedCarousel() {
+  const [currentSlide, setCurrentSlide] = useState("slide-1");
+
+  return (
+    <CarouselProvider
+      value={currentSlide}
+      onValueChange={(event, data) => setCurrentSlide(data.value)}
+      autoplay={true}
+      autoplayInterval={5000}
+      circular={true}
+    >
+      <Carousel aria-label="Product showcase">
+        <CarouselViewport>
+          <CarouselSlider>
+            <CarouselCard value="slide-1">
+              <ProductDisplay product={products[0]} />
+            </CarouselCard>
+            <CarouselCard value="slide-2">
+              <ProductDisplay product={products[1]} />
+            </CarouselCard>
+            <CarouselCard value="slide-3">
+              <ProductDisplay product={products[2]} />
+            </CarouselCard>
+          </CarouselSlider>
+        </CarouselViewport>
+
+        <CarouselNavContainer layout="overlay" position="center">
+          <CarouselButton navigation="prev" aria-label="Previous product" />
+          <CarouselAutoplayButton
+            playLabel="Start auto-advance"
+            pauseLabel="Pause auto-advance"
+          />
+          <CarouselButton navigation="next" aria-label="Next product" />
+        </CarouselNavContainer>
+
+        <CarouselNavContainer layout="inline" position="center">
+          <CarouselNav>
+            {(value, index) => (
+              <CarouselNavButton
+                value={value}
+                aria-label={`Product ${index + 1}`}
+              >
+                {index + 1}
+              </CarouselNavButton>
+            )}
+          </CarouselNav>
+        </CarouselNavContainer>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```
+
+### Image Gallery with Thumbnails
+
+```tsx
+function ImageGallery({ images }) {
+  return (
+    <CarouselProvider defaultValue={images[0].id}>
+      <Carousel aria-label="Image gallery">
+        <CarouselViewport>
+          <CarouselSlider>
+            {images.map((image) => (
+              <CarouselCard key={image.id} value={image.id}>
+                <img
+                  src={image.fullSize}
+                  alt={image.alt}
+                  style={{ width: "100%", height: "auto" }}
+                />
+              </CarouselCard>
+            ))}
+          </CarouselSlider>
+        </CarouselViewport>
+
+        <CarouselNavContainer>
+          <CarouselButton navigation="prev" />
+          <div className="thumbnail-nav">
+            {images.map((image, index) => (
+              <CarouselNavImageButton
+                key={image.id}
+                value={image.id}
+                src={image.thumbnail}
+                alt={`Thumbnail of ${image.alt}`}
+              />
+            ))}
+          </div>
+          <CarouselButton navigation="next" />
+        </CarouselNavContainer>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **CarouselProvider** manages global carousel state including active item, autoplay status, and configuration
+2. **State changes** flow from CarouselProvider context to all child components
+3. **Navigation events** bubble up from individual components to CarouselProvider for state updates
+4. **Active item changes** trigger re-renders in CarouselCard components for visibility updates
+5. **Autoplay timer** is managed by CarouselProvider and affects automatic navigation
+
+### Context Sharing
+
+- **CarouselContextValue**: Provides active item state, navigation handlers, configuration options, and autoplay controls to all descendant components
+- **ViewportContext**: Manages scroll positioning and viewport dimensions for proper item display
+- **NavigationContext**: Coordinates between different navigation components to prevent conflicts
+
+### Event Handling
+
+- **Navigation Events**: Button clicks and nav selections flow to CarouselProvider for centralized state management
+- **Scroll Events**: CarouselViewport monitors scroll position to update active item state
+- **Autoplay Events**: Timer-based events trigger automatic navigation while respecting user interactions
+- **Focus Events**: Keyboard navigation integrates with component focus management for accessibility
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use CarouselProvider at the root to ensure all components have access to shared state
+- Always provide unique values for CarouselCard components to enable proper navigation
+- Implement proper ARIA labels for accessibility, especially for navigation buttons
+- Consider the content type when choosing between index navigation and thumbnail navigation
+- Use autoplay sparingly and always provide pause controls for accessibility compliance
+
+### Accessibility
+
+- Provide comprehensive ARIA labels for the carousel container and navigation elements
+- Ensure keyboard navigation works properly with arrow keys and Enter/Space for activation
+- Implement proper focus management when navigating between carousel items
+- Use CarouselAutoplayButton to give users control over automatic content rotation
+- Announce carousel changes to screen readers using proper ARIA live regions
+
+### Performance
+
+- Implement lazy loading for carousel content when dealing with many items or large media files
+- Use React.memo for CarouselCard components to prevent unnecessary re-renders
+- Consider virtualization for carousels with hundreds of items
+- Optimize autoplay intervals based on content type and user context
+- Minimize DOM manipulation by leveraging CSS transforms for smooth transitions
+
+## Common Patterns
+
+### Pattern 1: Product Showcase Carousel
+
+```tsx
+// Carousel optimized for product display with comprehensive navigation
+function ProductCarousel({ products }) {
+  return (
+    <CarouselProvider defaultValue={products[0].id} circular={true}>
+      <Carousel aria-label="Featured products">
+        <CarouselViewport>
+          <CarouselSlider>
+            {products.map((product) => (
+              <CarouselCard key={product.id} value={product.id}>
+                <div className="product-card">
+                  <img src={product.image} alt={product.name} />
+                  <h3>{product.name}</h3>
+                  <p>${product.price}</p>
+                  <Button>Add to Cart</Button>
+                </div>
+              </CarouselCard>
+            ))}
+          </CarouselSlider>
+        </CarouselViewport>
+
+        <CarouselNavContainer position="center">
+          <CarouselButton navigation="prev" />
+          <CarouselNav>
+            {(value, index) => (
+              <CarouselNavButton value={value}>{index + 1}</CarouselNavButton>
+            )}
+          </CarouselNav>
+          <CarouselButton navigation="next" />
+        </CarouselNavContainer>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```
+
+### Pattern 2: Auto-Playing Hero Banner
+
+```tsx
+// Carousel with autoplay for promotional content
+function HeroBanner({ banners }) {
+  return (
+    <CarouselProvider
+      defaultValue={banners[0].id}
+      autoplay={true}
+      autoplayInterval={7000}
+      pauseOnHover={true}
+      circular={true}
+    >
+      <Carousel aria-label="Promotional banners">
+        <CarouselViewport>
+          <CarouselSlider>
+            {banners.map((banner) => (
+              <CarouselCard key={banner.id} value={banner.id}>
+                <div
+                  className="hero-slide"
+                  style={{ backgroundImage: `url(${banner.image})` }}
+                >
+                  <div className="hero-content">
+                    <h2>{banner.title}</h2>
+                    <p>{banner.description}</p>
+                    <Button appearance="primary">{banner.cta}</Button>
+                  </div>
+                </div>
+              </CarouselCard>
+            ))}
+          </CarouselSlider>
+        </CarouselViewport>
+
+        <CarouselNavContainer layout="overlay">
+          <CarouselAutoplayButton />
+          <CarouselNav>
+            {(value, index) => <CarouselNavButton value={value} />}
+          </CarouselNav>
+        </CarouselNavContainer>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```
+
+### Pattern 3: Controlled Carousel with External State
+
+```tsx
+// Carousel with external state management for complex integration
+function ControlledCarousel({ items, activeId, onActiveChange }) {
+  return (
+    <CarouselProvider
+      value={activeId}
+      onValueChange={(event, data) => onActiveChange(data.value)}
+    >
+      <Carousel>
+        <CarouselViewport>
+          <CarouselSlider>
+            {items.map((item) => (
+              <CarouselCard key={item.id} value={item.id}>
+                <CustomItemRenderer item={item} />
+              </CarouselCard>
+            ))}
+          </CarouselSlider>
+        </CarouselViewport>
+
+        <CarouselNavContainer>
+          <CarouselButton navigation="prev" />
+          <CarouselButton navigation="next" />
+        </CarouselNavContainer>
+      </Carousel>
+    </CarouselProvider>
+  );
+}
+```

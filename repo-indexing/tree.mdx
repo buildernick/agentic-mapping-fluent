@@ -1,0 +1,608 @@
+---
+
+# Tree Components
+
+## Overview
+
+### Purpose
+
+Use this component group for tree view functionality with required hierarchical parent-child relationships
+
+### When to Use
+
+Tree components are ideal for representing hierarchical data structures where parent-child relationships need to be visualized and interacted with. Common use cases include:
+
+- **File system navigation** - Displaying folder and file hierarchies with expandable/collapsible functionality
+- **Organization charts** - Showing company or team structures with reporting relationships
+- **Menu navigation** - Creating nested navigation menus with hierarchical categories
+- **Category trees** - Displaying product categories, taxonomies, or classification systems
+- **Decision trees** - Visualizing decision paths and workflow hierarchies
+- **Data exploration** - Allowing users to drill down through nested data structures
+- **Site maps** - Representing website structure and page hierarchies
+
+### Architecture
+
+**Critical/Strong Coupling**: The Tree component group follows a provider-based architecture with required hierarchical relationships and shared context management. Components are tightly coupled through:
+
+- **Provider pattern**: TreeProvider and TreeItemProvider manage shared state and context
+- **Required composition**: Tree/FlatTree must contain TreeItem components for functionality
+- **Layout dependencies**: TreeItem requires TreeItemLayout or TreeItemPersonaLayout for proper rendering
+- **Context sharing**: Components communicate through React context for state management and event coordination
+
+### Component Interdependencies
+
+The Tree component group exhibits strong coupling with the following relationships:
+
+- **Root providers** (TreeProvider, TreeItemProvider) provide context and state management
+- **Container components** (Tree, FlatTree) manage the overall tree structure and rendering
+- **Item components** (TreeItem, FlatTreeItem) represent individual nodes with required parent context
+- **Layout components** (TreeItemLayout, TreeItemPersonaLayout) handle visual presentation and must be children of items
+- **Utility component** (TreeRootReset) provides style reset functionality for proper tree rendering
+
+## Components
+
+### Tree {Primary Component}
+
+**Purpose:** The main hierarchical tree component that renders nested data structures with parent-child relationships
+
+**Interface:**
+
+```typescript
+interface TreeProps {
+  children: React.ReactNode; // Required TreeItem components
+  aria-label?: string; // Accessibility label for the tree
+  selectionMode?: 'none' | 'single' | 'multiselect'; // Selection behavior
+  defaultOpenItems?: string[]; // Initially expanded items
+  onOpenChange?: (event: TreeOpenChangeEvent, data: TreeOpenChangeData) => void;
+  onSelectionChange?: (event: TreeSelectionChangeEvent, data: TreeSelectionChangeData) => void;
+}
+```
+
+**Dependencies:** Must contain TreeItem components as children
+**Provides:** Tree context for child components, selection and expansion state management
+
+**Usage Example:**
+
+```tsx
+import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
+
+function HierarchicalExample() {
+  return (
+    <Tree aria-label="File Explorer" selectionMode="single">
+      <TreeItem itemType="branch">
+        <TreeItemLayout>Documents</TreeItemLayout>
+        <Tree>
+          <TreeItem itemType="leaf">
+            <TreeItemLayout>Resume.pdf</TreeItemLayout>
+          </TreeItem>
+          <TreeItem itemType="leaf">
+            <TreeItemLayout>Cover Letter.docx</TreeItemLayout>
+          </TreeItem>
+        </Tree>
+      </TreeItem>
+      <TreeItem itemType="branch">
+        <TreeItemLayout>Pictures</TreeItemLayout>
+        <Tree>
+          <TreeItem itemType="leaf">
+            <TreeItemLayout>vacation.jpg</TreeItemLayout>
+          </TreeItem>
+        </Tree>
+      </TreeItem>
+    </Tree>
+  );
+}
+```
+
+### FlatTree {Primary Component}
+
+**Purpose:** Renders tree structures in a flat DOM format, managing hierarchy through data relationships rather than nested components
+
+**Interface:**
+
+```typescript
+interface FlatTreeProps {
+  children: React.ReactNode; // Required FlatTreeItem components
+  aria-label?: string; // Accessibility label for the tree
+  openItems?: string[]; // Currently expanded items
+  checkedItems?: string[]; // Currently selected items for multiselect
+  selectionMode?: 'none' | 'single' | 'multiselect';
+  onOpenChange?: (event: TreeOpenChangeEvent, data: TreeOpenChangeData) => void;
+  onCheckedChange?: (event: TreeCheckedChangeEvent, data: TreeCheckedChangeData) => void;
+}
+```
+
+**Dependencies:** Must be used with useHeadlessFlatTree hook and contain FlatTreeItem components
+**Provides:** Flat tree context, manages expansion and selection state through data properties
+
+**Usage Example:**
+
+```tsx
+import {
+  FlatTree,
+  FlatTreeItem,
+  TreeItemLayout,
+  useHeadlessFlatTree_unstable,
+} from "@fluentui/react-components";
+
+const items = [
+  { value: "1", content: "Level 1, item 1" },
+  { value: "1-1", parentValue: "1", content: "Level 2, item 1" },
+  { value: "1-2", parentValue: "1", content: "Level 2, item 2" },
+  { value: "2", content: "Level 1, item 2" },
+];
+
+function FlatTreeExample() {
+  const flatTree = useHeadlessFlatTree_unstable(items, {
+    openItems: ["1"],
+    selectionMode: "multiselect",
+  });
+
+  return (
+    <FlatTree {...flatTree.getTreeProps()} aria-label="Flat Tree">
+      {Array.from(flatTree.items(), (flatTreeItem) => {
+        const { content, ...treeItemProps } = flatTreeItem.getTreeItemProps();
+        return (
+          <FlatTreeItem {...treeItemProps} key={flatTreeItem.value}>
+            <TreeItemLayout>{content}</TreeItemLayout>
+          </FlatTreeItem>
+        );
+      })}
+    </FlatTree>
+  );
+}
+```
+
+### TreeItem {Dependent Component}
+
+**Purpose:** Represents individual nodes in a hierarchical tree structure with expansion and selection capabilities
+
+**Interface:**
+
+```typescript
+interface TreeItemProps {
+  children: React.ReactNode; // Required TreeItemLayout and optional nested Tree
+  itemType: "branch" | "leaf"; // Determines if item can have children
+  value?: string; // Unique identifier for the item
+  open?: boolean; // Controls expansion state
+  onOpenChange?: (event: TreeOpenChangeEvent, data: TreeOpenChangeData) => void;
+}
+```
+
+**Context Dependencies:** Must be used within Tree component context
+**Parent Requirements:** Must be child of Tree component for proper functionality
+
+**Usage Example:**
+
+```tsx
+// Must be used within Tree component
+<Tree>
+  <TreeItem itemType="branch">
+    <TreeItemLayout>Expandable Node</TreeItemLayout>
+    <Tree>
+      <TreeItem itemType="leaf">
+        <TreeItemLayout>Child Node</TreeItemLayout>
+      </TreeItem>
+    </Tree>
+  </TreeItem>
+</Tree>
+```
+
+### FlatTreeItem {Dependent Component}
+
+**Purpose:** Represents individual nodes in a flat tree structure where hierarchy is managed through data relationships
+
+**Interface:**
+
+```typescript
+interface FlatTreeItemProps {
+  children: React.ReactNode; // Required TreeItemLayout component
+  value: string; // Unique identifier for the item
+  parentValue?: string; // Reference to parent item's value
+  level?: number; // Depth level in the hierarchy
+  checked?: boolean; // Selection state for multiselect
+  open?: boolean; // Expansion state
+}
+```
+
+**Context Dependencies:** Must be used within FlatTree component context
+**Parent Requirements:** Must be child of FlatTree and managed by useHeadlessFlatTree hook
+
+**Usage Example:**
+
+```tsx
+// Must be used within FlatTree with proper data structure
+<FlatTree {...flatTree.getTreeProps()}>
+  <FlatTreeItem value="1" level={0}>
+    <TreeItemLayout>Root Item</TreeItemLayout>
+  </FlatTreeItem>
+  <FlatTreeItem value="1-1" parentValue="1" level={1}>
+    <TreeItemLayout>Child Item</TreeItemLayout>
+  </FlatTreeItem>
+</FlatTree>
+```
+
+### TreeItemLayout {Dependent Component}
+
+**Purpose:** Provides the visual layout and styling for tree item content, including expand/collapse indicators
+
+**Interface:**
+
+```typescript
+interface TreeItemLayoutProps {
+  children: React.ReactNode; // Content to display in the tree item
+  expandIcon?: React.ReactNode; // Custom expand/collapse icon
+  iconBefore?: React.ReactNode; // Icon before the content
+  iconAfter?: React.ReactNode; // Icon after the content
+  actions?: React.ReactNode; // Action buttons or controls
+}
+```
+
+**Context Dependencies:** Must be used within TreeItem or FlatTreeItem
+**Parent Requirements:** Direct child of TreeItem or FlatTreeItem components
+
+**Usage Example:**
+
+```tsx
+import { ChevronRightIcon, FolderIcon } from "@fluentui/react-icons";
+
+<TreeItem itemType="branch">
+  <TreeItemLayout iconBefore={<FolderIcon />} expandIcon={<ChevronRightIcon />}>
+    Documents Folder
+  </TreeItemLayout>
+</TreeItem>;
+```
+
+### TreeItemPersonaLayout {Dependent Component}
+
+**Purpose:** Specialized layout component for displaying persona information (avatar, name, presence) in tree items
+
+**Interface:**
+
+```typescript
+interface TreeItemPersonaLayoutProps {
+  children: React.ReactNode; // Persona name or content
+  avatar?: React.ReactNode; // Avatar component
+  description?: React.ReactNode; // Secondary text or description
+  expandIcon?: React.ReactNode; // Custom expand/collapse icon
+  actions?: React.ReactNode; // Action buttons or controls
+}
+```
+
+**Context Dependencies:** Must be used within TreeItem or FlatTreeItem
+**Parent Requirements:** Direct child of TreeItem or FlatTreeItem components
+
+**Usage Example:**
+
+```tsx
+import { Avatar } from "@fluentui/react-components";
+
+<TreeItem itemType="leaf">
+  <TreeItemPersonaLayout
+    avatar={<Avatar name="John Doe" />}
+    description="Software Engineer"
+  >
+    John Doe
+  </TreeItemPersonaLayout>
+</TreeItem>;
+```
+
+### TreeProvider {Context Provider Component}
+
+**Purpose:** Provides global tree context and state management for tree components
+
+**Interface:**
+
+```typescript
+interface TreeProviderProps {
+  children: React.ReactNode; // Tree components that need shared context
+  openItems?: string[]; // Globally open items
+  checkedItems?: string[]; // Globally selected items
+  selectionMode?: "none" | "single" | "multiselect";
+}
+```
+
+**Usage Example:**
+
+```tsx
+<TreeProvider selectionMode="multiselect">
+  <Tree aria-label="Main Tree">{/* Tree content */}</Tree>
+</TreeProvider>
+```
+
+### TreeItemProvider {Context Provider Component}
+
+**Purpose:** Provides item-specific context for individual tree items
+
+**Interface:**
+
+```typescript
+interface TreeItemProviderProps {
+  children: React.ReactNode; // TreeItem and its children
+  value: string; // Unique identifier for this item
+}
+```
+
+**Usage Example:**
+
+```tsx
+<TreeItemProvider value="item-1">
+  <TreeItem itemType="branch">
+    <TreeItemLayout>Item with Provider Context</TreeItemLayout>
+  </TreeItem>
+</TreeItemProvider>
+```
+
+### TreeRootReset {Utility Component}
+
+**Purpose:** Provides CSS reset and base styles for proper tree rendering
+
+**Interface:**
+
+```typescript
+interface TreeRootResetProps {
+  children: React.ReactNode; // Tree components that need style reset
+}
+```
+
+**Usage Example:**
+
+```tsx
+<TreeRootReset>
+  <Tree aria-label="Styled Tree">
+    {/* Tree content with proper base styles */}
+  </Tree>
+</TreeRootReset>
+```
+
+## Integration Patterns
+
+### Basic Hierarchical Tree
+
+```tsx
+import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
+
+// Minimal required structure for nested tree
+function BasicTreeExample() {
+  return (
+    <Tree aria-label="Basic Tree">
+      <TreeItem itemType="branch">
+        <TreeItemLayout>Parent Item</TreeItemLayout>
+        <Tree>
+          <TreeItem itemType="leaf">
+            <TreeItemLayout>Child Item 1</TreeItemLayout>
+          </TreeItem>
+          <TreeItem itemType="leaf">
+            <TreeItemLayout>Child Item 2</TreeItemLayout>
+          </TreeItem>
+        </Tree>
+      </TreeItem>
+    </Tree>
+  );
+}
+```
+
+### Advanced Flat Tree with Selection
+
+```tsx
+import {
+  FlatTree,
+  FlatTreeItem,
+  TreeItemLayout,
+  useHeadlessFlatTree_unstable,
+  TreeProvider,
+} from "@fluentui/react-components";
+
+const treeData = [
+  { value: "docs", content: "Documents" },
+  { value: "docs-resume", parentValue: "docs", content: "Resume.pdf" },
+  { value: "docs-cover", parentValue: "docs", content: "Cover Letter.docx" },
+  { value: "pics", content: "Pictures" },
+  { value: "pics-vacation", parentValue: "pics", content: "Vacation Photos" },
+];
+
+function AdvancedFlatTreeExample() {
+  const flatTree = useHeadlessFlatTree_unstable(treeData, {
+    openItems: ["docs", "pics"],
+    defaultCheckedItems: ["docs-resume"],
+    selectionMode: "multiselect",
+  });
+
+  return (
+    <TreeProvider selectionMode="multiselect">
+      <FlatTree {...flatTree.getTreeProps()} aria-label="File Explorer">
+        {Array.from(flatTree.items(), (flatTreeItem) => {
+          const { content, ...treeItemProps } = flatTreeItem.getTreeItemProps();
+          return (
+            <FlatTreeItem {...treeItemProps} key={flatTreeItem.value}>
+              <TreeItemLayout>{content}</TreeItemLayout>
+            </FlatTreeItem>
+          );
+        })}
+      </FlatTree>
+    </TreeProvider>
+  );
+}
+```
+
+### Organization Chart with Personas
+
+```tsx
+import {
+  Tree,
+  TreeItem,
+  TreeItemPersonaLayout,
+  Avatar,
+} from "@fluentui/react-components";
+
+function OrgChartExample() {
+  return (
+    <Tree aria-label="Organization Chart" selectionMode="single">
+      <TreeItem itemType="branch">
+        <TreeItemPersonaLayout
+          avatar={<Avatar name="Sarah Johnson" />}
+          description="CEO"
+        >
+          Sarah Johnson
+        </TreeItemPersonaLayout>
+        <Tree>
+          <TreeItem itemType="branch">
+            <TreeItemPersonaLayout
+              avatar={<Avatar name="Mike Chen" />}
+              description="Engineering Manager"
+            >
+              Mike Chen
+            </TreeItemPersonaLayout>
+            <Tree>
+              <TreeItem itemType="leaf">
+                <TreeItemPersonaLayout
+                  avatar={<Avatar name="Alex Smith" />}
+                  description="Senior Developer"
+                >
+                  Alex Smith
+                </TreeItemPersonaLayout>
+              </TreeItem>
+            </Tree>
+          </TreeItem>
+        </Tree>
+      </TreeItem>
+    </Tree>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+**Hierarchical Tree (Tree/TreeItem):**
+
+- Tree components manage state through React context
+- Parent Tree components pass selection and expansion state to child TreeItem components
+- TreeItem components notify parent Tree of state changes through callback props
+- Nested Tree components inherit context from parent but maintain independent state
+
+**Flat Tree (FlatTree/FlatTreeItem):**
+
+- useHeadlessFlatTree hook manages all tree state and relationships
+- FlatTree receives props from the hook and provides context to children
+- FlatTreeItem components receive their props from the hook's iteration
+- Parent-child relationships are determined by data structure rather than component nesting
+
+### Context Sharing
+
+- **TreeProvider**: Provides global tree configuration and theme context
+- **Tree/FlatTree**: Provides local tree state including selection, expansion, and navigation
+- **TreeItemProvider**: Provides item-specific context for advanced scenarios
+- **Layout components**: Consume item context to render appropriate visual states
+
+### Event Handling
+
+- **Expansion events**: Flow from TreeItem/FlatTreeItem to parent Tree/FlatTree
+- **Selection events**: Bubble up to Tree level for state management
+- **Keyboard navigation**: Handled at Tree level with focus management across items
+- **Custom actions**: Can be handled at item level or bubbled to tree level
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Choose the right pattern**: Use hierarchical Tree for simple nested structures, FlatTree for complex data with many levels or when you need better performance
+- **Provide meaningful labels**: Always include aria-label on Tree components and ensure TreeItemLayout content is descriptive
+- **Manage state appropriately**: Use controlled components for complex scenarios, uncontrolled for simple display-only trees
+- **Limit nesting depth**: Keep tree hierarchies shallow (3-4 levels maximum) for better usability and performance
+
+### Accessibility
+
+- **ARIA relationships**: Tree components automatically manage aria-expanded, aria-selected, and aria-level attributes
+- **Keyboard navigation**: Full keyboard support with arrow keys for navigation, Space/Enter for selection, and Left/Right for expansion
+- **Screen reader support**: Tree structure is announced with proper role relationships and state information
+- **Focus management**: Focus is properly maintained during expansion/collapse and selection operations
+
+### Performance
+
+- **Use FlatTree for large datasets**: FlatTree provides better performance for trees with many items or deep nesting
+- **Virtualization**: Consider implementing virtualization for trees with hundreds or thousands of items
+- **Lazy loading**: Load child items on demand for better initial performance
+- **Memoization**: Use React.memo on TreeItemLayout components when rendering complex content
+
+## Common Patterns
+
+### Pattern 1: File System Explorer
+
+```tsx
+// Tree structure that mimics file system navigation
+import { Tree, TreeItem, TreeItemLayout } from "@fluentui/react-components";
+import { FolderIcon, DocumentIcon } from "@fluentui/react-icons";
+
+function FileExplorerPattern() {
+  return (
+    <Tree aria-label="File Explorer" selectionMode="single">
+      <TreeItem itemType="branch">
+        <TreeItemLayout iconBefore={<FolderIcon />}>src/</TreeItemLayout>
+        <Tree>
+          <TreeItem itemType="branch">
+            <TreeItemLayout iconBefore={<FolderIcon />}>
+              components/
+            </TreeItemLayout>
+            <Tree>
+              <TreeItem itemType="leaf">
+                <TreeItemLayout iconBefore={<DocumentIcon />}>
+                  Button.tsx
+                </TreeItemLayout>
+              </TreeItem>
+            </Tree>
+          </TreeItem>
+        </Tree>
+      </TreeItem>
+    </Tree>
+  );
+}
+```
+
+### Pattern 2: Selectable Checklist Tree
+
+```tsx
+// Tree with checkbox selection for hierarchical data
+import {
+  FlatTree,
+  FlatTreeItem,
+  TreeItemLayout,
+  useHeadlessFlatTree_unstable,
+} from "@fluentui/react-components";
+
+const checklistData = [
+  { value: "project", content: "Project Setup" },
+  {
+    value: "project-deps",
+    parentValue: "project",
+    content: "Install Dependencies",
+  },
+  {
+    value: "project-config",
+    parentValue: "project",
+    content: "Configure Build",
+  },
+  { value: "dev", content: "Development" },
+  { value: "dev-components", parentValue: "dev", content: "Build Components" },
+];
+
+function ChecklistTreePattern() {
+  const flatTree = useHeadlessFlatTree_unstable(checklistData, {
+    selectionMode: "multiselect",
+    openItems: ["project", "dev"],
+  });
+
+  return (
+    <FlatTree {...flatTree.getTreeProps()} aria-label="Project Checklist">
+      {Array.from(flatTree.items(), (flatTreeItem) => {
+        const { content, ...treeItemProps } = flatTreeItem.getTreeItemProps();
+        return (
+          <FlatTreeItem {...treeItemProps} key={flatTreeItem.value}>
+            <TreeItemLayout>{content}</TreeItemLayout>
+          </FlatTreeItem>
+        );
+      })}
+    </FlatTree>
+  );
+}
+```

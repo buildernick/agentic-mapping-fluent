@@ -1,0 +1,379 @@
+# PresenceBadge Components
+
+## Overview
+
+### Purpose
+
+Use this component for presence badge functionality
+
+### When to Use
+
+Use PresenceBadge when you need to visually communicate a user's availability or presence status in collaborative applications. This is particularly useful for:
+
+- User profile displays showing current availability
+- Avatar components in team member lists and contact directories
+- Real-time collaboration tools indicating who is online, busy, or away
+- Communication applications displaying user status for messaging and calls
+- Meeting and calendar applications showing participant availability
+- Help desk or support applications indicating agent availability
+- Social applications showing friend or contact status
+
+The PresenceBadge provides immediate visual feedback about user availability, helping other users understand when someone is available for communication or collaboration.
+
+### Architecture
+
+**No Coupling**: PresenceBadge is a standalone component that can be used independently. It is commonly paired with Avatar or Persona components but does not require any specific parent components or shared context to function.
+
+## Components
+
+### PresenceBadge
+
+**Purpose:** Display a visual indicator of a user's current availability or presence status with standardized colors and icons
+
+**Interface:**
+
+```typescript
+interface PresenceBadgeProps {
+  status?: "available" | "busy" | "away" | "do-not-disturb" | "offline"; // User's current availability status
+  outOfOffice?: boolean; // Whether the user is currently out of office
+  size?: "tiny" | "extra-small" | "small" | "medium" | "large" | "extra-large"; // Size of the badge
+  children?: never; // PresenceBadge does not accept children
+  className?: string; // Custom CSS classes
+  style?: React.CSSProperties; // Inline styles
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { PresenceBadge } from "@fluentui/react-components";
+
+function Example() {
+  return <PresenceBadge status="available" size="medium" />;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { PresenceBadge } from "@fluentui/react-components";
+
+// Simple presence badge showing availability
+function BasicExample() {
+  return (
+    <div>
+      <PresenceBadge status="available" />
+      <PresenceBadge status="busy" />
+      <PresenceBadge status="away" />
+      <PresenceBadge status="do-not-disturb" />
+      <PresenceBadge status="offline" />
+    </div>
+  );
+}
+```
+
+### With Avatar Component
+
+```tsx
+import { Avatar, PresenceBadge } from "@fluentui/react-components";
+
+// PresenceBadge commonly used with Avatar to show user status
+function AvatarWithPresence() {
+  return (
+    <Avatar
+      name="Annie Lindqvist"
+      image={{ src: "/avatars/annie.jpg" }}
+      size={56}
+      badge={<PresenceBadge status="available" />}
+    />
+  );
+}
+```
+
+### Out of Office Status
+
+```tsx
+import { PresenceBadge } from "@fluentui/react-components";
+
+// Showing out of office status
+function OutOfOfficeExample() {
+  return <PresenceBadge status="busy" outOfOffice={true} />;
+}
+```
+
+### Dynamic Status Updates
+
+```tsx
+import { PresenceBadge } from "@fluentui/react-components";
+import { useState, useEffect } from "react";
+
+// Dynamically updating presence status
+function DynamicPresence({ userId }) {
+  const [status, setStatus] = useState("offline");
+  const [outOfOffice, setOutOfOffice] = useState(false);
+
+  useEffect(() => {
+    // Simulate fetching user presence status
+    fetchUserPresence(userId).then((presence) => {
+      setStatus(presence.status);
+      setOutOfOffice(presence.outOfOffice);
+    });
+  }, [userId]);
+
+  return (
+    <PresenceBadge status={status} outOfOffice={outOfOffice} size="medium" />
+  );
+}
+```
+
+### Different Sizes
+
+```tsx
+import { PresenceBadge } from "@fluentui/react-components";
+
+// PresenceBadge in various sizes
+function SizeVariations() {
+  return (
+    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+      <PresenceBadge status="available" size="tiny" />
+      <PresenceBadge status="available" size="extra-small" />
+      <PresenceBadge status="available" size="small" />
+      <PresenceBadge status="available" size="medium" />
+      <PresenceBadge status="available" size="large" />
+      <PresenceBadge status="available" size="extra-large" />
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use consistent presence status definitions across your application to avoid user confusion
+- Always provide meaningful context when displaying presence badges, especially in lists or collections
+- Consider updating presence status in real-time for collaborative applications to provide accurate information
+- Use appropriate badge sizes that are visible but don't overwhelm the interface
+- Combine with user avatars or names to provide clear identification of whose status is being displayed
+
+### Accessibility
+
+- Ensure presence status information is available to screen readers through proper labeling
+- Use sufficient color contrast for presence indicators to be distinguishable by users with visual impairments
+- Provide alternative text descriptions for each status type to convey meaning beyond just color
+- Consider providing tooltips or text labels to explain status meanings for users who may not understand the visual indicators
+- Support keyboard navigation when presence badges are interactive
+
+### Performance
+
+- Implement efficient real-time updates for presence status to avoid excessive API calls
+- Cache presence status data appropriately to reduce network requests
+- Use optimistic updates where appropriate to provide immediate feedback while status changes are being processed
+- Consider batching presence status requests for multiple users to improve performance in lists
+- Implement proper cleanup of presence status subscriptions to prevent memory leaks
+
+## Common Patterns
+
+### Pattern 1: User Profile Header
+
+```tsx
+// Display user status in profile header
+import { Avatar, PresenceBadge, Text } from "@fluentui/react-components";
+
+function UserProfile({ user }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <Avatar
+        name={user.name}
+        image={{ src: user.avatar }}
+        size={64}
+        badge={
+          <PresenceBadge status={user.status} outOfOffice={user.outOfOffice} />
+        }
+      />
+      <div>
+        <Text size={600}>{user.name}</Text>
+        <Text size={300} style={{ display: "block", color: "gray" }}>
+          {getStatusText(user.status, user.outOfOffice)}
+        </Text>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Team Member List
+
+```tsx
+// Show presence in team member listing
+import { Avatar, PresenceBadge, Text } from "@fluentui/react-components";
+
+function TeamMemberList({ members }) {
+  return (
+    <div>
+      {members.map((member) => (
+        <div
+          key={member.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px",
+          }}
+        >
+          <Avatar
+            name={member.name}
+            image={{ src: member.avatar }}
+            size={32}
+            badge={<PresenceBadge status={member.status} size="small" />}
+          />
+          <Text>{member.name}</Text>
+          <Text size={200} style={{ color: "gray", marginLeft: "auto" }}>
+            {member.status}
+          </Text>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Pattern 3: Status Legend
+
+```tsx
+// Provide a legend explaining status meanings
+import { PresenceBadge, Text } from "@fluentui/react-components";
+
+function StatusLegend() {
+  const statuses = [
+    { value: "available", label: "Available for communication" },
+    { value: "busy", label: "Busy - may not respond immediately" },
+    { value: "away", label: "Away from desk" },
+    { value: "do-not-disturb", label: "Do not disturb - focused work time" },
+    { value: "offline", label: "Offline - not available" },
+  ];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <Text size={500} weight="semibold">
+        Status Legend
+      </Text>
+      {statuses.map((status) => (
+        <div
+          key={status.value}
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <PresenceBadge status={status.value} size="small" />
+          <Text size={300}>{status.label}</Text>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+### Pattern 4: Chat Interface
+
+```tsx
+// Show presence in chat or messaging interface
+import { Avatar, PresenceBadge, Text } from "@fluentui/react-components";
+
+function ChatHeader({ contact }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: "16px",
+        borderBottom: "1px solid #e0e0e0",
+      }}
+    >
+      <Avatar
+        name={contact.name}
+        image={{ src: contact.avatar }}
+        size={40}
+        badge={<PresenceBadge status={contact.status} />}
+      />
+      <div>
+        <Text size={400} weight="semibold">
+          {contact.name}
+        </Text>
+        <Text size={200} style={{ display: "block", color: "gray" }}>
+          {contact.status === "available"
+            ? "Active now"
+            : contact.status === "away"
+              ? "Away"
+              : contact.status === "busy"
+                ? "Busy"
+                : contact.status === "do-not-disturb"
+                  ? "Do not disturb"
+                  : "Last seen recently"}
+        </Text>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pattern 5: Status Selection
+
+```tsx
+// Allow users to set their own status
+import {
+  PresenceBadge,
+  Text,
+  Button,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+} from "@fluentui/react-components";
+import { useState } from "react";
+
+function StatusSelector({ currentStatus, onStatusChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const statuses = [
+    { value: "available", label: "Available" },
+    { value: "busy", label: "Busy" },
+    { value: "away", label: "Away" },
+    { value: "do-not-disturb", label: "Do not disturb" },
+    { value: "offline", label: "Appear offline" },
+  ];
+
+  return (
+    <Menu open={isOpen} onOpenChange={(e, data) => setIsOpen(data.open)}>
+      <MenuTrigger>
+        <Button
+          appearance="subtle"
+          style={{ display: "flex", alignItems: "center", gap: "8px" }}
+        >
+          <PresenceBadge status={currentStatus} size="small" />
+          <Text>{statuses.find((s) => s.value === currentStatus)?.label}</Text>
+        </Button>
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          {statuses.map((status) => (
+            <MenuItem
+              key={status.value}
+              onClick={() => {
+                onStatusChange(status.value);
+                setIsOpen(false);
+              }}
+              style={{ display: "flex", alignItems: "center", gap: "8px" }}
+            >
+              <PresenceBadge status={status.value} size="small" />
+              <Text>{status.label}</Text>
+            </MenuItem>
+          ))}
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```

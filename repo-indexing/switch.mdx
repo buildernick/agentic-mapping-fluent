@@ -1,0 +1,815 @@
+# Switch Component
+
+## Overview
+
+### Purpose
+
+Use this component for boolean toggle functionality
+
+### When to Use
+
+Switch components are ideal for scenarios where users need to:
+
+- Toggle between two mutually exclusive states (on/off, enabled/disabled)
+- Make immediate changes that take effect instantly without requiring form submission
+- Control application settings and preferences in real-time
+- Enable or disable features, notifications, or functionality
+- Switch between different modes of operation (e.g., dark mode, airplane mode)
+- Control visibility or accessibility options
+- Manage user preferences that require immediate feedback
+
+Switches are particularly effective when the action has an immediate, visible result and when users need clear visual confirmation of the current state.
+
+### Architecture
+
+**No Coupling**: The Switch component is a standalone component that doesn't require other components to function properly. It operates independently and can be used in isolation or combined with other form elements and components.
+
+### Component Interdependencies
+
+This is a standalone component with no required dependencies on other components.
+
+## Components
+
+### Switch
+
+**Purpose:** A toggle control that allows users to switch between two mutually exclusive states, providing immediate visual feedback and instant state changes.
+
+**Interface:**
+
+```typescript
+interface SwitchProps {
+  // State management
+  checked?: boolean; // Controlled checked state
+  defaultChecked?: boolean; // Default checked state for uncontrolled usage
+
+  // Display and behavior
+  disabled?: boolean; // Disables the switch interaction
+  label?: React.ReactNode; // Text label displayed next to the switch
+  labelPosition?: "before" | "after"; // Position of label relative to switch
+  size?: "small" | "medium"; // Size variant of the switch
+
+  // Event handling
+  onChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    data: SwitchOnChangeData,
+  ) => void;
+
+  // Accessibility
+  "aria-label"?: string; // Accessible label when no visible label
+  "aria-labelledby"?: string; // ID of element that labels the switch
+  "aria-describedby"?: string; // ID of element that describes the switch
+
+  // Form integration
+  name?: string; // Form field name for form submission
+  value?: string; // Value to submit when switch is checked
+  id?: string; // Unique identifier for the switch element
+
+  // Customization
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>; // Additional props for input element
+}
+
+interface SwitchOnChangeData {
+  checked: boolean;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Switch } from "@fluentui/react-components";
+
+function BasicSwitchExample() {
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const [notifications, setNotifications] = React.useState(true);
+
+  const handleDarkModeChange = (event, data) => {
+    setIsDarkMode(data.checked);
+    // Apply theme change immediately
+    document.body.classList.toggle("dark-mode", data.checked);
+  };
+
+  return (
+    <div>
+      {/* Uncontrolled switch */}
+      <Switch
+        label="Enable auto-save"
+        defaultChecked={true}
+        onChange={(event, data) =>
+          console.log("Auto-save:", data.checked ? "enabled" : "disabled")
+        }
+      />
+
+      {/* Controlled switch with immediate effect */}
+      <Switch
+        label="Dark mode"
+        checked={isDarkMode}
+        onChange={handleDarkModeChange}
+        labelPosition="before"
+      />
+
+      {/* Disabled switch */}
+      <Switch
+        label="Premium feature (requires upgrade)"
+        disabled
+        checked={false}
+      />
+
+      {/* Small size variant */}
+      <Switch
+        label="Push notifications"
+        checked={notifications}
+        onChange={(event, data) => setNotifications(data.checked)}
+        size="small"
+      />
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Uncontrolled Usage
+
+```tsx
+import { Switch } from "@fluentui/react-components";
+
+// Switch manages its own state
+function UncontrolledExample() {
+  return (
+    <Switch
+      label="Enable email notifications"
+      defaultChecked={true}
+      onChange={(event, data) => {
+        // Handle change without managing state locally
+        console.log(
+          "Email notifications:",
+          data.checked ? "enabled" : "disabled",
+        );
+        // Could trigger API call or local storage update
+        localStorage.setItem("emailNotifications", data.checked.toString());
+      }}
+    />
+  );
+}
+```
+
+### Controlled Usage
+
+```tsx
+import { Switch } from "@fluentui/react-components";
+
+function ControlledExample() {
+  const [isEnabled, setIsEnabled] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleToggle = async (event, data) => {
+    setIsLoading(true);
+    try {
+      // Simulate API call
+      await updateUserPreference("feature-enabled", data.checked);
+      setIsEnabled(data.checked);
+    } catch (error) {
+      console.error("Failed to update preference:", error);
+      // Optionally show error message
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Switch
+      label="Enable advanced features"
+      checked={isEnabled}
+      onChange={handleToggle}
+      disabled={isLoading}
+    />
+  );
+}
+```
+
+### Settings Panel Integration
+
+```tsx
+import {
+  Switch,
+  Field,
+  Label,
+  Card,
+  CardHeader,
+  Divider,
+} from "@fluentui/react-components";
+
+function SettingsExample() {
+  const [settings, setSettings] = React.useState({
+    darkMode: false,
+    autoSave: true,
+    notifications: true,
+    analytics: false,
+    betaFeatures: false,
+  });
+
+  const handleSettingChange = (key: string) => (event, data) => {
+    setSettings((prev) => ({
+      ...prev,
+      [key]: data.checked,
+    }));
+
+    // Apply changes immediately based on setting
+    if (key === "darkMode") {
+      document.body.classList.toggle("dark-theme", data.checked);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader header="Application Settings" />
+      <div style={{ padding: "16px" }}>
+        <Field>
+          <Switch
+            label="Dark mode"
+            checked={settings.darkMode}
+            onChange={handleSettingChange("darkMode")}
+            labelPosition="before"
+          />
+        </Field>
+
+        <Field>
+          <Switch
+            label="Auto-save documents"
+            checked={settings.autoSave}
+            onChange={handleSettingChange("autoSave")}
+          />
+        </Field>
+
+        <Divider />
+
+        <Label size="large">Privacy & Data</Label>
+
+        <Field>
+          <Switch
+            label="Push notifications"
+            checked={settings.notifications}
+            onChange={handleSettingChange("notifications")}
+          />
+        </Field>
+
+        <Field>
+          <Switch
+            label="Usage analytics"
+            checked={settings.analytics}
+            onChange={handleSettingChange("analytics")}
+          />
+        </Field>
+
+        <Divider />
+
+        <Field>
+          <Switch
+            label="Enable beta features (experimental)"
+            checked={settings.betaFeatures}
+            onChange={handleSettingChange("betaFeatures")}
+            size="small"
+          />
+        </Field>
+      </div>
+    </Card>
+  );
+}
+```
+
+### Form Integration
+
+```tsx
+import { Switch, Button, Field, Label } from "@fluentui/react-components";
+
+function FormExample() {
+  const [formData, setFormData] = React.useState({
+    terms: false,
+    newsletter: false,
+    marketing: false,
+  });
+
+  const handleSwitchChange = (field: string) => (event, data) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: data.checked,
+    }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("Form submitted:", formData);
+  };
+
+  const canSubmit = formData.terms; // Require terms acceptance
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Field>
+        <Switch
+          name="terms"
+          label="I agree to the Terms of Service and Privacy Policy"
+          checked={formData.terms}
+          onChange={handleSwitchChange("terms")}
+          required
+        />
+      </Field>
+
+      <Field>
+        <Switch
+          name="newsletter"
+          label="Subscribe to newsletter (optional)"
+          checked={formData.newsletter}
+          onChange={handleSwitchChange("newsletter")}
+        />
+      </Field>
+
+      <Field>
+        <Switch
+          name="marketing"
+          label="Receive marketing communications (optional)"
+          checked={formData.marketing}
+          onChange={handleSwitchChange("marketing")}
+        />
+      </Field>
+
+      <Button type="submit" appearance="primary" disabled={!canSubmit}>
+        Create Account
+      </Button>
+    </form>
+  );
+}
+```
+
+### Conditional Content Display
+
+```tsx
+import { Switch, MessageBar } from "@fluentui/react-components";
+
+function ConditionalContentExample() {
+  const [showAdvancedOptions, setShowAdvancedOptions] = React.useState(false);
+  const [debugMode, setDebugMode] = React.useState(false);
+
+  return (
+    <div>
+      <Switch
+        label="Show advanced options"
+        checked={showAdvancedOptions}
+        onChange={(event, data) => setShowAdvancedOptions(data.checked)}
+      />
+
+      {showAdvancedOptions && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "16px",
+            border: "1px solid #ccc",
+          }}
+        >
+          <h3>Advanced Options</h3>
+
+          <Switch
+            label="Enable debug mode"
+            checked={debugMode}
+            onChange={(event, data) => setDebugMode(data.checked)}
+            size="small"
+          />
+
+          {debugMode && (
+            <MessageBar intent="warning">
+              Debug mode is enabled. This may affect performance.
+            </MessageBar>
+          )}
+
+          <Switch
+            label="Use experimental features"
+            defaultChecked={false}
+            size="small"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Custom Label Positioning
+
+```tsx
+import { Switch, makeStyles, tokens } from "@fluentui/react-components";
+
+const useStyles = makeStyles({
+  switchContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: tokens.spacingHorizontalM,
+    borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
+  },
+  switchGroup: {
+    display: "flex",
+    flexDirection: "column",
+    gap: tokens.spacingVerticalS,
+  },
+});
+
+function CustomLayoutExample() {
+  const styles = useStyles();
+  const [settings, setSettings] = React.useState({
+    wifi: true,
+    bluetooth: false,
+    location: true,
+  });
+
+  return (
+    <div className={styles.switchGroup}>
+      <div className={styles.switchContainer}>
+        <div>
+          <strong>Wi-Fi</strong>
+          <div style={{ fontSize: "12px", color: "#666" }}>
+            Connect to wireless networks
+          </div>
+        </div>
+        <Switch
+          checked={settings.wifi}
+          onChange={(event, data) =>
+            setSettings((prev) => ({ ...prev, wifi: data.checked }))
+          }
+          aria-label="Enable Wi-Fi"
+        />
+      </div>
+
+      <div className={styles.switchContainer}>
+        <div>
+          <strong>Bluetooth</strong>
+          <div style={{ fontSize: "12px", color: "#666" }}>
+            Connect to Bluetooth devices
+          </div>
+        </div>
+        <Switch
+          checked={settings.bluetooth}
+          onChange={(event, data) =>
+            setSettings((prev) => ({ ...prev, bluetooth: data.checked }))
+          }
+          aria-label="Enable Bluetooth"
+        />
+      </div>
+
+      <div className={styles.switchContainer}>
+        <div>
+          <strong>Location Services</strong>
+          <div style={{ fontSize: "12px", color: "#666" }}>
+            Allow apps to access your location
+          </div>
+        </div>
+        <Switch
+          checked={settings.location}
+          onChange={(event, data) =>
+            setSettings((prev) => ({ ...prev, location: data.checked }))
+          }
+          aria-label="Enable location services"
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use switches for settings that take immediate effect, without requiring a "Submit" or "Save" action
+- Provide clear, descriptive labels that indicate what the switch controls
+- Use switches for binary choices that have an immediate, visible result
+- Avoid using switches for actions that require confirmation or have destructive consequences
+- Consider the mental model: switches should feel like physical toggle switches that immediately change state
+- Group related switches together and use clear section headings to organize settings
+
+### Accessibility
+
+- Always provide meaningful labels that clearly describe what the switch controls
+- Use `aria-label` when the switch doesn't have a visible label
+- Use `aria-describedby` to associate additional explanatory text with switches
+- Ensure keyboard navigation works properly (Tab to focus, Space/Enter to toggle)
+- Maintain proper focus management and visual focus indicators
+- Provide immediate feedback when switch state changes affect other parts of the interface
+- Consider using live regions to announce important state changes to screen readers
+
+### Performance
+
+- Use uncontrolled switches when you don't need to react to every state change
+- Debounce onChange handlers if they trigger expensive operations (API calls, complex calculations)
+- Consider optimistic updates for better user experience - update UI immediately, then sync with server
+- Avoid blocking the UI during state changes; provide visual feedback for loading states when necessary
+- Use React.memo or similar optimization techniques for switch components in large lists
+
+## Common Patterns
+
+### Pattern 1: Feature Toggles
+
+```tsx
+function FeatureToggleExample() {
+  const [features, setFeatures] = React.useState({
+    newDashboard: false,
+    enhancedSearch: true,
+    betaFeatures: false,
+  });
+
+  const handleFeatureToggle = (featureName: string) => (event, data) => {
+    setFeatures((prev) => ({
+      ...prev,
+      [featureName]: data.checked,
+    }));
+
+    // Log feature usage for analytics
+    analytics.track("feature_toggled", {
+      feature: featureName,
+      enabled: data.checked,
+      timestamp: new Date().toISOString(),
+    });
+  };
+
+  return (
+    <div>
+      <h3>Feature Toggles</h3>
+      <Switch
+        label="New Dashboard (Beta)"
+        checked={features.newDashboard}
+        onChange={handleFeatureToggle("newDashboard")}
+      />
+
+      <Switch
+        label="Enhanced Search"
+        checked={features.enhancedSearch}
+        onChange={handleFeatureToggle("enhancedSearch")}
+      />
+
+      <Switch
+        label="Beta Features"
+        checked={features.betaFeatures}
+        onChange={handleFeatureToggle("betaFeatures")}
+        size="small"
+      />
+    </div>
+  );
+}
+```
+
+### Pattern 2: Privacy and Notification Settings
+
+```tsx
+function PrivacySettingsExample() {
+  const [privacy, setPrivacy] = React.useState({
+    profileVisibility: true,
+    activitySharing: false,
+    dataCollection: false,
+    emailNotifications: true,
+    pushNotifications: true,
+    smsNotifications: false,
+  });
+
+  const updatePrivacySetting = (setting: string) => async (event, data) => {
+    setPrivacy((prev) => ({
+      ...prev,
+      [setting]: data.checked,
+    }));
+
+    try {
+      // Update user preferences on server
+      await updateUserPrivacySettings({
+        [setting]: data.checked,
+      });
+    } catch (error) {
+      // Revert on error
+      setPrivacy((prev) => ({
+        ...prev,
+        [setting]: !data.checked,
+      }));
+      console.error("Failed to update privacy setting:", error);
+    }
+  };
+
+  return (
+    <div>
+      <h3>Privacy Settings</h3>
+      <Switch
+        label="Public profile visibility"
+        checked={privacy.profileVisibility}
+        onChange={updatePrivacySetting("profileVisibility")}
+      />
+
+      <Switch
+        label="Share activity with friends"
+        checked={privacy.activitySharing}
+        onChange={updatePrivacySetting("activitySharing")}
+      />
+
+      <Switch
+        label="Allow anonymous data collection"
+        checked={privacy.dataCollection}
+        onChange={updatePrivacySetting("dataCollection")}
+      />
+
+      <h3>Notifications</h3>
+      <Switch
+        label="Email notifications"
+        checked={privacy.emailNotifications}
+        onChange={updatePrivacySetting("emailNotifications")}
+      />
+
+      <Switch
+        label="Push notifications"
+        checked={privacy.pushNotifications}
+        onChange={updatePrivacySetting("pushNotifications")}
+      />
+
+      <Switch
+        label="SMS notifications"
+        checked={privacy.smsNotifications}
+        onChange={updatePrivacySetting("smsNotifications")}
+      />
+    </div>
+  );
+}
+```
+
+### Pattern 3: Theme and Appearance Control
+
+```tsx
+function ThemeControlExample() {
+  const [appearance, setAppearance] = React.useState({
+    darkMode: false,
+    highContrast: false,
+    reducedMotion: false,
+    largeText: false,
+  });
+
+  const handleAppearanceChange = (setting: string) => (event, data) => {
+    setAppearance((prev) => ({
+      ...prev,
+      [setting]: data.checked,
+    }));
+
+    // Apply changes immediately to the document
+    switch (setting) {
+      case "darkMode":
+        document.documentElement.setAttribute(
+          "data-theme",
+          data.checked ? "dark" : "light",
+        );
+        break;
+      case "highContrast":
+        document.documentElement.classList.toggle(
+          "high-contrast",
+          data.checked,
+        );
+        break;
+      case "reducedMotion":
+        document.documentElement.classList.toggle(
+          "reduced-motion",
+          data.checked,
+        );
+        break;
+      case "largeText":
+        document.documentElement.classList.toggle("large-text", data.checked);
+        break;
+    }
+
+    // Save to local storage for persistence
+    localStorage.setItem(
+      "appearance-settings",
+      JSON.stringify({
+        ...appearance,
+        [setting]: data.checked,
+      }),
+    );
+  };
+
+  return (
+    <div>
+      <h3>Appearance & Accessibility</h3>
+
+      <Switch
+        label="Dark mode"
+        checked={appearance.darkMode}
+        onChange={handleAppearanceChange("darkMode")}
+        labelPosition="before"
+      />
+
+      <Switch
+        label="High contrast mode"
+        checked={appearance.highContrast}
+        onChange={handleAppearanceChange("highContrast")}
+      />
+
+      <Switch
+        label="Reduce motion effects"
+        checked={appearance.reducedMotion}
+        onChange={handleAppearanceChange("reducedMotion")}
+      />
+
+      <Switch
+        label="Large text size"
+        checked={appearance.largeText}
+        onChange={handleAppearanceChange("largeText")}
+      />
+    </div>
+  );
+}
+```
+
+### Pattern 4: Real-time Filter Controls
+
+```tsx
+function FilterControlExample() {
+  const [filters, setFilters] = React.useState({
+    showCompleted: true,
+    showArchived: false,
+    showDrafts: true,
+    showShared: true,
+  });
+
+  const [items, setItems] = React.useState([
+    {
+      id: 1,
+      title: "Task 1",
+      status: "completed",
+      archived: false,
+      shared: true,
+    },
+    { id: 2, title: "Task 2", status: "draft", archived: false, shared: false },
+    {
+      id: 3,
+      title: "Task 3",
+      status: "completed",
+      archived: true,
+      shared: true,
+    },
+    // ... more items
+  ]);
+
+  const handleFilterChange = (filterName: string) => (event, data) => {
+    setFilters((prev) => ({
+      ...prev,
+      [filterName]: data.checked,
+    }));
+  };
+
+  const filteredItems = items.filter((item) => {
+    if (!filters.showCompleted && item.status === "completed") return false;
+    if (!filters.showArchived && item.archived) return false;
+    if (!filters.showDrafts && item.status === "draft") return false;
+    if (!filters.showShared && item.shared) return false;
+    return true;
+  });
+
+  return (
+    <div>
+      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+        <Switch
+          label="Show completed"
+          checked={filters.showCompleted}
+          onChange={handleFilterChange("showCompleted")}
+          size="small"
+        />
+
+        <Switch
+          label="Show archived"
+          checked={filters.showArchived}
+          onChange={handleFilterChange("showArchived")}
+          size="small"
+        />
+
+        <Switch
+          label="Show drafts"
+          checked={filters.showDrafts}
+          onChange={handleFilterChange("showDrafts")}
+          size="small"
+        />
+
+        <Switch
+          label="Show shared"
+          checked={filters.showShared}
+          onChange={handleFilterChange("showShared")}
+          size="small"
+        />
+      </div>
+
+      <div>
+        <p>
+          Showing {filteredItems.length} of {items.length} items
+        </p>
+        {filteredItems.map((item) => (
+          <div
+            key={item.id}
+            style={{ padding: "8px", border: "1px solid #ccc", margin: "4px" }}
+          >
+            {item.title} - {item.status}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+```

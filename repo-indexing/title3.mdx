@@ -1,0 +1,382 @@
+# Title3 Component
+
+## Overview
+
+### Purpose
+
+Use this component for tertiary title text styling. The Title3 component provides a consistent level 3 heading typography style that follows the Fluent Design System guidelines for hierarchical text content.
+
+### When to Use
+
+- **Page subsections**: For subsection headings within a page or document
+- **Content hierarchy**: When you need a third level of heading hierarchy (after Title1 and Title2)
+- **Card or panel headers**: As headers for secondary content containers
+- **Form section titles**: To group related form fields under descriptive headings
+- **Navigation categories**: For tertiary navigation items or menu group headers
+- **Modal dialog sections**: To organize content within dialogs or panels
+
+### Architecture
+
+**No Coupling**: This is a standalone component that can be used independently without dependencies on other components. Title3 is a preset typography component that wraps the base Text component with predefined styling for tertiary headings.
+
+## Components
+
+### Title3
+
+**Purpose:** Renders tertiary heading text with consistent styling that follows the Fluent Design System typography hierarchy.
+
+**Interface:**
+
+```typescript
+interface Title3Props extends React.HTMLAttributes<HTMLElement> {
+  /**
+   * The element type to render as. Defaults to 'h3' for semantic HTML structure.
+   */
+  as?: React.ElementType;
+
+  /**
+   * Content to display within the title component.
+   */
+  children?: React.ReactNode;
+
+  /**
+   * Additional CSS class names to apply to the component.
+   */
+  className?: string;
+
+  /**
+   * Inline styles to apply to the component.
+   */
+  style?: React.CSSProperties;
+
+  /**
+   * Whether to wrap text or display as nowrap. Defaults to wrapping.
+   */
+  wrap?: boolean;
+
+  /**
+   * Whether to display as block element. Defaults to inline.
+   */
+  block?: boolean;
+
+  /**
+   * Text alignment within the component.
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Text truncation behavior.
+   */
+  truncate?: boolean;
+
+  /**
+   * Font weight override (if needed beyond the default semibold).
+   */
+  weight?: "regular" | "medium" | "semibold";
+
+  /**
+   * Whether the text is italic.
+   */
+  italic?: boolean;
+
+  /**
+   * Whether the text should be underlined.
+   */
+  underline?: boolean;
+
+  /**
+   * Whether the text should have strikethrough styling.
+   */
+  strikethrough?: boolean;
+
+  /**
+   * Size override (defaults to Title3 size of 500).
+   */
+  size?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 1000;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Title3 } from "@fluentui/react-components";
+
+function Example() {
+  return (
+    <div>
+      {/* Basic usage with default h3 element */}
+      <Title3>Section Header</Title3>
+
+      {/* Custom element type */}
+      <Title3 as="div">Non-semantic title</Title3>
+
+      {/* With additional styling */}
+      <Title3
+        className="custom-title"
+        style={{ color: "var(--colorBrandForeground1)" }}
+      >
+        Branded Section Title
+      </Title3>
+
+      {/* Block display with center alignment */}
+      <Title3 block align="center">
+        Centered Block Title
+      </Title3>
+
+      {/* Truncated title for cards */}
+      <Title3 truncate style={{ maxWidth: "200px" }}>
+        Very Long Title That Will Be Truncated
+      </Title3>
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Title3 } from "@fluentui/react-components";
+
+// Standard semantic heading
+function BasicExample() {
+  return (
+    <section>
+      <Title3>Account Settings</Title3>
+      <p>Manage your account preferences and security settings.</p>
+    </section>
+  );
+}
+```
+
+### Card Headers
+
+```tsx
+import { Title3, Card, CardHeader } from "@fluentui/react-components";
+
+function CardExample() {
+  return (
+    <Card>
+      <CardHeader>
+        <Title3>Recent Activity</Title3>
+      </CardHeader>
+      <div>Card content goes here...</div>
+    </Card>
+  );
+}
+```
+
+### Form Section Headers
+
+```tsx
+import { Title3, Field, Input, Label } from "@fluentui/react-components";
+
+function FormExample() {
+  return (
+    <form>
+      <Title3>Personal Information</Title3>
+      <Field>
+        <Label htmlFor="firstName">First Name</Label>
+        <Input id="firstName" />
+      </Field>
+      <Field>
+        <Label htmlFor="lastName">Last Name</Label>
+        <Input id="lastName" />
+      </Field>
+
+      <Title3 style={{ marginTop: "24px" }}>Contact Details</Title3>
+      <Field>
+        <Label htmlFor="email">Email</Label>
+        <Input id="email" type="email" />
+      </Field>
+    </form>
+  );
+}
+```
+
+### Navigation Categories
+
+```tsx
+import { Title3, Menu, MenuList, MenuItem } from "@fluentui/react-components";
+
+function NavigationExample() {
+  return (
+    <nav>
+      <Title3 as="div" style={{ marginBottom: "8px" }}>
+        Dashboard Tools
+      </Title3>
+      <Menu>
+        <MenuList>
+          <MenuItem>Analytics</MenuItem>
+          <MenuItem>Reports</MenuItem>
+          <MenuItem>Export Data</MenuItem>
+        </MenuList>
+      </Menu>
+    </nav>
+  );
+}
+```
+
+### Content Hierarchy
+
+```tsx
+import { Title1, Title2, Title3, Text } from "@fluentui/react-components";
+
+function HierarchyExample() {
+  return (
+    <article>
+      <Title1>Main Article Title</Title1>
+      <Text>Introduction paragraph...</Text>
+
+      <Title2>Section One</Title2>
+      <Text>Section content...</Text>
+
+      <Title3>Subsection A</Title3>
+      <Text>Subsection content...</Text>
+
+      <Title3>Subsection B</Title3>
+      <Text>More subsection content...</Text>
+
+      <Title2>Section Two</Title2>
+      <Title3>Another Subsection</Title3>
+      <Text>Additional content...</Text>
+    </article>
+  );
+}
+```
+
+### Responsive Layouts
+
+```tsx
+import { Title3 } from "@fluentui/react-components";
+
+function ResponsiveExample() {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        gap: "16px",
+      }}
+    >
+      <div>
+        <Title3 truncate>Feature Overview That Might Be Long</Title3>
+        <p>Feature description...</p>
+      </div>
+      <div>
+        <Title3 truncate>Benefits Analysis</Title3>
+        <p>Benefits description...</p>
+      </div>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Maintain hierarchy**: Use Title3 only after Title1 and Title2 to preserve logical heading structure for accessibility
+- **Semantic HTML**: Keep the default `as="h3"` prop for proper document outline and screen reader navigation
+- **Consistent spacing**: Apply consistent margins around Title3 elements to maintain visual rhythm
+- **Color inheritance**: Let Title3 inherit text color from parent containers unless specific branding is required
+
+### Accessibility
+
+- **Heading levels**: Never skip heading levels - ensure Title1 (h1) and Title2 (h2) are used before Title3 (h3)
+- **Screen readers**: The default h3 element provides proper navigation landmarks for assistive technologies
+- **Focus management**: When used as interactive elements, ensure proper focus states are maintained
+- **Color contrast**: Ensure sufficient contrast ratios when applying custom colors (minimum 4.5:1 for normal text)
+
+### Performance
+
+- **Text rendering**: The component is lightweight and optimized for text rendering
+- **CSS-in-JS**: Uses efficient styling methods that don't impact performance with multiple instances
+- **Font loading**: Relies on system fonts and Fluent Design tokens for consistent rendering
+
+## Common Patterns
+
+### Pattern 1: Section Headers with Actions
+
+```tsx
+import { Title3, Button } from "@fluentui/react-components";
+
+function SectionWithActions() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: "16px",
+      }}
+    >
+      <Title3>Team Members</Title3>
+      <Button appearance="primary" size="small">
+        Add Member
+      </Button>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Collapsible Sections
+
+```tsx
+import { Title3, Button } from "@fluentui/react-components";
+import {
+  ChevronDown24Regular,
+  ChevronRight24Regular,
+} from "@fluentui/react-icons";
+import { useState } from "react";
+
+function CollapsibleSection({ title, children }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div>
+      <Button
+        appearance="transparent"
+        onClick={() => setIsExpanded(!isExpanded)}
+        icon={isExpanded ? <ChevronDown24Regular /> : <ChevronRight24Regular />}
+        style={{ padding: 0, minWidth: "auto" }}
+      >
+        <Title3 as="span" style={{ marginLeft: "8px" }}>
+          {title}
+        </Title3>
+      </Button>
+      {isExpanded && (
+        <div style={{ marginLeft: "32px", marginTop: "8px" }}>{children}</div>
+      )}
+    </div>
+  );
+}
+```
+
+### Pattern 3: Status Indicators
+
+```tsx
+import { Title3, Badge } from "@fluentui/react-components";
+
+function StatusTitle({ title, status, count }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <Title3>{title}</Title3>
+      <Badge appearance={status === "active" ? "filled" : "outline"}>
+        {count}
+      </Badge>
+    </div>
+  );
+}
+
+// Usage
+function Example() {
+  return (
+    <div>
+      <StatusTitle title="Active Projects" status="active" count={12} />
+      <StatusTitle title="Archived Projects" status="inactive" count={5} />
+    </div>
+  );
+}
+```

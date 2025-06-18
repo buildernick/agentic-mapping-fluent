@@ -1,0 +1,372 @@
+# Body1 Components
+
+## Overview
+
+### Purpose
+
+Use this component for body text styling
+
+### When to Use
+
+The Body1 component is designed for standard body text content in your application. Use Body1 when you need:
+
+- Primary text content in paragraphs, descriptions, or main content areas
+- Consistent typography that follows the Fluent Design System's text hierarchy
+- Standard readability for body content that doesn't require emphasis
+- Text that serves as the baseline for other text variants (Body1Strong, Body1Stronger)
+- Content that needs to be accessible and readable across different devices and screen sizes
+
+### Architecture
+
+**No Coupling** - Body1 is a standalone typography component that doesn't require other components to function. It's part of the broader typography system but operates independently.
+
+### Component Interdependencies
+
+Body1 has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related variants for different emphasis levels.
+
+## Components
+
+### Body1 {Standalone Component}
+
+**Purpose:** Provides standard body text styling that adheres to the Fluent Design System's typography standards. This component ensures consistent font sizing, line height, and spacing for readable body content.
+
+**Interface:**
+
+```typescript
+interface Body1Props {
+  /**
+   * The content to be rendered as body text
+   */
+  children?: React.ReactNode;
+
+  /**
+   * The HTML element or React component to render
+   * @default 'span'
+   */
+  as?: React.ElementType;
+
+  /**
+   * Applies block-level styling (display: block)
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Prevents text wrapping (white-space: nowrap)
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Applies text truncation with ellipsis on overflow
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Text alignment
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Body1 } from "@fluentui/react-text";
+
+function Example() {
+  return (
+    <Body1>
+      This is standard body text with consistent styling according to the Fluent
+      Design System guidelines.
+    </Body1>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Body1 } from "@fluentui/react-text";
+
+// Simple text content
+function BasicExample() {
+  return (
+    <Body1>
+      This is a basic example of body text using the Body1 component.
+    </Body1>
+  );
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Body1 } from "@fluentui/react-text";
+
+// Using semantic HTML elements
+function SemanticExample() {
+  return (
+    <>
+      <Body1 as="p">
+        This paragraph uses semantic HTML while maintaining Body1 styling.
+      </Body1>
+
+      <Body1 as="div">
+        This div container also uses Body1 typography styles.
+      </Body1>
+    </>
+  );
+}
+```
+
+### Layout and Display Variations
+
+```tsx
+import { Body1 } from "@fluentui/react-text";
+
+// Different layout configurations
+function LayoutExample() {
+  return (
+    <>
+      {/* Inline text (default) */}
+      <Body1>Inline text</Body1>
+
+      {/* Block-level text */}
+      <Body1 block>
+        This text is displayed as a block element, taking up the full width of
+        its container.
+      </Body1>
+
+      {/* Non-wrapping text */}
+      <Body1 nowrap>
+        This text will not wrap to the next line even in narrow containers.
+      </Body1>
+
+      {/* Truncated text with ellipsis */}
+      <Body1 truncate>
+        This text will be truncated with an ellipsis if it exceeds the container
+        width.
+      </Body1>
+    </>
+  );
+}
+```
+
+### Text Alignment
+
+```tsx
+import { Body1 } from "@fluentui/react-text";
+
+// Text alignment options
+function AlignmentExample() {
+  return (
+    <>
+      <Body1 align="start" block>
+        Left-aligned text (start)
+      </Body1>
+      <Body1 align="center" block>
+        Centered text
+      </Body1>
+      <Body1 align="end" block>
+        Right-aligned text (end)
+      </Body1>
+      <Body1 align="justify" block>
+        Justified text that spreads across the full width of the container with
+        even spacing between words.
+      </Body1>
+    </>
+  );
+}
+```
+
+## Component Relationships
+
+### Typography Hierarchy
+
+Body1 is part of a comprehensive typography system that includes:
+
+- **Display**: Largest text for major headings
+- **LargeTitle**: Large titles for section headers
+- **Title1, Title2, Title3**: Hierarchical title sizes
+- **Subtitle1, Subtitle2**: Subtitle variations
+- **Body1**: Standard body text (this component)
+- **Body1Strong**: Emphasized body text
+- **Body1Stronger**: Strongly emphasized body text
+- **Body2**: Smaller body text for secondary content
+- **Caption1, Caption2**: Small text for captions and labels
+
+### Related Components
+
+```tsx
+import {
+  Body1,
+  Body1Strong,
+  Body1Stronger,
+  Body2,
+  Title2,
+} from "@fluentui/react-text";
+
+function TypographyHierarchyExample() {
+  return (
+    <article>
+      <Title2>Article Heading</Title2>
+
+      <Body1 as="p">
+        This is the main body text using Body1 for standard paragraph content.
+        It provides optimal readability for longer text passages.
+      </Body1>
+
+      <Body1Strong as="p">
+        This paragraph uses Body1Strong to provide emphasis while maintaining
+        the same size as regular Body1.
+      </Body1Strong>
+
+      <Body1Stronger as="p">
+        This paragraph uses Body1Stronger for even stronger emphasis when
+        needed.
+      </Body1Stronger>
+
+      <Body2 as="p">
+        This is supporting text using Body2, which is smaller than Body1 and
+        suitable for secondary information.
+      </Body2>
+    </article>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Body1 as the primary text component for main content areas, paragraphs, and descriptions
+- Combine with semantic HTML elements using the `as` prop for proper accessibility and SEO
+- Maintain consistent spacing by using the `block` prop for paragraph-style content
+- Use `truncate` sparingly and only when space constraints require it, ensuring important information isn't hidden
+
+### Accessibility
+
+- Always use semantic HTML elements (`as="p"` for paragraphs, `as="span"` for inline text)
+- Ensure sufficient color contrast when customizing text colors
+- Provide alternative text or descriptions when using `truncate` to avoid losing important information
+- Test with screen readers to ensure text is properly announced
+
+### Performance
+
+- Body1 components are lightweight and have minimal rendering overhead
+- Use consistent typography components rather than custom CSS to maintain design system coherence
+- Avoid excessive nesting of text components within each other
+
+### Design Consistency
+
+- Stick to the typography hierarchy provided by the design system
+- Use Body1Strong and Body1Stronger for emphasis rather than custom font weights
+- Maintain consistent line spacing by using block-level elements for multi-line content
+
+## Common Patterns
+
+### Pattern 1: Content Cards
+
+```tsx
+import { Body1, Title3 } from "@fluentui/react-text";
+import { Card } from "@fluentui/react-components";
+
+function ContentCard({ title, description }) {
+  return (
+    <Card>
+      <Title3>{title}</Title3>
+      <Body1 as="p" block>
+        {description}
+      </Body1>
+    </Card>
+  );
+}
+```
+
+### Pattern 2: Form Descriptions
+
+```tsx
+import { Body1, Body2 } from "@fluentui/react-text";
+import { Field, Input } from "@fluentui/react-components";
+
+function FormFieldWithDescription() {
+  return (
+    <Field>
+      <label>Email Address</label>
+      <Input type="email" />
+      <Body2 block>
+        We'll use this email to send you important updates about your account.
+      </Body2>
+    </Field>
+  );
+}
+```
+
+### Pattern 3: Article Content
+
+```tsx
+import { Body1, Body1Strong, Title1, Title2 } from "@fluentui/react-text";
+
+function ArticleContent() {
+  return (
+    <article>
+      <Title1 as="h1">Main Article Title</Title1>
+
+      <Body1Strong as="p">
+        This is the article introduction with emphasized text to grab attention.
+      </Body1Strong>
+
+      <Title2 as="h2">Section Heading</Title2>
+
+      <Body1 as="p">
+        This is the main body content of the article. It uses Body1 for optimal
+        readability and follows the design system's typography guidelines.
+      </Body1>
+
+      <Body1 as="p">
+        Additional paragraphs continue to use Body1 for consistency throughout
+        the article content.
+      </Body1>
+    </article>
+  );
+}
+```
+
+### Pattern 4: Responsive Text Layout
+
+```tsx
+import { Body1 } from "@fluentui/react-text";
+
+function ResponsiveTextLayout() {
+  return (
+    <div className="responsive-container">
+      {/* Text that adapts to container width */}
+      <Body1 as="p" block>
+        This text will flow naturally within its container and maintain
+        readability across different screen sizes.
+      </Body1>
+
+      {/* Truncated text for constrained spaces */}
+      <div style={{ width: "200px" }}>
+        <Body1 truncate title="Full text appears in tooltip">
+          This text will be truncated if it exceeds the container width
+        </Body1>
+      </div>
+    </div>
+  );
+}
+```

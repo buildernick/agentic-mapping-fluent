@@ -1,0 +1,355 @@
+# SpinButton Components
+
+## Overview
+
+### Purpose
+
+Use this component for numeric input with spin controls
+
+### When to Use
+
+Use a SpinButton when you need to provide users with a way to incrementally adjust numeric values in precise, controlled steps. This component is ideal for:
+
+- **Numeric form fields** - When users need to input quantities, measurements, or counts
+- **Configuration settings** - For adjusting parameters like timeouts, thresholds, or limits
+- **Data entry with validation** - When values must fall within specific ranges
+- **Measurements with units** - For length, weight, time, or other measurable quantities
+- **Fine-grained adjustments** - When precise incremental changes are more important than rapid input
+
+Avoid using SpinButton for:
+
+- Binary settings (use Switch instead)
+- Ranges with three or fewer values (use ChoiceGroup instead)
+- Large value ranges where typing is more efficient (use Input instead)
+
+### Architecture
+
+**No Coupling** - SpinButton is a standalone component that can be used independently without requiring other components. It encapsulates all necessary functionality for numeric input with increment/decrement controls within a single component interface.
+
+## Components
+
+### SpinButton {Standalone Component}
+
+**Purpose:** Provides an input field with increment/decrement buttons for precise numeric value adjustment
+
+**Interface:**
+
+```typescript
+interface SpinButtonProps {
+  // Value management
+  value?: string; // Controlled value
+  defaultValue?: string; // Initial value for uncontrolled mode
+  min?: number; // Minimum allowed value
+  max?: number; // Maximum allowed value
+  step?: number; // Increment/decrement amount
+
+  // Display and labeling
+  label?: string; // Descriptive label for the input
+  suffix?: string; // Text suffix (e.g., units like "cm", "%")
+  iconProps?: IIconProps; // Optional icon to display
+
+  // Event handlers
+  onChange?: (
+    event: React.SyntheticEvent<HTMLElement>,
+    newValue?: string,
+  ) => void;
+  onIncrement?: (
+    value: string,
+    event?: React.SyntheticEvent<HTMLElement>,
+  ) => string | void;
+  onDecrement?: (
+    value: string,
+    event?: React.SyntheticEvent<HTMLElement>,
+  ) => string | void;
+  onValidate?: (
+    value: string,
+    event?: React.SyntheticEvent<HTMLElement>,
+  ) => string | void;
+  onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+
+  // Accessibility
+  incrementButtonAriaLabel?: string; // ARIA label for increment button
+  decrementButtonAriaLabel?: string; // ARIA label for decrement button
+  ariaLabel?: string; // ARIA label for the input field
+  ariaDescribedBy?: string; // ARIA described-by relationship
+
+  // Styling and behavior
+  styles?: Partial<ISpinButtonStyles>; // Custom styling
+  disabled?: boolean; // Disable the entire control
+  precision?: number; // Decimal precision for values
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { SpinButton } from "@fluentui/react/lib/SpinButton";
+
+function BasicExample() {
+  return (
+    <SpinButton
+      label="Quantity"
+      defaultValue="0"
+      min={0}
+      max={100}
+      step={1}
+      incrementButtonAriaLabel="Increase value by 1"
+      decrementButtonAriaLabel="Decrease value by 1"
+    />
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Numeric Input
+
+```tsx
+import { SpinButton } from "@fluentui/react/lib/SpinButton";
+
+// Simple numeric input with validation
+function QuantityInput() {
+  return (
+    <SpinButton
+      label="Quantity"
+      defaultValue="1"
+      min={1}
+      max={999}
+      step={1}
+      incrementButtonAriaLabel="Increase quantity by 1"
+      decrementButtonAriaLabel="Decrease quantity by 1"
+      styles={{ spinButtonWrapper: { width: 75 } }}
+    />
+  );
+}
+```
+
+### Controlled Component
+
+```tsx
+import { SpinButton } from "@fluentui/react/lib/SpinButton";
+import { useState, useCallback } from "react";
+
+// Controlled SpinButton with external state management
+function ControlledSpinButton() {
+  const [value, setValue] = useState("5");
+
+  const handleChange = useCallback((event, newValue) => {
+    if (newValue !== undefined) {
+      setValue(newValue);
+    }
+  }, []);
+
+  return (
+    <SpinButton
+      label="Controlled Value"
+      value={value}
+      min={0}
+      max={100}
+      step={1}
+      onChange={handleChange}
+      incrementButtonAriaLabel="Increase value by 1"
+      decrementButtonAriaLabel="Decrease value by 1"
+    />
+  );
+}
+```
+
+### Decimal Values with Precision
+
+```tsx
+// SpinButton for decimal values with custom precision
+function DecimalInput() {
+  return (
+    <SpinButton
+      label="Percentage"
+      defaultValue="0.0"
+      min={0}
+      max={100}
+      step={0.1}
+      precision={1}
+      suffix="%"
+      incrementButtonAriaLabel="Increase percentage by 0.1"
+      decrementButtonAriaLabel="Decrease percentage by 0.1"
+    />
+  );
+}
+```
+
+### Custom Increment/Decrement Logic
+
+```tsx
+// SpinButton with custom increment logic and suffix handling
+function CustomLogicSpinButton() {
+  const suffix = " cm";
+  const min = 0;
+  const max = 100;
+
+  const getNumericPart = (value: string): number | undefined => {
+    const valueRegex = /^(\d+(\.\d+)?).*/;
+    if (valueRegex.test(value)) {
+      const numericValue = Number(value.replace(valueRegex, "$1"));
+      return isNaN(numericValue) ? undefined : numericValue;
+    }
+    return undefined;
+  };
+
+  const onIncrement = (value: string): string | void => {
+    const numericValue = getNumericPart(value);
+    if (numericValue !== undefined) {
+      return String(Math.min(numericValue + 2, max)) + suffix;
+    }
+  };
+
+  const onDecrement = (value: string): string | void => {
+    const numericValue = getNumericPart(value);
+    if (numericValue !== undefined) {
+      return String(Math.max(numericValue - 2, min)) + suffix;
+    }
+  };
+
+  const onValidate = (value: string): string | void => {
+    let numericValue = getNumericPart(value);
+    if (numericValue !== undefined) {
+      numericValue = Math.min(Math.max(numericValue, min), max);
+      return String(numericValue) + suffix;
+    }
+  };
+
+  return (
+    <SpinButton
+      label="Length"
+      defaultValue={"10" + suffix}
+      min={min}
+      max={max}
+      onIncrement={onIncrement}
+      onDecrement={onDecrement}
+      onValidate={onValidate}
+      incrementButtonAriaLabel="Increase length by 2 cm"
+      decrementButtonAriaLabel="Decrease length by 2 cm"
+    />
+  );
+}
+```
+
+### With Icon and Styling
+
+```tsx
+// SpinButton with icon and custom styling
+function StyledSpinButton() {
+  const iconProps = { iconName: "IncreaseIndentLegacy" };
+  const styles = {
+    spinButtonWrapper: { width: 100 },
+    input: { textAlign: "center" },
+  };
+
+  return (
+    <SpinButton
+      label="Temperature"
+      iconProps={iconProps}
+      defaultValue="20"
+      min={-10}
+      max={50}
+      step={1}
+      suffix="°C"
+      styles={styles}
+      incrementButtonAriaLabel="Increase temperature by 1 degree"
+      decrementButtonAriaLabel="Decrease temperature by 1 degree"
+    />
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Always provide descriptive labels** that clearly indicate what value the SpinButton controls (e.g., "Quantity", "Duration (minutes)", "Width (px)")
+- **Set appropriate min/max bounds** to prevent invalid values and guide user expectations
+- **Use meaningful step values** that align with the precision users need (e.g., 0.1 for percentages, 5 for large ranges)
+- **Include units in labels or suffixes** when the value represents a measurement to provide context
+- **Position labels to the left** of the SpinButton control following form layout conventions
+
+### Accessibility
+
+- **Provide clear ARIA labels** for increment and decrement buttons that describe the action and step size
+- **Use proper labeling** with the `label` prop or `ariaLabel` for screen reader users
+- **Ensure keyboard navigation** works correctly (Up/Down arrows, Page Up/Down for larger steps)
+- **Support high contrast mode** by using semantic styling rather than custom colors
+- **Announce value changes** appropriately for screen readers when implementing custom handlers
+
+### Performance
+
+- **Use controlled components sparingly** - only when you need to manage state externally or perform validation
+- **Debounce onChange handlers** if they trigger expensive operations like API calls
+- **Memoize custom handlers** (onIncrement, onDecrement, onValidate) to prevent unnecessary re-renders
+- **Keep validation logic simple** in onValidate to maintain responsive user experience
+
+## Common Patterns
+
+### Pattern 1: Form Integration
+
+```tsx
+// SpinButton integrated into a form with validation
+function ProductForm() {
+  const [quantity, setQuantity] = useState("1");
+  const [price, setPrice] = useState("0.00");
+
+  return (
+    <Stack tokens={{ childrenGap: 15 }}>
+      <SpinButton
+        label="Quantity"
+        value={quantity}
+        min={1}
+        max={999}
+        step={1}
+        onChange={(_, value) => setQuantity(value || "1")}
+        incrementButtonAriaLabel="Increase quantity"
+        decrementButtonAriaLabel="Decrease quantity"
+      />
+      <SpinButton
+        label="Price"
+        value={price}
+        min={0}
+        step={0.01}
+        precision={2}
+        suffix=" USD"
+        onChange={(_, value) => setPrice(value || "0.00")}
+        incrementButtonAriaLabel="Increase price by $0.01"
+        decrementButtonAriaLabel="Decrease price by $0.01"
+      />
+    </Stack>
+  );
+}
+```
+
+### Pattern 2: Configuration Panel
+
+```tsx
+// SpinButton for application settings
+function SettingsPanel() {
+  return (
+    <Stack tokens={{ childrenGap: 20 }}>
+      <SpinButton
+        label="Auto-save interval (minutes)"
+        defaultValue="5"
+        min={1}
+        max={60}
+        step={1}
+        incrementButtonAriaLabel="Increase auto-save interval"
+        decrementButtonAriaLabel="Decrease auto-save interval"
+      />
+      <SpinButton
+        label="Maximum file size (MB)"
+        defaultValue="10"
+        min={1}
+        max={1000}
+        step={1}
+        incrementButtonAriaLabel="Increase maximum file size"
+        decrementButtonAriaLabel="Decrease maximum file size"
+      />
+    </Stack>
+  );
+}
+```

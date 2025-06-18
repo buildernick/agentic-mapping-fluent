@@ -1,0 +1,387 @@
+# Title1 Component
+
+## Overview
+
+### Purpose
+
+Use the Title1 component for primary title text styling in your application's main content areas, landing pages, and primary focal points.
+
+### When to Use
+
+The Title1 component is designed for prominent display text that serves as the primary heading for major content sections. Use Title1 when you need:
+
+- Main page titles and primary headings that establish the primary content hierarchy
+- Hero section titles and landing page headlines that capture user attention
+- Primary content area headings that organize major application sections
+- Display text that needs maximum visual prominence within the typography scale
+- Top-level headings in articles, dashboards, and content pages
+- Section titles that serve as the primary entry point for user content consumption
+
+### Architecture
+
+**No Coupling** - Title1 is a standalone typography component that doesn't require other components to function. It operates independently within the FluentUI typography hierarchy, providing the largest and most prominent text styling in the system.
+
+### Component Interdependencies
+
+Title1 has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related components like LargeTitle, Title2, Title3, Subtitle1, Subtitle2, Body1, and other text styling variants for different hierarchy levels and content purposes.
+
+## Components
+
+### Title1 {Standalone Component}
+
+**Purpose:** Provides the primary title text styling with maximum prominence for main headings and display text
+
+**Interface:**
+
+```typescript
+interface Title1Props {
+  /**
+   * Content to display within the title
+   */
+  children: React.ReactNode;
+
+  /**
+   * Controls text alignment
+   * @default "start"
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Whether the text is rendered as a block element
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Whether text should be italicized
+   * @default false
+   */
+  italic?: boolean;
+
+  /**
+   * Whether the text should be underlined
+   * @default false
+   */
+  underline?: boolean;
+
+  /**
+   * Whether text should be strikethrough
+   * @default false
+   */
+  strikethrough?: boolean;
+
+  /**
+   * Controls text size scaling
+   * @default 500
+   */
+  size?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 1000;
+
+  /**
+   * Controls font weight
+   */
+  weight?: "medium" | "regular" | "semibold";
+
+  /**
+   * Controls font family
+   */
+  font?: "base" | "monospace" | "numeric";
+
+  /**
+   * Whether text should be truncated with ellipsis
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Whether text should wrap
+   * @default true
+   */
+  wrap?: boolean;
+
+  /**
+   * Custom HTML element to render as
+   * @default "h1"
+   */
+  as?: React.ElementType;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Title1 } from "@fluentui/react-components";
+
+function Example() {
+  return <Title1>Welcome to Fluent UI</Title1>;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Title1 } from "@fluentui/react-components";
+
+// Simple title
+function BasicExample() {
+  return <Title1>Data Dashboard</Title1>;
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Title1 } from "@fluentui/react-components";
+
+// Using semantic HTML elements for proper document structure
+function SemanticExample() {
+  return (
+    <div>
+      <Title1 as="h1">Main Page Title</Title1>
+      <Title1 as="h2">Section Title</Title1>
+    </div>
+  );
+}
+```
+
+### Alignment and Layout
+
+```tsx
+import { Title1 } from "@fluentui/react-components";
+
+// Various alignment and layout options
+function LayoutExample() {
+  return (
+    <div>
+      <Title1 as="h1" block align="center">
+        Centered Hero Title
+      </Title1>
+      <Title1 as="h2" block align="start">
+        Left-aligned Section Title
+      </Title1>
+    </div>
+  );
+}
+```
+
+### Typography Hierarchy
+
+```tsx
+import { Title1, Title2, Subtitle1, Body1 } from "@fluentui/react-components";
+
+// Using Title1 within a proper typography hierarchy
+function HierarchyExample() {
+  return (
+    <article>
+      <Title1 as="h1">Application Dashboard</Title1>
+      <Subtitle1 as="h2" block style={{ marginTop: "16px" }}>
+        Performance Overview
+      </Subtitle1>
+      <Title2 as="h3" style={{ marginTop: "24px" }}>
+        Key Metrics
+      </Title2>
+      <Body1 as="p" block style={{ marginTop: "12px" }}>
+        Track your application's performance with real-time metrics and
+        analytics.
+      </Body1>
+    </article>
+  );
+}
+```
+
+### With Cards and Layout Components
+
+```tsx
+import { Title1, Body1, Card, CardHeader } from "@fluentui/react-components";
+
+// Using Title1 in card headers and content areas
+function CardExample() {
+  return (
+    <Card>
+      <CardHeader>
+        <Title1>Product Analytics</Title1>
+      </CardHeader>
+      <Body1>
+        Comprehensive insights into product performance and user engagement.
+      </Body1>
+    </Card>
+  );
+}
+```
+
+### Responsive and Truncation
+
+```tsx
+import { Title1, Body1 } from "@fluentui/react-components";
+
+// Handling long titles with truncation
+function ResponsiveExample() {
+  return (
+    <div>
+      <Title1 as="h1" truncate>
+        Very Long Application Title That Might Need Truncation on Small Screens
+      </Title1>
+      <Body1 style={{ marginTop: "8px" }}>
+        Supporting description text that provides additional context.
+      </Body1>
+    </div>
+  );
+}
+```
+
+### Hero Section Usage
+
+```tsx
+import { Title1, Subtitle1, Button } from "@fluentui/react-components";
+
+// Common hero section pattern
+function HeroExample() {
+  return (
+    <div>
+      <Title1 as="h1" block align="center">
+        Build Amazing Applications
+      </Title1>
+      <Subtitle1 as="p" block align="center" style={{ marginTop: "16px" }}>
+        Experience the power of Microsoft's design system
+      </Subtitle1>
+      <div style={{ textAlign: "center", marginTop: "24px" }}>
+        <Button appearance="primary" size="large">
+          Get Started
+        </Button>
+      </div>
+    </div>
+  );
+}
+```
+
+## Common Patterns
+
+### Pattern 1: Page Header
+
+```tsx
+import { Title1, Subtitle1, Divider } from "@fluentui/react-components";
+
+// Standard page header with title and subtitle
+function PageHeader({ title, subtitle }) {
+  return (
+    <div>
+      <Title1 as="h1" block>
+        {title}
+      </Title1>
+      {subtitle && (
+        <Subtitle1 as="p" block style={{ marginTop: "8px" }}>
+          {subtitle}
+        </Subtitle1>
+      )}
+      <Divider style={{ margin: "24px 0" }} />
+    </div>
+  );
+}
+```
+
+### Pattern 2: Landing Page Hero
+
+```tsx
+import { Title1, Body1, Button } from "@fluentui/react-components";
+
+// Landing page hero section with call-to-action
+function LandingHero() {
+  return (
+    <div style={{ textAlign: "center", padding: "64px 24px" }}>
+      <Title1 as="h1" block align="center">
+        Welcome to Our Platform
+      </Title1>
+      <Body1
+        as="p"
+        block
+        align="center"
+        style={{ marginTop: "16px", maxWidth: "600px", margin: "16px auto 0" }}
+      >
+        Discover powerful tools and features designed to streamline your
+        workflow and boost productivity.
+      </Body1>
+      <div style={{ marginTop: "32px" }}>
+        <Button appearance="primary" size="large">
+          Start Free Trial
+        </Button>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Dashboard Section
+
+```tsx
+import { Title1, Title2, Card, CardHeader } from "@fluentui/react-components";
+
+// Dashboard with hierarchical titles
+function DashboardSection() {
+  return (
+    <div>
+      <Title1 as="h1" block style={{ marginBottom: "32px" }}>
+        Analytics Dashboard
+      </Title1>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "16px",
+        }}
+      >
+        <Card>
+          <CardHeader>
+            <Title2>Performance Metrics</Title2>
+          </CardHeader>
+          {/* Card content */}
+        </Card>
+        <Card>
+          <CardHeader>
+            <Title2>User Engagement</Title2>
+          </CardHeader>
+          {/* Card content */}
+        </Card>
+      </div>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Title1 for the most important headings that establish primary content hierarchy
+- Leverage the `as` prop to ensure semantic HTML structure (h1, h2, etc.) for proper accessibility and document outline
+- Reserve Title1 for truly prominent display text - use Title2 or Title3 for secondary headings
+- Combine with appropriate spacing and layout components to create clear visual hierarchy
+- Use consistently across your application to maintain predictable typography patterns
+
+### Accessibility
+
+- Always use appropriate semantic HTML elements (h1, h2, etc.) via the `as` prop for proper document outline
+- Ensure heading hierarchy is logical and sequential for screen readers (h1 → h2 → h3, etc.)
+- Use Title1 consistently to help users understand content organization and navigation
+- Consider contrast ratios when applying custom styling to ensure readability across different themes
+- Provide meaningful heading text that describes the content section for assistive technologies
+
+### Performance
+
+- Title1 components are lightweight and optimized for performance with minimal rendering overhead
+- Use semantic HTML elements (h1, h2) when possible for better SEO and accessibility
+- The truncate prop efficiently handles long text without impacting layout performance
+
+## Component Relationships
+
+Title1 fits within the broader Fluent UI typography system:
+
+**Typography Hierarchy:**
+
+- **LargeTitle**: Even larger headings for major page sections
+- **Title1**: Primary title styling (this component)
+- **Title2, Title3**: Secondary and tertiary title levels
+- **Subtitle1, Subtitle2**: Subtitle variations for supporting hierarchy
+- **Body1, Body2**: Body text variations for content
+
+Use Title1 when you need maximum typographic prominence for main headings, ensuring users can quickly identify and understand the primary content structure of your interface.

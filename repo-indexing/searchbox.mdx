@@ -1,0 +1,313 @@
+---
+
+# SearchBox Components
+
+## Overview
+
+### Purpose
+
+Use this component for search input functionality
+
+### When to Use
+
+The SearchBox component provides a specialized input field designed for search operations within applications. Use SearchBox when you need to:
+
+- **Enable content discovery**: Allow users to search for specific items, documents, or data within your application
+- **Filter large datasets**: Provide a quick way to narrow down results from extensive lists or tables
+- **Navigate through content**: Help users find specific pages, features, or information in complex applications
+- **Implement site-wide search**: Create a global search experience across multiple content sources
+- **Search specific scopes**: Enable targeted searching within defined areas like "My Files", contact lists, or specific data categories
+
+### Architecture
+
+**No Coupling**: SearchBox is a standalone component that doesn't require other components to function. It can be used independently throughout your application wherever search functionality is needed.
+
+### Component Interdependencies
+
+SearchBox operates as an independent component with no required dependencies on other components. It can be enhanced with:
+
+- Custom icons for visual distinction
+- Styling modifications for different contexts
+- Event handlers for integration with search logic
+- Parent containers for layout purposes
+
+## Components
+
+### SearchBox {Standalone Component}
+
+**Purpose:** Provides a specialized input field optimized for search operations with built-in search iconography and behaviors.
+
+**Interface:**
+
+```typescript
+interface SearchBoxProps {
+  // Content and behavior
+  placeholder?: string; // Placeholder text to guide users on what they can search for
+  value?: string; // Controlled value for the search input
+  defaultValue?: string; // Initial value for uncontrolled usage
+
+  // Visual appearance
+  disabled?: boolean; // Disables the search box interaction
+  underlined?: boolean; // Applies underlined styling variant
+  disableAnimation?: boolean; // Removes animation effects for performance
+
+  // Icon customization
+  iconProps?: IIconProps; // Custom icon properties to replace default search icon
+
+  // Event handlers
+  onChange?: (
+    event?: React.ChangeEvent<HTMLInputElement>,
+    newValue?: string,
+  ) => void; // Fires on input value changes
+  onSearch?: (value: string) => void; // Fires when search action is triggered (Enter key or icon click)
+  onEscape?: (event?: React.KeyboardEvent<HTMLInputElement>) => void; // Fires when Escape key is pressed
+  onClear?: (event?: React.MouseEvent<HTMLButtonElement>) => void; // Fires when clear button is clicked
+  onFocus?: (event?: React.FocusEvent<HTMLInputElement>) => void; // Fires when input gains focus
+  onBlur?: (event?: React.FocusEvent<HTMLInputElement>) => void; // Fires when input loses focus
+
+  // Styling
+  styles?: Partial<ISearchBoxStyles>; // Custom styling overrides
+  className?: string; // Additional CSS classes
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { SearchBox } from "@fluentui/react/lib/SearchBox";
+
+function BasicSearchExample() {
+  const handleSearch = (searchTerm: string) => {
+    console.log("Searching for:", searchTerm);
+    // Implement your search logic here
+  };
+
+  return (
+    <SearchBox
+      placeholder="Search files"
+      onSearch={handleSearch}
+      onChange={(_, newValue) => console.log("Input changed:", newValue)}
+    />
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Search Implementation
+
+```tsx
+import * as React from "react";
+import { SearchBox } from "@fluentui/react/lib/SearchBox";
+
+function BasicSearch() {
+  const [searchResults, setSearchResults] = React.useState([]);
+
+  const handleSearch = async (searchTerm: string) => {
+    if (searchTerm.trim()) {
+      // Perform search operation
+      const results = await searchAPI(searchTerm);
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  };
+
+  return (
+    <div>
+      <SearchBox placeholder="Search documents" onSearch={handleSearch} />
+      <SearchResults results={searchResults} />
+    </div>
+  );
+}
+```
+
+### Controlled Search with Real-time Filtering
+
+```tsx
+import * as React from "react";
+import { SearchBox } from "@fluentui/react/lib/SearchBox";
+
+function FilterableList({ items }) {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [filteredItems, setFilteredItems] = React.useState(items);
+
+  const handleSearchChange = (_, newValue) => {
+    setSearchTerm(newValue || "");
+
+    // Real-time filtering
+    if (newValue) {
+      const filtered = items.filter((item) =>
+        item.name.toLowerCase().includes(newValue.toLowerCase()),
+      );
+      setFilteredItems(filtered);
+    } else {
+      setFilteredItems(items);
+    }
+  };
+
+  return (
+    <div>
+      <SearchBox
+        placeholder="Filter items"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        onClear={() => {
+          setSearchTerm("");
+          setFilteredItems(items);
+        }}
+      />
+      <ItemList items={filteredItems} />
+    </div>
+  );
+}
+```
+
+### Custom Styled Search
+
+```tsx
+import * as React from "react";
+import { SearchBox, ISearchBoxStyles } from "@fluentui/react/lib/SearchBox";
+import { IIconProps } from "@fluentui/react/lib/Icon";
+
+const customSearchStyles: Partial<ISearchBoxStyles> = {
+  root: {
+    width: 300,
+    borderRadius: 20,
+  },
+};
+
+const filterIcon: IIconProps = {
+  iconName: "Filter",
+};
+
+function CustomSearch() {
+  return (
+    <SearchBox
+      placeholder="Filter results"
+      styles={customSearchStyles}
+      iconProps={filterIcon}
+      underlined={false}
+      onSearch={(value) => console.log("Filtering:", value)}
+    />
+  );
+}
+```
+
+### Disabled State for Loading
+
+```tsx
+import * as React from "react";
+import { SearchBox } from "@fluentui/react/lib/SearchBox";
+import { Spinner } from "@fluentui/react/lib/Spinner";
+
+function SearchWithLoading() {
+  const [isSearching, setIsSearching] = React.useState(false);
+
+  const handleSearch = async (searchTerm: string) => {
+    setIsSearching(true);
+    try {
+      await performSearch(searchTerm);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div>
+      <SearchBox
+        placeholder="Search"
+        disabled={isSearching}
+        onSearch={handleSearch}
+      />
+      {isSearching && <Spinner label="Searching..." />}
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- **Use descriptive placeholder text** that clearly indicates the search scope (e.g., "Search files", "Search contacts", "Filter products")
+- **Implement real-time search carefully** - consider debouncing input changes to avoid excessive API calls
+- **Provide clear visual feedback** when search is in progress or when no results are found
+- **Handle empty states gracefully** by showing helpful suggestions or recently searched terms
+
+### Accessibility
+
+- **Ensure keyboard navigation** works properly with Enter key triggering search and Escape key clearing the input
+- **Use appropriate ARIA labels** if the search context isn't clear from surrounding content
+- **Provide screen reader feedback** when search results change or when search is in progress
+- **Maintain focus management** so users can navigate search results efficiently
+
+### Performance
+
+- **Debounce onChange events** for real-time search to reduce server load and improve user experience
+- **Consider search result pagination** for large datasets to maintain application responsiveness
+- **Cache frequent searches** when appropriate to improve perceived performance
+- **Use controlled vs uncontrolled patterns** based on your state management needs
+
+## Common Patterns
+
+### Pattern 1: Scoped Search with Context
+
+```tsx
+// Search within a specific section or data scope
+function DocumentSearch({ documentLibrary }) {
+  return (
+    <div>
+      <h2>Document Library</h2>
+      <SearchBox
+        placeholder={`Search ${documentLibrary.name}`}
+        onSearch={(term) => searchDocuments(documentLibrary.id, term)}
+      />
+    </div>
+  );
+}
+```
+
+### Pattern 2: Search with Clear Action
+
+```tsx
+// Explicit clear functionality with custom behavior
+function SearchWithClear() {
+  const [searchValue, setSearchValue] = React.useState("");
+
+  return (
+    <SearchBox
+      placeholder="Search products"
+      value={searchValue}
+      onChange={(_, newValue) => setSearchValue(newValue || "")}
+      onClear={() => {
+        setSearchValue("");
+        // Additional clear logic like resetting filters
+        resetAllFilters();
+      }}
+      onEscape={() => {
+        // Handle escape key
+        setSearchValue("");
+        focusMainContent();
+      }}
+    />
+  );
+}
+```
+
+### Pattern 3: Search with Custom Icon
+
+```tsx
+// Using different icons for different search contexts
+const productFilterIcon: IIconProps = { iconName: "Product" };
+
+function ProductSearch() {
+  return (
+    <SearchBox
+      placeholder="Find products"
+      iconProps={productFilterIcon}
+      onSearch={(term) => filterProducts(term)}
+    />
+  );
+}
+```

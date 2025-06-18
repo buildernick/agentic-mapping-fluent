@@ -1,0 +1,410 @@
+# Checkbox Component
+
+## Overview
+
+### Purpose
+
+Use this component for checkbox input controls
+
+### When to Use
+
+Checkboxes are ideal for scenarios where users need to:
+
+- Select one or more items from a group of options
+- Switch between two mutually exclusive states (checked/unchecked, on/off)
+- Make optional selections in forms
+- Confirm agreement or acknowledgment (e.g., "I agree to the terms")
+- Enable/disable features or settings
+- Filter or toggle visibility of content
+
+### Architecture
+
+**No Coupling**: The Checkbox component is a standalone component that doesn't require other components to function properly. It operates independently and can be used in isolation or combined with other form elements.
+
+### Component Interdependencies
+
+This is a standalone component with no required dependencies on other components.
+
+## Components
+
+### Checkbox
+
+**Purpose:** A form control that allows users to select or deselect an option, supporting checked, unchecked, and indeterminate states.
+
+**Interface:**
+
+```typescript
+interface CheckboxProps {
+  // State management
+  checked?: boolean; // Controlled checked state
+  defaultChecked?: boolean; // Default checked state for uncontrolled usage
+  indeterminate?: boolean; // Shows indeterminate state (partial selection)
+  defaultIndeterminate?: boolean; // Default indeterminate state for uncontrolled usage
+
+  // Display and behavior
+  label?: string; // Text label displayed next to the checkbox
+  disabled?: boolean; // Disables the checkbox interaction
+  boxSide?: "start" | "end"; // Position of checkbox relative to label
+
+  // Event handling
+  onChange?: (
+    ev?: React.FormEvent<HTMLElement | HTMLInputElement>,
+    checked?: boolean,
+  ) => void;
+
+  // Customization
+  onRenderLabel?: () => React.ReactNode; // Custom label rendering function
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>; // Additional props for input element
+
+  // Accessibility
+  "aria-label"?: string; // Accessible label when no visible label
+  "aria-labelledby"?: string; // ID of element that labels the checkbox
+  "aria-describedby"?: string; // ID of element that describes the checkbox
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Checkbox } from "@fluentui/react-components";
+
+function BasicCheckboxExample() {
+  const [isChecked, setIsChecked] = React.useState(false);
+
+  const handleChange = (ev, checked) => {
+    setIsChecked(checked);
+  };
+
+  return (
+    <div>
+      {/* Uncontrolled checkbox */}
+      <Checkbox
+        label="Uncontrolled checkbox"
+        defaultChecked={false}
+        onChange={(ev, checked) => console.log("Changed to:", checked)}
+      />
+
+      {/* Controlled checkbox */}
+      <Checkbox
+        label="Controlled checkbox"
+        checked={isChecked}
+        onChange={handleChange}
+      />
+
+      {/* Disabled checkbox */}
+      <Checkbox label="Disabled checkbox" disabled defaultChecked={true} />
+
+      {/* Indeterminate checkbox */}
+      <Checkbox label="Indeterminate checkbox" indeterminate={true} />
+    </div>
+  );
+}
+```
+
+## Integration Patterns
+
+### Uncontrolled Usage
+
+```tsx
+import { Checkbox } from "@fluentui/react-components";
+
+// Checkbox manages its own state
+function UncontrolledExample() {
+  return (
+    <Checkbox
+      label="Accept terms and conditions"
+      defaultChecked={false}
+      onChange={(ev, checked) => {
+        // Handle change without managing state
+        console.log("Terms accepted:", checked);
+      }}
+    />
+  );
+}
+```
+
+### Controlled Usage
+
+```tsx
+import { Checkbox } from "@fluentui/react-components";
+
+function ControlledExample() {
+  const [acceptTerms, setAcceptTerms] = React.useState(false);
+
+  return (
+    <Checkbox
+      label="Accept terms and conditions"
+      checked={acceptTerms}
+      onChange={(ev, checked) => setAcceptTerms(checked)}
+    />
+  );
+}
+```
+
+### Form Integration
+
+```tsx
+import { Checkbox, Field, Label } from "@fluentui/react-components";
+
+function FormExample() {
+  const [preferences, setPreferences] = React.useState({
+    newsletter: false,
+    notifications: true,
+    marketing: false,
+  });
+
+  const handlePreferenceChange = (key: string) => (ev, checked) => {
+    setPreferences((prev) => ({
+      ...prev,
+      [key]: checked,
+    }));
+  };
+
+  return (
+    <div>
+      <Label size="large">Email Preferences</Label>
+      <Field>
+        <Checkbox
+          label="Newsletter subscription"
+          checked={preferences.newsletter}
+          onChange={handlePreferenceChange("newsletter")}
+        />
+      </Field>
+      <Field>
+        <Checkbox
+          label="Push notifications"
+          checked={preferences.notifications}
+          onChange={handlePreferenceChange("notifications")}
+        />
+      </Field>
+      <Field>
+        <Checkbox
+          label="Marketing emails"
+          checked={preferences.marketing}
+          onChange={handlePreferenceChange("marketing")}
+        />
+      </Field>
+    </div>
+  );
+}
+```
+
+### Indeterminate State Usage
+
+```tsx
+import { Checkbox } from "@fluentui/react-components";
+
+function IndeterminateExample() {
+  const [items, setItems] = React.useState([
+    { id: 1, name: "Item 1", selected: true },
+    { id: 2, name: "Item 2", selected: false },
+    { id: 3, name: "Item 3", selected: true },
+  ]);
+
+  const selectedCount = items.filter((item) => item.selected).length;
+  const isAllSelected = selectedCount === items.length;
+  const isPartiallySelected = selectedCount > 0 && selectedCount < items.length;
+
+  const handleSelectAll = (ev, checked) => {
+    setItems(items.map((item) => ({ ...item, selected: checked })));
+  };
+
+  const handleItemSelect = (id: number) => (ev, checked) => {
+    setItems(
+      items.map((item) =>
+        item.id === id ? { ...item, selected: checked } : item,
+      ),
+    );
+  };
+
+  return (
+    <div>
+      <Checkbox
+        label="Select All"
+        checked={isAllSelected}
+        indeterminate={isPartiallySelected}
+        onChange={handleSelectAll}
+      />
+      {items.map((item) => (
+        <Checkbox
+          key={item.id}
+          label={item.name}
+          checked={item.selected}
+          onChange={handleItemSelect(item.id)}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+### Custom Label Rendering
+
+```tsx
+import { Checkbox, Link } from "@fluentui/react-components";
+
+function CustomLabelExample() {
+  return (
+    <Checkbox
+      onRenderLabel={() => (
+        <span>
+          I agree to the{" "}
+          <Link href="/terms" target="_blank">
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" target="_blank">
+            Privacy Policy
+          </Link>
+        </span>
+      )}
+    />
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use checkboxes for non-exclusive selections where multiple options can be chosen simultaneously
+- Use descriptive labels that clearly indicate what selecting the checkbox will do
+- Group related checkboxes together with clear section headings
+- Provide immediate feedback when checkbox state changes affect other parts of the interface
+- Use indeterminate state for parent checkboxes when child items have mixed selections
+
+### Accessibility
+
+- Always provide clear, descriptive labels that explain the checkbox's purpose
+- Use `aria-describedby` to associate additional explanatory text with checkboxes
+- Ensure keyboard navigation works properly (Space key to toggle)
+- Maintain proper focus management and visual focus indicators
+- Use appropriate ARIA attributes for screen reader compatibility
+- Group related checkboxes using fieldsets and legends when appropriate
+
+### Performance
+
+- Use uncontrolled checkboxes when you don't need to react to every state change
+- Debounce onChange handlers if they trigger expensive operations
+- Consider virtualization for large lists of checkboxes
+- Avoid unnecessary re-renders by memoizing change handlers
+
+## Common Patterns
+
+### Pattern 1: Filter Lists
+
+```tsx
+function FilterExample() {
+  const [filters, setFilters] = React.useState({
+    active: true,
+    completed: false,
+    draft: true,
+  });
+
+  const filteredItems = items.filter((item) => filters[item.status]);
+
+  return (
+    <div>
+      <Label>Filter by status:</Label>
+      {Object.entries(filters).map(([status, checked]) => (
+        <Checkbox
+          key={status}
+          label={status.charAt(0).toUpperCase() + status.slice(1)}
+          checked={checked}
+          onChange={(ev, checked) =>
+            setFilters((prev) => ({ ...prev, [status]: checked }))
+          }
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+### Pattern 2: Feature Toggles
+
+```tsx
+function SettingsExample() {
+  const [settings, setSettings] = React.useState({
+    darkMode: false,
+    notifications: true,
+    autoSave: true,
+    betaFeatures: false,
+  });
+
+  return (
+    <div>
+      <Label size="large">Application Settings</Label>
+      <Checkbox
+        label="Enable dark mode"
+        checked={settings.darkMode}
+        onChange={(ev, checked) =>
+          setSettings((prev) => ({ ...prev, darkMode: checked }))
+        }
+      />
+      <Checkbox
+        label="Push notifications"
+        checked={settings.notifications}
+        onChange={(ev, checked) =>
+          setSettings((prev) => ({ ...prev, notifications: checked }))
+        }
+      />
+      <Checkbox
+        label="Auto-save documents"
+        checked={settings.autoSave}
+        onChange={(ev, checked) =>
+          setSettings((prev) => ({ ...prev, autoSave: checked }))
+        }
+      />
+      <Checkbox
+        label="Enable beta features"
+        checked={settings.betaFeatures}
+        onChange={(ev, checked) =>
+          setSettings((prev) => ({ ...prev, betaFeatures: checked }))
+        }
+      />
+    </div>
+  );
+}
+```
+
+### Pattern 3: Agreement and Consent
+
+```tsx
+function ConsentExample() {
+  const [consents, setConsents] = React.useState({
+    terms: false,
+    privacy: false,
+    marketing: false,
+  });
+
+  const canProceed = consents.terms && consents.privacy;
+
+  return (
+    <div>
+      <Checkbox
+        label="I agree to the Terms of Service"
+        checked={consents.terms}
+        onChange={(ev, checked) =>
+          setConsents((prev) => ({ ...prev, terms: checked }))
+        }
+      />
+      <Checkbox
+        label="I agree to the Privacy Policy"
+        checked={consents.privacy}
+        onChange={(ev, checked) =>
+          setConsents((prev) => ({ ...prev, privacy: checked }))
+        }
+      />
+      <Checkbox
+        label="I would like to receive marketing communications (optional)"
+        checked={consents.marketing}
+        onChange={(ev, checked) =>
+          setConsents((prev) => ({ ...prev, marketing: checked }))
+        }
+      />
+      <Button disabled={!canProceed}>Create Account</Button>
+    </div>
+  );
+}
+```

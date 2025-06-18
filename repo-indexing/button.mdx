@@ -1,0 +1,559 @@
+---
+
+# Button Components
+
+## Overview
+
+### Purpose
+
+Use this component group for user actions and interactions with various visual styles and behaviors to match different interaction patterns and contexts
+
+### When to Use
+
+- **Primary actions**: Use for the most important action in a view (save, submit, create)
+- **Secondary actions**: Use for supporting actions (cancel, reset, edit)
+- **Tertiary actions**: Use for low-priority actions (view details, learn more)
+- **Destructive actions**: Use for actions that remove or delete data
+- **Toggle actions**: Use for actions that switch between states (like/unlike, follow/unfollow)
+- **Icon-only actions**: Use when space is limited and the action is clear from context
+- **Split actions**: Use when there's a primary action with related secondary options
+
+### Architecture
+
+**Moderate Coupling**: The Button component group provides multiple variants that enhance each other through consistent design patterns, interaction behaviors, and visual hierarchy. While each button type can be used independently, they work together to create cohesive interface patterns and user flows.
+
+### Component Interdependencies
+
+- **Visual hierarchy**: Primary, secondary, outline, and subtle variants create clear action hierarchy
+- **Consistent sizing**: All variants support the same size options (small, medium, large)
+- **Icon integration**: All variants can include icons with consistent positioning
+- **State management**: All variants share disabled, loading, and focus states
+- **Theme integration**: All variants respond to theme changes and dark mode
+
+## Components
+
+### Button {Primary Component}
+
+**Purpose:** The main button component that provides core interactive functionality with multiple appearance variants
+
+**Interface:**
+
+```typescript
+interface ButtonProps {
+  appearance?: "primary" | "secondary" | "outline" | "subtle" | "transparent";
+  size?: "small" | "medium" | "large";
+  shape?: "rounded" | "circular" | "square";
+  disabled?: boolean;
+  disabledFocusable?: boolean;
+  icon?: React.ReactElement;
+  iconPosition?: "before" | "after";
+  children?: React.ReactNode;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onBlur?: (event: React.FocusEvent<HTMLButtonElement>) => void;
+  onFocus?: (event: React.FocusEvent<HTMLButtonElement>) => void;
+  type?: "button" | "submit" | "reset";
+  as?: React.ElementType;
+}
+```
+
+**Dependencies:** None - standalone component
+**Provides:** Foundation for all button interactions and styling
+
+**Usage Example:**
+
+```tsx
+import { Button } from "@fluentui/react-components";
+import { AddRegular } from "@fluentui/react-icons";
+
+function Example() {
+  return (
+    <Button
+      appearance="primary"
+      icon={<AddRegular />}
+      onClick={() => console.log("clicked")}
+    >
+      Create New
+    </Button>
+  );
+}
+```
+
+### CompoundButton {Enhanced Variant}
+
+**Purpose:** A specialized button variant that displays both primary text and secondary descriptive text for complex actions
+
+**Interface:**
+
+```typescript
+interface CompoundButtonProps extends ButtonProps {
+  secondaryContent?: React.ReactNode;
+  contentContainer?: React.HTMLAttributes<HTMLDivElement>;
+}
+```
+
+**Context Dependencies:** Inherits all Button props and behaviors
+**Enhancement:** Adds secondary content area for additional context
+
+**Usage Example:**
+
+```tsx
+import { CompoundButton } from "@fluentui/react-components";
+import { AddRegular } from "@fluentui/react-icons";
+
+function Example() {
+  return (
+    <CompoundButton
+      appearance="primary"
+      icon={<AddRegular />}
+      secondaryContent="Add a new item to your collection"
+    >
+      Add Item
+    </CompoundButton>
+  );
+}
+```
+
+### MenuButton {Interactive Enhancement}
+
+**Purpose:** A button variant that opens a dropdown menu with additional actions
+
+**Interface:**
+
+```typescript
+interface MenuButtonProps extends ButtonProps {
+  menuIcon?: React.ReactElement;
+  children?: React.ReactNode;
+}
+```
+
+**Context Dependencies:** Works with Menu components for dropdown functionality
+**Enhancement:** Provides trigger functionality for contextual menus
+
+**Usage Example:**
+
+```tsx
+import {
+  MenuButton,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+} from "@fluentui/react-components";
+import { MoreHorizontalRegular } from "@fluentui/react-icons";
+
+function Example() {
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <MenuButton icon={<MoreHorizontalRegular />}>More Actions</MenuButton>
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          <MenuItem>Edit</MenuItem>
+          <MenuItem>Delete</MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
+
+### SplitButton {Composite Enhancement}
+
+**Purpose:** A dual-action button with a primary action and a dropdown for secondary actions
+
+**Interface:**
+
+```typescript
+interface SplitButtonProps {
+  primaryActionButton: React.ReactElement<ButtonProps>;
+  menuButton: React.ReactElement<MenuButtonProps>;
+}
+```
+
+**Context Dependencies:** Combines Button and MenuButton functionality
+**Enhancement:** Provides both immediate action and additional options
+
+**Usage Example:**
+
+```tsx
+import {
+  SplitButton,
+  Button,
+  MenuButton,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+} from "@fluentui/react-components";
+import { SaveRegular, ChevronDownRegular } from "@fluentui/react-icons";
+
+function Example() {
+  return (
+    <SplitButton
+      primaryActionButton={
+        <Button icon={<SaveRegular />} onClick={() => console.log("save")}>
+          Save
+        </Button>
+      }
+      menuButton={
+        <Menu>
+          <MenuTrigger disableButtonEnhancement>
+            <MenuButton icon={<ChevronDownRegular />} />
+          </MenuTrigger>
+          <MenuPopover>
+            <MenuList>
+              <MenuItem>Save As...</MenuItem>
+              <MenuItem>Save Copy</MenuItem>
+            </MenuList>
+          </MenuPopover>
+        </Menu>
+      }
+    />
+  );
+}
+```
+
+### ToggleButton {State-aware Variant}
+
+**Purpose:** A button that maintains pressed/unpressed state for toggle actions
+
+**Interface:**
+
+```typescript
+interface ToggleButtonProps extends ButtonProps {
+  checked?: boolean;
+  defaultChecked?: boolean;
+  onChange?: (
+    event: React.ChangeEvent<HTMLButtonElement>,
+    data: { checked: boolean },
+  ) => void;
+}
+```
+
+**Context Dependencies:** Inherits Button props with added state management
+**Enhancement:** Provides persistent visual state for toggle interactions
+
+**Usage Example:**
+
+```tsx
+import { ToggleButton } from "@fluentui/react-components";
+import { HeartRegular, HeartFilled } from "@fluentui/react-icons";
+import { useState } from "react";
+
+function Example() {
+  const [liked, setLiked] = useState(false);
+
+  return (
+    <ToggleButton
+      checked={liked}
+      icon={liked ? <HeartFilled /> : <HeartRegular />}
+      onChange={(_, data) => setLiked(data.checked)}
+    >
+      {liked ? "Liked" : "Like"}
+    </ToggleButton>
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Button } from "@fluentui/react-components";
+import { AddRegular, EditRegular, DeleteRegular } from "@fluentui/react-icons";
+
+// Creating action hierarchy with different appearances
+function BasicExample() {
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <Button appearance="primary" icon={<AddRegular />}>
+        Create New
+      </Button>
+      <Button appearance="secondary" icon={<EditRegular />}>
+        Edit
+      </Button>
+      <Button appearance="outline" icon={<DeleteRegular />}>
+        Delete
+      </Button>
+    </div>
+  );
+}
+```
+
+### Advanced Usage
+
+```tsx
+import {
+  Button,
+  CompoundButton,
+  MenuButton,
+  ToggleButton,
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+} from "@fluentui/react-components";
+import {
+  AddRegular,
+  StarRegular,
+  StarFilled,
+  MoreHorizontalRegular,
+} from "@fluentui/react-icons";
+import { useState } from "react";
+
+function AdvancedExample() {
+  const [starred, setStarred] = useState(false);
+
+  return (
+    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+      {/* Primary compound action */}
+      <CompoundButton
+        appearance="primary"
+        icon={<AddRegular />}
+        secondaryContent="Create a new project with templates"
+        onClick={() => console.log("create project")}
+      >
+        New Project
+      </CompoundButton>
+
+      {/* Toggle state button */}
+      <ToggleButton
+        checked={starred}
+        icon={starred ? <StarFilled /> : <StarRegular />}
+        onChange={(_, data) => setStarred(data.checked)}
+      >
+        {starred ? "Starred" : "Star"}
+      </ToggleButton>
+
+      {/* Menu with additional actions */}
+      <Menu>
+        <MenuTrigger disableButtonEnhancement>
+          <MenuButton appearance="subtle" icon={<MoreHorizontalRegular />}>
+            More
+          </MenuButton>
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            <MenuItem>Share</MenuItem>
+            <MenuItem>Export</MenuItem>
+            <MenuItem>Archive</MenuItem>
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+    </div>
+  );
+}
+```
+
+### Common Variations
+
+```tsx
+// Size variations
+function SizeVariations() {
+  return (
+    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+      <Button size="small">Small</Button>
+      <Button size="medium">Medium</Button>
+      <Button size="large">Large</Button>
+    </div>
+  );
+}
+
+// Icon positioning
+function IconPositions() {
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <Button icon={<AddRegular />} iconPosition="before">
+        Add Item
+      </Button>
+      <Button icon={<AddRegular />} iconPosition="after">
+        Add Item
+      </Button>
+      <Button icon={<AddRegular />} />
+    </div>
+  );
+}
+
+// Disabled states
+function DisabledStates() {
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <Button disabled>Disabled</Button>
+      <Button disabledFocusable>Disabled Focusable</Button>
+    </div>
+  );
+}
+```
+
+## Component Relationships
+
+### Visual Hierarchy
+
+Button variants create clear visual hierarchy through appearance props:
+
+- **Primary**: Most important action, use sparingly (typically one per view)
+- **Secondary**: Supporting actions, can have multiple per view
+- **Outline**: Alternative to secondary with more visual separation
+- **Subtle**: Low-priority actions that blend with background
+- **Transparent**: Minimal visual weight for tertiary actions
+
+### State Management
+
+All button variants share consistent state behaviors:
+
+- **Hover/Focus**: Visual feedback for interactive states
+- **Disabled**: Consistent disabled appearance and behavior
+- **Loading**: Built-in loading states for async actions
+- **Pressed**: Visual feedback for active interactions
+
+### Icon Integration
+
+Consistent icon handling across all variants:
+
+- **Positioning**: Before, after, or icon-only configurations
+- **Sizing**: Icons automatically size to match button size
+- **Accessibility**: Proper ARIA labels for icon-only buttons
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use primary buttons sparingly - typically one per view or section
+- Group related actions using consistent spacing and alignment
+- Choose button variants that match the action's importance and context
+- Provide clear, action-oriented labels that describe what will happen
+- Use compound buttons for complex actions that benefit from additional context
+
+### Accessibility
+
+- Ensure sufficient color contrast for all button variants
+- Provide accessible labels for icon-only buttons using aria-label
+- Use proper button types (submit, reset) for form interactions
+- Maintain focus indicators that meet accessibility standards
+- Test with keyboard navigation and screen readers
+
+### Performance
+
+- Use icon imports from @fluentui/react-icons efficiently
+- Avoid creating new icon elements on every render
+- Consider virtualization for large lists of buttons
+- Use React.memo for buttons in frequently re-rendering components
+
+## Common Patterns
+
+### Action Groups
+
+```tsx
+// Related actions with clear hierarchy
+function ActionGroup() {
+  return (
+    <div style={{ display: "flex", gap: "8px" }}>
+      <Button appearance="primary">Save</Button>
+      <Button appearance="secondary">Save Draft</Button>
+      <Button appearance="outline">Cancel</Button>
+    </div>
+  );
+}
+```
+
+### Toolbar Actions
+
+```tsx
+// Toolbar with mixed button types
+function Toolbar() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: "4px",
+        padding: "8px",
+        borderBottom: "1px solid #ccc",
+      }}
+    >
+      <Button size="small" icon={<AddRegular />} />
+      <Button size="small" icon={<EditRegular />} />
+      <Button size="small" icon={<DeleteRegular />} />
+      <div style={{ marginLeft: "auto" }}>
+        <Menu>
+          <MenuTrigger disableButtonEnhancement>
+            <MenuButton
+              size="small"
+              appearance="subtle"
+              icon={<MoreHorizontalRegular />}
+            />
+          </MenuTrigger>
+          <MenuPopover>
+            <MenuList>
+              <MenuItem>Settings</MenuItem>
+              <MenuItem>Export</MenuItem>
+            </MenuList>
+          </MenuPopover>
+        </Menu>
+      </div>
+    </div>
+  );
+}
+```
+
+### Form Actions
+
+```tsx
+// Form with appropriate button hierarchy
+function FormActions() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: "12px",
+        justifyContent: "flex-end",
+        marginTop: "24px",
+      }}
+    >
+      <Button appearance="subtle">Cancel</Button>
+      <Button appearance="secondary">Save Draft</Button>
+      <Button appearance="primary" type="submit">
+        Publish
+      </Button>
+    </div>
+  );
+}
+```
+
+### Card Actions
+
+```tsx
+// Actions within card components
+function CardActions() {
+  const [liked, setLiked] = useState(false);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: "8px",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ display: "flex", gap: "8px" }}>
+        <ToggleButton
+          appearance="subtle"
+          size="small"
+          checked={liked}
+          icon={liked ? <HeartFilled /> : <HeartRegular />}
+          onChange={(_, data) => setLiked(data.checked)}
+        />
+        <Button appearance="subtle" size="small" icon={<ShareRegular />} />
+      </div>
+      <Button appearance="primary" size="small">
+        View Details
+      </Button>
+    </div>
+  );
+}
+```

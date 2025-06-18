@@ -1,0 +1,386 @@
+# Rating Components
+
+## Overview
+
+### Purpose
+
+Use this component group for rating functionality with required compositional relationships
+
+### When to Use
+
+The Rating component group is ideal for scenarios where you need to:
+
+- Display product ratings in e-commerce applications
+- Show user reviews and feedback scores
+- Implement star-based rating systems for content evaluation
+- Create read-only rating displays for showcasing aggregate scores
+- Build interactive rating inputs for collecting user feedback
+- Display half-star precision ratings for more granular scoring
+
+Use Rating components when you need a standardized, accessible way to represent numeric scores in a visual star format that users universally understand.
+
+### Architecture
+
+**Strong Coupling**: The Rating component group includes compositional relationships between Rating, RatingItem, RatingItemProvider, and RatingDisplay components that work together to provide comprehensive rating functionality.
+
+- **Rating**: The primary container component that manages overall rating state and behavior
+- **RatingItem**: Individual star elements that respond to user interactions
+- **RatingItemProvider**: Context provider for sharing rating state between components
+- **RatingDisplay**: Read-only display variant for showing ratings without interaction
+
+### Component Interdependencies
+
+- **Required parent-child relationships**: RatingItem components must be children of Rating container
+- **Shared context dependencies**: RatingItemProvider supplies rating state to child components
+- **Communication patterns**: Rating components communicate through context for state synchronization and event handling
+
+## Components
+
+### Rating {Primary Component}
+
+**Purpose:** The main container component that manages rating state, user interactions, and provides the foundational rating functionality
+
+**Interface:**
+
+```typescript
+interface RatingProps {
+  rating?: number; // Current rating value (0 to max)
+  defaultRating?: number; // Initial rating value for uncontrolled mode
+  max?: number; // Maximum rating value (default: 5)
+  min?: number; // Minimum rating value (default: 0) [Deprecated]
+  allowZeroStars?: boolean; // Whether zero stars is an allowed rating
+  disabled?: boolean; // Whether the rating is disabled
+  readOnly?: boolean; // Whether the rating is read-only
+  size?: RatingSize; // Size variant (Small or Large)
+  icon?: string; // Custom icon name for filled stars
+  unselectedIcon?: string; // Custom icon name for empty stars
+  ariaLabel?: string; // Accessibility label for the rating
+  ariaLabelFormat?: string; // Format string for individual star labels
+  getAriaLabel?: (rating: number, max: number) => string; // Custom aria label function
+  onChange?: (event: React.FormEvent<HTMLElement>, rating?: number) => void; // Rating change callback
+}
+```
+
+**Dependencies:** Uses RatingItemProvider to share state with child RatingItem components
+**Provides:** Rating context including current value, maximum value, interaction handlers, and accessibility attributes
+
+**Usage Example:**
+
+```tsx
+import { Rating, RatingSize } from "@fluentui/react-components";
+
+function BasicRating() {
+  const [rating, setRating] = React.useState(3);
+
+  return (
+    <Rating
+      rating={rating}
+      max={5}
+      size={RatingSize.Large}
+      allowZeroStars
+      ariaLabel="Product rating"
+      ariaLabelFormat="{0} of {1} stars"
+      onChange={(event, newRating) => setRating(newRating || 0)}
+    />
+  );
+}
+```
+
+### RatingItem {Dependent Component}
+
+**Purpose:** Individual star elements that render within the Rating container and handle individual star interactions
+
+**Interface:**
+
+```typescript
+interface RatingItemProps {
+  key?: string | number; // Unique identifier for the rating item
+  filled?: boolean; // Whether this star should appear filled
+  selected?: boolean; // Whether this star is currently selected
+  onSelect?: () => void; // Callback when this star is selected
+  icon?: string; // Custom icon for this star
+  disabled?: boolean; // Whether this star is disabled
+}
+```
+
+**Context Dependencies:** Requires rating context from RatingItemProvider for state and interaction handling
+**Parent Requirements:** Must be used within Rating component for proper functionality
+
+**Usage Example:**
+
+```tsx
+// RatingItem is typically used internally by Rating component
+// Manual usage would require Rating context:
+<Rating max={5}>
+  {Array.from({ length: 5 }, (_, index) => (
+    <RatingItem
+      key={index}
+      filled={index < currentRating}
+      onSelect={() => handleStarClick(index + 1)}
+    />
+  ))}
+</Rating>
+```
+
+### RatingItemProvider {Context Component}
+
+**Purpose:** Provides rating context and state management for child Rating components
+
+**Interface:**
+
+```typescript
+interface RatingItemProviderProps {
+  children: React.ReactNode; // Child components that need rating context
+  value: RatingContextValue; // Rating state and handlers
+}
+
+interface RatingContextValue {
+  rating: number; // Current rating value
+  max: number; // Maximum rating value
+  disabled: boolean; // Whether rating is disabled
+  readOnly: boolean; // Whether rating is read-only
+  onRatingChange: (rating: number) => void; // Rating change handler
+}
+```
+
+**Context Dependencies:** Standalone provider component
+**Parent Requirements:** None - can be used at any level to provide rating context
+
+**Usage Example:**
+
+```tsx
+import { RatingItemProvider } from "@fluentui/react-components";
+
+function CustomRatingContainer() {
+  const ratingContext = {
+    rating: 3,
+    max: 5,
+    disabled: false,
+    readOnly: false,
+    onRatingChange: handleRatingChange,
+  };
+
+  return (
+    <RatingItemProvider value={ratingContext}>
+      <CustomRatingDisplay />
+    </RatingItemProvider>
+  );
+}
+```
+
+### RatingDisplay {Standalone Display Component}
+
+**Purpose:** Read-only component for displaying rating values without user interaction capabilities
+
+**Interface:**
+
+```typescript
+interface RatingDisplayProps {
+  rating: number; // Rating value to display
+  max?: number; // Maximum rating value (default: 5)
+  icon?: string; // Custom icon for filled stars
+  unselectedIcon?: string; // Custom icon for empty stars
+  size?: RatingSize; // Size variant
+  ariaLabel?: string; // Accessibility label
+  precision?: "full" | "half"; // Star fill precision
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { RatingDisplay } from "@fluentui/react-components";
+
+function ProductRatingDisplay({ productRating }) {
+  return (
+    <RatingDisplay
+      rating={productRating}
+      max={5}
+      precision="half"
+      ariaLabel={`Product rated ${productRating} out of 5 stars`}
+    />
+  );
+}
+```
+
+## Integration Patterns
+
+### Basic Interactive Rating
+
+```tsx
+import { Rating } from "@fluentui/react-components";
+
+function BasicInteractiveRating() {
+  const [rating, setRating] = React.useState(0);
+
+  return (
+    <Rating
+      rating={rating}
+      max={5}
+      allowZeroStars
+      ariaLabel="Rate this item"
+      ariaLabelFormat="{0} of {1} stars"
+      onChange={(event, newRating) => setRating(newRating || 0)}
+    />
+  );
+}
+```
+
+### Read-Only Rating Display
+
+```tsx
+import { Rating } from "@fluentui/react-components";
+
+function ReadOnlyRating({ value, label }) {
+  return (
+    <Rating
+      rating={value}
+      max={5}
+      readOnly
+      ariaLabel={label}
+      ariaLabelFormat="{0} of {1} stars"
+    />
+  );
+}
+```
+
+### Custom Styled Rating
+
+```tsx
+import { Rating, RatingSize } from "@fluentui/react-components";
+
+function CustomRating() {
+  const [rating, setRating] = React.useState(2.5);
+
+  return (
+    <Rating
+      rating={rating}
+      max={5}
+      size={RatingSize.Large}
+      icon="StarburstSolid"
+      unselectedIcon="Starburst"
+      ariaLabel="Custom styled rating"
+      ariaLabelFormat="{0} of {1} stars"
+      onChange={(event, newRating) => setRating(newRating || 0)}
+    />
+  );
+}
+```
+
+### Controlled vs Uncontrolled Rating
+
+```tsx
+// Controlled Rating
+function ControlledRating() {
+  const [rating, setRating] = React.useState(3);
+
+  return (
+    <Rating
+      rating={rating}
+      max={5}
+      onChange={(event, newRating) => setRating(newRating || 0)}
+    />
+  );
+}
+
+// Uncontrolled Rating
+function UncontrolledRating() {
+  return (
+    <Rating
+      defaultRating={3}
+      max={5}
+      onChange={(event, newRating) => console.log("Rating changed:", newRating)}
+    />
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+Rating state flows from the primary Rating component down to individual RatingItem components through the RatingItemProvider context. User interactions on RatingItem components bubble up through onChange callbacks to update the parent Rating state.
+
+### Context Sharing
+
+The RatingItemProvider supplies shared context including current rating value, maximum rating, disabled state, and interaction handlers to ensure consistent behavior across all rating elements.
+
+### Event Handling
+
+User interactions (clicks, keyboard navigation) are handled at the RatingItem level but communicated to the parent Rating component through context callbacks, maintaining proper state synchronization.
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use a five-star rating system as the standard maximum for user familiarity
+- Always provide clear aria labels to describe the rating purpose and current value
+- Enable zero stars (`allowZeroStars`) when "no rating" is a valid user choice
+- Use read-only mode for displaying aggregate ratings or scores
+- Implement proper keyboard navigation by leveraging built-in accessibility features
+
+### Accessibility
+
+- Rating components automatically provide ARIA roles and labels for screen readers
+- Keyboard navigation (arrow keys, Enter, Space) is built-in for interactive ratings
+- Use `ariaLabel` and `ariaLabelFormat` props to provide context-specific descriptions
+- Ensure sufficient color contrast for custom icon colors
+- Consider providing text alternatives alongside star ratings for clarity
+
+### Performance
+
+- Use `defaultRating` for uncontrolled scenarios to minimize re-renders
+- Implement rating change handlers efficiently to avoid performance issues with frequent updates
+- Consider using RatingDisplay for large lists of read-only ratings
+- Debounce rapid user interactions if triggering expensive operations
+
+## Common Patterns
+
+### Product Rating with Reviews
+
+```tsx
+function ProductRating({ product, onRateProduct }) {
+  return (
+    <div className="product-rating">
+      <RatingDisplay
+        rating={product.averageRating}
+        max={5}
+        precision="half"
+        ariaLabel={`Average rating ${product.averageRating} out of 5 stars`}
+      />
+      <span>({product.reviewCount} reviews)</span>
+
+      {/* User's personal rating */}
+      <Rating
+        rating={product.userRating}
+        max={5}
+        allowZeroStars
+        ariaLabel="Rate this product"
+        onChange={(event, rating) => onRateProduct(product.id, rating)}
+      />
+    </div>
+  );
+}
+```
+
+### Form Integration
+
+```tsx
+function RatingFormField({ value, onChange, label, required }) {
+  return (
+    <div className="form-field">
+      <label>
+        {label} {required && "*"}
+      </label>
+      <Rating
+        rating={value}
+        max={5}
+        allowZeroStars={!required}
+        ariaLabel={label}
+        ariaLabelFormat="{0} of {1} stars"
+        onChange={(event, rating) => onChange(rating || 0)}
+      />
+    </div>
+  );
+}
+```

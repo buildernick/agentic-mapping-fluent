@@ -1,0 +1,366 @@
+# Subtitle2 Component
+
+## Overview
+
+### Purpose
+
+Use this component for secondary subtitle text styling
+
+### When to Use
+
+The Subtitle2 component is designed for secondary subtitle text that provides tertiary hierarchy below main titles and primary subtitles. Use Subtitle2 when you need:
+
+- Sub-section headings that provide additional organization within content areas already structured by Subtitle1
+- Secondary subtitle text that supports primary subtitles with more granular categorization
+- Descriptive labels for content groups, card headers, or form sections
+- Text that needs more prominence than body text but less than Subtitle1
+- Consistent typography for secondary subtitles that maintains visual hierarchy
+- Subtitle text in content-heavy interfaces where multiple levels of subtitle hierarchy are needed
+
+### Architecture
+
+**No Coupling** - Subtitle2 is a standalone typography component that doesn't require other components to function. It's part of the broader typography system but operates independently, providing secondary subtitle-level text styling.
+
+### Component Interdependencies
+
+Subtitle2 has no required dependencies and can be used as a standalone component. However, it's part of a cohesive typography hierarchy that includes related components like Title1, Title2, Title3, Subtitle1, Body1, and other text styling variants for different emphasis levels and content purposes.
+
+## Components
+
+### Subtitle2 {Standalone Component}
+
+**Purpose:** Provides secondary subtitle text styling that adheres to the Fluent Design System's typography standards. This component ensures consistent font sizing, line height, and spacing for secondary subtitle content that establishes tertiary hierarchy in your interface.
+
+**Interface:**
+
+```typescript
+interface Subtitle2Props {
+  /**
+   * The content to be rendered as secondary subtitle text
+   */
+  children?: React.ReactNode;
+
+  /**
+   * The HTML element or React component to render
+   * @default 'span'
+   */
+  as?: React.ElementType;
+
+  /**
+   * Applies block-level styling (display: block)
+   * @default false
+   */
+  block?: boolean;
+
+  /**
+   * Prevents text wrapping (white-space: nowrap)
+   * @default false
+   */
+  nowrap?: boolean;
+
+  /**
+   * Applies text truncation with ellipsis on overflow
+   * @default false
+   */
+  truncate?: boolean;
+
+  /**
+   * Text alignment
+   */
+  align?: "start" | "center" | "end" | "justify";
+
+  /**
+   * Additional CSS class names
+   */
+  className?: string;
+
+  /**
+   * Inline styles
+   */
+  style?: React.CSSProperties;
+}
+```
+
+**Usage Example:**
+
+```tsx
+import { Subtitle2 } from "@fluentui/react-components";
+
+function Example() {
+  return <Subtitle2>Product Categories</Subtitle2>;
+}
+```
+
+## Integration Patterns
+
+### Basic Usage
+
+```tsx
+import { Subtitle2 } from "@fluentui/react-components";
+
+// Simple secondary subtitle text
+function BasicExample() {
+  return <Subtitle2>Product Details</Subtitle2>;
+}
+```
+
+### Semantic HTML Usage
+
+```tsx
+import { Subtitle2 } from "@fluentui/react-components";
+
+// Using semantic heading elements
+function SemanticExample() {
+  return (
+    <div>
+      <Subtitle2 as="h3">Category Overview</Subtitle2>
+      <Subtitle2 as="h4">Subcategory Items</Subtitle2>
+    </div>
+  );
+}
+```
+
+### Block Layout and Alignment
+
+```tsx
+import { Subtitle2 } from "@fluentui/react-components";
+
+// Block-level secondary subtitle with alignment
+function BlockExample() {
+  return (
+    <div>
+      <Subtitle2 as="h3" block align="center">
+        Centered Category Title
+      </Subtitle2>
+      <Subtitle2 as="h4" block align="start">
+        Left-aligned Item Group
+      </Subtitle2>
+    </div>
+  );
+}
+```
+
+### Typography Hierarchy Usage
+
+```tsx
+import {
+  Title1,
+  Subtitle1,
+  Subtitle2,
+  Body1,
+} from "@fluentui/react-components";
+
+// Using with other typography components in proper hierarchy
+function HierarchyExample() {
+  return (
+    <article>
+      <Title1 as="h1">Dashboard Overview</Title1>
+      <Subtitle1 as="h2" block style={{ marginTop: "16px" }}>
+        Analytics Section
+      </Subtitle1>
+      <Subtitle2 as="h3" block style={{ marginTop: "12px" }}>
+        Monthly Performance
+      </Subtitle2>
+      <Body1 as="p" block style={{ marginTop: "8px" }}>
+        This section provides detailed monthly performance metrics and trends
+        for your application usage.
+      </Body1>
+    </article>
+  );
+}
+```
+
+### Card and Layout Integration
+
+```tsx
+import { Subtitle2, Body1, Card, CardHeader } from "@fluentui/react-components";
+
+// Using in card layouts for secondary information
+function CardExample() {
+  return (
+    <Card>
+      <CardHeader>
+        <Subtitle2>Configuration Options</Subtitle2>
+      </CardHeader>
+      <Body1>Detailed configuration settings and preferences.</Body1>
+    </Card>
+  );
+}
+```
+
+## Common Patterns
+
+### Pattern 1: Content Group Headers
+
+```tsx
+import { Subtitle1, Subtitle2, Body1 } from "@fluentui/react-components";
+
+// Multi-level content organization
+function ContentGroupPattern() {
+  return (
+    <div>
+      <Subtitle1 as="h2" block>
+        User Management
+      </Subtitle1>
+      <div style={{ marginTop: "16px" }}>
+        <Subtitle2 as="h3" block>
+          Active Users
+        </Subtitle2>
+        <Body1 style={{ marginTop: "8px" }}>
+          Users currently logged into the system...
+        </Body1>
+      </div>
+      <div style={{ marginTop: "16px" }}>
+        <Subtitle2 as="h3" block>
+          Pending Invitations
+        </Subtitle2>
+        <Body1 style={{ marginTop: "8px" }}>
+          Users who have been invited but haven't joined yet...
+        </Body1>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pattern 2: Form Section Organization
+
+```tsx
+import { Subtitle1, Subtitle2, Field, Input } from "@fluentui/react-components";
+
+// Hierarchical form organization
+function FormSectionPattern() {
+  return (
+    <div>
+      <Subtitle1 as="h2" block style={{ marginBottom: "16px" }}>
+        Account Settings
+      </Subtitle1>
+
+      <div style={{ marginBottom: "24px" }}>
+        <Subtitle2 as="h3" block style={{ marginBottom: "12px" }}>
+          Personal Information
+        </Subtitle2>
+        <Field label="First Name">
+          <Input />
+        </Field>
+        <Field label="Last Name">
+          <Input />
+        </Field>
+      </div>
+
+      <div>
+        <Subtitle2 as="h3" block style={{ marginBottom: "12px" }}>
+          Contact Preferences
+        </Subtitle2>
+        <Field label="Email">
+          <Input type="email" />
+        </Field>
+        <Field label="Phone">
+          <Input type="tel" />
+        </Field>
+      </div>
+    </div>
+  );
+}
+```
+
+### Pattern 3: Dashboard Widget Headers
+
+```tsx
+import { Subtitle2, Body1, Card } from "@fluentui/react-components";
+
+// Dashboard or widget-style layouts
+function WidgetHeaderPattern() {
+  return (
+    <div
+      style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}
+    >
+      <Card>
+        <Subtitle2 as="h3" block style={{ marginBottom: "12px" }}>
+          Revenue This Month
+        </Subtitle2>
+        <Body1>$45,678</Body1>
+      </Card>
+
+      <Card>
+        <Subtitle2 as="h3" block style={{ marginBottom: "12px" }}>
+          Active Subscriptions
+        </Subtitle2>
+        <Body1>1,234 users</Body1>
+      </Card>
+    </div>
+  );
+}
+```
+
+### Pattern 4: List Section Headers
+
+```tsx
+import { Subtitle2, List, ListItem } from "@fluentui/react-components";
+
+// Sectioned list organization
+function ListSectionPattern() {
+  return (
+    <div>
+      <Subtitle2 as="h3" block style={{ marginBottom: "8px" }}>
+        Recent Files
+      </Subtitle2>
+      <List>
+        <ListItem>Document 1.pdf</ListItem>
+        <ListItem>Presentation.pptx</ListItem>
+        <ListItem>Spreadsheet.xlsx</ListItem>
+      </List>
+
+      <Subtitle2
+        as="h3"
+        block
+        style={{ marginTop: "16px", marginBottom: "8px" }}
+      >
+        Shared Files
+      </Subtitle2>
+      <List>
+        <ListItem>Team Report.docx</ListItem>
+        <ListItem>Meeting Notes.txt</ListItem>
+      </List>
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+### Usage Guidelines
+
+- Use Subtitle2 for tertiary headings that provide granular organization within sections already structured by primary titles and Subtitle1
+- Leverage the `as` prop to ensure semantic HTML structure (h3, h4, etc.) for proper accessibility and document outline
+- Combine with the `block` prop when you need the subtitle to occupy full width and create visual separation from adjacent content
+- Use consistent spacing patterns when combining Subtitle2 with other typography components to maintain visual rhythm
+
+### Accessibility
+
+- Always use appropriate heading levels (h3, h4, h5, etc.) with the `as` prop to maintain logical document structure
+- Ensure heading hierarchy is sequential and doesn't skip levels (h1 → h2 → h3, not h1 → h3)
+- Use Subtitle2 consistently across your application to maintain predictable navigation patterns for screen readers
+- Consider contrast ratios when applying custom styling to ensure readability across different themes
+
+### Performance
+
+- Subtitle2 components are lightweight and optimized for performance as part of the FluentUI design system
+- Use semantic HTML elements when possible for better SEO and accessibility
+- Avoid excessive nesting or overly complex styling that might impact rendering performance
+- Consider using `truncate` prop for long text in constrained layouts to prevent layout shifts
+
+## Typography Hierarchy Context
+
+Subtitle2 fits within the broader Fluent UI typography system as a secondary subtitle component:
+
+- **Display**: Largest text for hero sections and major focal points
+- **LargeTitle**: Large headings for page titles and primary focal points
+- **Title1, Title2, Title3**: Hierarchical title sizes for main content organization
+- **Subtitle1**: Primary subtitle for section organization
+- **Subtitle2**: Secondary subtitle for sub-section organization (this component)
+- **Subtitle2Stronger**: Emphasized version of secondary subtitle for additional prominence
+- **Body1, Body2**: Body text variations for content and descriptions
+- **Caption1, Caption2**: Small text for captions, metadata, and auxiliary information
+
+Use Subtitle2 when you need secondary subtitle-level prominence that creates clear sub-organization within content sections, helping users navigate complex information hierarchies while maintaining the overall design system consistency.

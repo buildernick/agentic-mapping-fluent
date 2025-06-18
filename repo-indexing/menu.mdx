@@ -1,0 +1,731 @@
+# Menu Components
+
+## Overview
+
+### Purpose
+
+Use this component group for dropdown menu functionality with required hierarchical structure and context dependencies
+
+### When to Use
+
+Use Menu components when you need to provide a list of actions, options, or navigation items in a hidden list that appears on demand. Menus are ideal for:
+
+- **Action menus**: Providing contextual actions like "Edit", "Delete", "Copy"
+- **Navigation menus**: Offering navigation options in a compact format
+- **Settings menus**: Presenting configuration options and toggles
+- **Selection menus**: Allowing users to choose from a list of options
+- **Complex workflows**: Organizing multiple related actions or settings
+
+### Architecture
+
+**Critical/Strong Coupling**: The Menu component group requires a strict hierarchical structure with multiple interdependent components that share context and state. The components form a compositional API where each piece serves a specific role in the menu ecosystem.
+
+### Component Interdependencies
+
+The Menu component group follows a provider-consumer pattern with strict compositional requirements:
+
+- **Menu** serves as the root container providing core menu context
+- **MenuProvider** supplies shared state and behavior context to all child components
+- **MenuTrigger** must be wrapped by **MenuTriggerContextProvider** for proper trigger behavior
+- **MenuPopover** contains the dropdown content and requires Menu context
+- **MenuList** must be wrapped by **MenuListProvider** and contains all menu items
+- **MenuGroup** requires **MenuGroupContextProvider** for group-specific behavior
+- All **MenuItem\*** components depend on MenuList context for selection and keyboard navigation
+
+## Components
+
+### Menu {Primary Component}
+
+**Purpose:** The root container component that orchestrates the entire menu system, managing overall state and providing foundational context.
+
+**Interface:**
+
+```typescript
+interface MenuProps {
+  children: React.ReactNode; // Required MenuTrigger and MenuPopover components
+  open?: boolean; // Controls menu visibility
+  defaultOpen?: boolean; // Default open state for uncontrolled mode
+  onOpenChange?: (event: MenuOpenChangeEvent, data: MenuOpenChangeData) => void; // Open state change callback
+  openOnHover?: boolean; // Whether to open on hover
+  openOnContext?: boolean; // Whether to open on right-click context
+  closeOnScroll?: boolean; // Whether to close on scroll
+  persistOnItemClick?: boolean; // Whether to keep menu open after item click
+  positioning?: PositioningProps; // Positioning configuration for the popover
+  hoverDelay?: number; // Delay before opening on hover
+}
+```
+
+**Provides:** Core menu context including open state, positioning, and interaction behaviors
+
+**Usage Example:**
+
+```tsx
+import {
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+} from "@fluentui/react-components";
+
+function BasicMenuExample() {
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button>Open Menu</Button>
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          <MenuItem>Action 1</MenuItem>
+          <MenuItem>Action 2</MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
+
+### MenuProvider {Context Provider}
+
+**Purpose:** Provides shared context and state management for all menu-related components within its tree.
+
+**Interface:**
+
+```typescript
+interface MenuProviderProps {
+  children: React.ReactNode;
+  value: MenuContextValue; // Menu context value containing state and handlers
+}
+```
+
+**Context Dependencies:** None (root provider)
+**Provides:** Menu context including state management, event handlers, and configuration
+
+### MenuTrigger {Trigger Component}
+
+**Purpose:** The interactive element that opens the menu when activated. Must be the direct child of Menu.
+
+**Interface:**
+
+```typescript
+interface MenuTriggerProps {
+  children: React.ReactElement; // Single trigger element (button, etc.)
+  disableButtonEnhancement?: boolean; // Prevents automatic button styling
+}
+```
+
+**Context Dependencies:** Menu context for open/close handlers
+**Parent Requirements:** Must be direct child of Menu component
+
+**Usage Example:**
+
+```tsx
+<Menu>
+  <MenuTrigger disableButtonEnhancement>
+    <Button appearance="subtle" icon={<MoreHorizontalRegular />} />
+  </MenuTrigger>
+  {/* MenuPopover content */}
+</Menu>
+```
+
+### MenuTriggerContextProvider {Trigger Context Provider}
+
+**Purpose:** Provides context specific to menu trigger behavior and state management.
+
+**Interface:**
+
+```typescript
+interface MenuTriggerContextProviderProps {
+  children: React.ReactNode;
+  value: MenuTriggerContextValue; // Trigger-specific context
+}
+```
+
+### MenuPopover {Popover Container}
+
+**Purpose:** The container that renders the dropdown content with proper positioning and portal behavior.
+
+**Interface:**
+
+```typescript
+interface MenuPopoverProps {
+  children: React.ReactNode; // MenuList and its contents
+  inline?: boolean; // Whether to render inline instead of in a portal
+  onMouseEnter?: (event: React.MouseEvent) => void; // Mouse enter handler
+  onMouseLeave?: (event: React.MouseEvent) => void; // Mouse leave handler
+  size?: "small" | "medium" | "large"; // Size variant
+}
+```
+
+**Context Dependencies:** Menu context for positioning and visibility
+**Parent Requirements:** Must be child of Menu component
+
+### MenuList {List Container}
+
+**Purpose:** Container for all menu items that handles keyboard navigation, selection, and focus management.
+
+**Interface:**
+
+```typescript
+interface MenuListProps {
+  children: React.ReactNode; // MenuItem components and MenuGroup/MenuDivider
+  hasIcons?: boolean; // Whether menu items contain icons (affects layout)
+  hasCheckmarks?: boolean; // Whether menu items contain checkmarks
+}
+```
+
+**Context Dependencies:** Menu context and MenuListProvider context
+**Parent Requirements:** Must be wrapped by MenuListProvider
+
+**Usage Example:**
+
+```tsx
+<MenuPopover>
+  <MenuList>
+    <MenuItem icon={<CutRegular />}>Cut</MenuItem>
+    <MenuItem icon={<CopyRegular />}>Copy</MenuItem>
+    <MenuDivider />
+    <MenuItem icon={<DeleteRegular />}>Delete</MenuItem>
+  </MenuList>
+</MenuPopover>
+```
+
+### MenuListProvider {List Context Provider}
+
+**Purpose:** Provides list-specific context for keyboard navigation and item management.
+
+**Interface:**
+
+```typescript
+interface MenuListProviderProps {
+  children: React.ReactNode;
+  value: MenuListContextValue; // List context including navigation and selection
+}
+```
+
+### MenuItem {Basic Menu Item}
+
+**Purpose:** A standard actionable menu item that can trigger actions or navigation.
+
+**Interface:**
+
+```typescript
+interface MenuItemProps {
+  children?: React.ReactNode; // Item content
+  disabled?: boolean; // Whether the item is disabled
+  icon?: React.ReactElement; // Leading icon
+  secondaryContent?: React.ReactNode; // Trailing content (shortcuts, etc.)
+  onClick?: (event: React.MouseEvent) => void; // Click handler
+  href?: string; // Link destination
+  target?: string; // Link target
+  as?: React.ElementType; // Component to render as
+}
+```
+
+**Context Dependencies:** MenuList context for navigation and selection
+**Parent Requirements:** Must be within MenuList
+
+**Usage Example:**
+
+```tsx
+<MenuItem icon={<SaveRegular />} secondaryContent="Ctrl+S" onClick={handleSave}>
+  Save
+</MenuItem>
+```
+
+### MenuItemCheckbox {Checkbox Menu Item}
+
+**Purpose:** A menu item that represents a toggleable boolean option with checkbox behavior.
+
+**Interface:**
+
+```typescript
+interface MenuItemCheckboxProps extends MenuItemProps {
+  name?: string; // Form name for the checkbox
+  value?: string; // Form value for the checkbox
+  checked?: boolean; // Controlled checked state
+  defaultChecked?: boolean; // Default checked state
+  onChange?: (
+    event: React.ChangeEvent,
+    data: MenuItemCheckboxChangeData,
+  ) => void; // Change handler
+}
+```
+
+**Usage Example:**
+
+```tsx
+<MenuItemCheckbox
+  icon={<EyeRegular />}
+  checked={showDetails}
+  onChange={(e, data) => setShowDetails(data.checked)}
+>
+  Show Details
+</MenuItemCheckbox>
+```
+
+### MenuItemRadio {Radio Menu Item}
+
+**Purpose:** A menu item that represents a single selection from a group of options with radio button behavior.
+
+**Interface:**
+
+```typescript
+interface MenuItemRadioProps extends MenuItemProps {
+  name: string; // Required radio group name
+  value: string; // Required radio value
+  checked?: boolean; // Controlled checked state
+  defaultChecked?: boolean; // Default checked state
+  onChange?: (event: React.ChangeEvent, data: MenuItemRadioChangeData) => void; // Change handler
+}
+```
+
+**Usage Example:**
+
+```tsx
+<MenuItemRadio
+  name="theme"
+  value="light"
+  checked={theme === "light"}
+  onChange={(e, data) => setTheme(data.value)}
+>
+  Light Theme
+</MenuItemRadio>
+```
+
+### MenuItemSwitch {Switch Menu Item}
+
+**Purpose:** A menu item that represents a toggle switch for binary options.
+
+**Interface:**
+
+```typescript
+interface MenuItemSwitchProps extends MenuItemProps {
+  checked?: boolean; // Controlled checked state
+  defaultChecked?: boolean; // Default checked state
+  onChange?: (event: React.ChangeEvent, data: MenuItemSwitchChangeData) => void; // Change handler
+}
+```
+
+**Usage Example:**
+
+```tsx
+<MenuItemSwitch
+  checked={notificationsEnabled}
+  onChange={(e, data) => setNotificationsEnabled(data.checked)}
+>
+  Enable Notifications
+</MenuItemSwitch>
+```
+
+### MenuItemLink {Link Menu Item}
+
+**Purpose:** A menu item that functions as a navigation link with proper link semantics.
+
+**Interface:**
+
+```typescript
+interface MenuItemLinkProps extends MenuItemProps {
+  href: string; // Required link destination
+  target?: string; // Link target (_blank, _self, etc.)
+  rel?: string; // Link relationship
+}
+```
+
+**Usage Example:**
+
+```tsx
+<MenuItemLink href="/settings" icon={<SettingsRegular />}>
+  Settings
+</MenuItemLink>
+```
+
+### MenuGroup {Group Container}
+
+**Purpose:** Groups related menu items together with optional header and visual separation.
+
+**Interface:**
+
+```typescript
+interface MenuGroupProps {
+  children: React.ReactNode; // MenuGroupHeader and MenuItem components
+}
+```
+
+**Context Dependencies:** MenuGroupContextProvider for group-specific behavior
+**Parent Requirements:** Must be within MenuList and wrapped by MenuGroupContextProvider
+
+**Usage Example:**
+
+```tsx
+<MenuGroup>
+  <MenuGroupHeader>Edit Actions</MenuGroupHeader>
+  <MenuItem icon={<CutRegular />}>Cut</MenuItem>
+  <MenuItem icon={<CopyRegular />}>Copy</MenuItem>
+  <MenuItem icon={<PasteRegular />}>Paste</MenuItem>
+</MenuGroup>
+```
+
+### MenuGroupContextProvider {Group Context Provider}
+
+**Purpose:** Provides context for menu group behavior and state management.
+
+**Interface:**
+
+```typescript
+interface MenuGroupContextProviderProps {
+  children: React.ReactNode;
+  value: MenuGroupContextValue; // Group-specific context
+}
+```
+
+### MenuGroupHeader {Group Header}
+
+**Purpose:** Provides a descriptive header for a group of related menu items.
+
+**Interface:**
+
+```typescript
+interface MenuGroupHeaderProps {
+  children: React.ReactNode; // Header text content
+}
+```
+
+**Context Dependencies:** MenuGroup context
+**Parent Requirements:** Must be within MenuGroup
+
+**Usage Example:**
+
+```tsx
+<MenuGroupHeader>File Operations</MenuGroupHeader>
+```
+
+### MenuDivider {Visual Separator}
+
+**Purpose:** Provides visual separation between groups of menu items or individual items.
+
+**Interface:**
+
+```typescript
+interface MenuDividerProps {
+  // No specific props - purely visual separator
+}
+```
+
+**Usage Example:**
+
+```tsx
+<MenuList>
+  <MenuItem>Item 1</MenuItem>
+  <MenuItem>Item 2</MenuItem>
+  <MenuDivider />
+  <MenuItem>Item 3</MenuItem>
+</MenuList>
+```
+
+### MenuSplitGroup {Split Group Container}
+
+**Purpose:** Creates a group where items can be split between primary and secondary areas.
+
+**Interface:**
+
+```typescript
+interface MenuSplitGroupProps {
+  children: React.ReactNode; // MenuItem components to be split
+}
+```
+
+**Usage Example:**
+
+```tsx
+<MenuSplitGroup>
+  <MenuItem>Primary Action</MenuItem>
+  <MenuItem>Secondary Action</MenuItem>
+</MenuSplitGroup>
+```
+
+## Integration Patterns
+
+### Basic Menu Usage
+
+```tsx
+import {
+  Menu,
+  MenuTrigger,
+  MenuPopover,
+  MenuList,
+  MenuItem,
+  Button,
+} from "@fluentui/react-components";
+
+function BasicMenu() {
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button>Actions</Button>
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          <MenuItem onClick={() => console.log("Edit")}>Edit</MenuItem>
+          <MenuItem onClick={() => console.log("Delete")}>Delete</MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
+
+### Menu with Groups and Dividers
+
+```tsx
+function GroupedMenu() {
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button icon={<MoreHorizontalRegular />} />
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          <MenuGroup>
+            <MenuGroupHeader>Edit Actions</MenuGroupHeader>
+            <MenuItem icon={<CutRegular />}>Cut</MenuItem>
+            <MenuItem icon={<CopyRegular />}>Copy</MenuItem>
+            <MenuItem icon={<PasteRegular />}>Paste</MenuItem>
+          </MenuGroup>
+          <MenuDivider />
+          <MenuGroup>
+            <MenuGroupHeader>File Actions</MenuGroupHeader>
+            <MenuItem icon={<SaveRegular />}>Save</MenuItem>
+            <MenuItem icon={<DeleteRegular />}>Delete</MenuItem>
+          </MenuGroup>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
+
+### Menu with Different Item Types
+
+```tsx
+function MixedMenu() {
+  const [showDetails, setShowDetails] = React.useState(false);
+  const [theme, setTheme] = React.useState("light");
+  const [notifications, setNotifications] = React.useState(true);
+
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button>Settings</Button>
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList>
+          <MenuItemCheckbox
+            checked={showDetails}
+            onChange={(e, data) => setShowDetails(data.checked)}
+          >
+            Show Details
+          </MenuItemCheckbox>
+          <MenuDivider />
+          <MenuGroup>
+            <MenuGroupHeader>Theme</MenuGroupHeader>
+            <MenuItemRadio
+              name="theme"
+              value="light"
+              checked={theme === "light"}
+              onChange={(e, data) => setTheme(data.value)}
+            >
+              Light
+            </MenuItemRadio>
+            <MenuItemRadio
+              name="theme"
+              value="dark"
+              checked={theme === "dark"}
+              onChange={(e, data) => setTheme(data.value)}
+            >
+              Dark
+            </MenuItemRadio>
+          </MenuGroup>
+          <MenuDivider />
+          <MenuItemSwitch
+            checked={notifications}
+            onChange={(e, data) => setNotifications(data.checked)}
+          >
+            Notifications
+          </MenuItemSwitch>
+          <MenuDivider />
+          <MenuItemLink href="/settings">Advanced Settings</MenuItemLink>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
+
+### Context Menu Pattern
+
+```tsx
+function ContextMenuExample() {
+  const [target, setTarget] = React.useState(null);
+
+  return (
+    <div
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setTarget(e.target);
+      }}
+    >
+      <p>Right-click me for context menu</p>
+
+      <Menu openOnContext>
+        <MenuTrigger disableButtonEnhancement>
+          <div ref={setTarget} />
+        </MenuTrigger>
+        <MenuPopover>
+          <MenuList>
+            <MenuItem icon={<CopyRegular />}>Copy</MenuItem>
+            <MenuItem icon={<PasteRegular />}>Paste</MenuItem>
+            <MenuDivider />
+            <MenuItem icon={<DeleteRegular />}>Delete</MenuItem>
+          </MenuList>
+        </MenuPopover>
+      </Menu>
+    </div>
+  );
+}
+```
+
+## Component Relationships
+
+### Data Flow
+
+1. **Menu** provides root context and manages overall state
+2. **MenuTrigger** captures user interaction and triggers state changes
+3. **MenuPopover** receives visibility state and positioning information
+4. **MenuList** manages focus and keyboard navigation within the menu
+5. **MenuItem** components receive selection state and handle user actions
+
+### Context Sharing
+
+- **MenuProvider** shares global menu state and configuration
+- **MenuListProvider** manages list-specific navigation and selection
+- **MenuGroupContextProvider** provides group-specific behavior
+- **MenuTriggerContextProvider** handles trigger-specific interactions
+
+### Event Handling
+
+- Click events on MenuTrigger propagate to Menu for open/close logic
+- Keyboard navigation events are handled by MenuList and propagated to individual items
+- Selection events from MenuItems bubble up through context to update application state
+- Focus management is coordinated between MenuList and MenuItems
+
+## Best Practices
+
+### Usage Guidelines
+
+- Always wrap MenuTrigger and MenuPopover as direct children of Menu component
+- Use MenuDivider to visually separate logical groups of actions
+- Implement MenuGroup with MenuGroupHeader for complex menus with multiple categories
+- Provide keyboard shortcuts in secondaryContent for frequently used actions
+- Use appropriate MenuItem variants (Checkbox, Radio, Switch) for different interaction patterns
+
+### Accessibility
+
+- MenuList provides automatic keyboard navigation with arrow keys and Enter/Space
+- Menu components maintain proper ARIA relationships and roles
+- Focus management ensures logical tab order and focus trapping within open menus
+- Screen readers announce menu state changes and item selections appropriately
+
+### Performance
+
+- Menu content is rendered in a portal by default to avoid z-index issues
+- Use persistOnItemClick sparingly as it can impact menu performance with frequent re-renders
+- Lazy load complex menu content when dealing with large numbers of items
+- Consider virtualization for menus with hundreds of items
+
+## Common Patterns
+
+### Icon Menu with Shortcuts
+
+```tsx
+function IconMenuWithShortcuts() {
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button icon={<MoreVerticalRegular />} appearance="subtle" />
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList hasIcons>
+          <MenuItem
+            icon={<SaveRegular />}
+            secondaryContent="Ctrl+S"
+            onClick={handleSave}
+          >
+            Save
+          </MenuItem>
+          <MenuItem
+            icon={<UndoRegular />}
+            secondaryContent="Ctrl+Z"
+            onClick={handleUndo}
+          >
+            Undo
+          </MenuItem>
+          <MenuItem
+            icon={<RedoRegular />}
+            secondaryContent="Ctrl+Y"
+            onClick={handleRedo}
+          >
+            Redo
+          </MenuItem>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
+
+### Dropdown Selection Menu
+
+```tsx
+function SelectionDropdown() {
+  const [selectedValue, setSelectedValue] = React.useState("option1");
+
+  return (
+    <Menu>
+      <MenuTrigger disableButtonEnhancement>
+        <Button iconPosition="after" icon={<ChevronDownRegular />}>
+          {selectedValue}
+        </Button>
+      </MenuTrigger>
+      <MenuPopover>
+        <MenuList hasCheckmarks>
+          <MenuItemRadio
+            name="selection"
+            value="option1"
+            checked={selectedValue === "option1"}
+            onChange={(e, data) => setSelectedValue(data.value)}
+          >
+            Option 1
+          </MenuItemRadio>
+          <MenuItemRadio
+            name="selection"
+            value="option2"
+            checked={selectedValue === "option2"}
+            onChange={(e, data) => setSelectedValue(data.value)}
+          >
+            Option 2
+          </MenuItemRadio>
+          <MenuItemRadio
+            name="selection"
+            value="option3"
+            checked={selectedValue === "option3"}
+            onChange={(e, data) => setSelectedValue(data.value)}
+          >
+            Option 3
+          </MenuItemRadio>
+        </MenuList>
+      </MenuPopover>
+    </Menu>
+  );
+}
+```
