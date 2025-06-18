@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   makeStyles,
   tokens,
@@ -11,84 +11,86 @@ import {
   MenuPopover,
   MenuList,
   MenuItem,
-  Divider
-} from '@fluentui/react-components';
+  Divider,
+} from "@fluentui/react-components";
 import {
   HomeRegular,
   InfoRegular,
   GridRegular,
   SettingsRegular,
-  PersonRegular
-} from '@fluentui/react-icons';
+  PersonRegular,
+  AppsRegular,
+} from "@fluentui/react-icons";
 
 const useStyles = makeStyles({
   navbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: `0 ${tokens.spacingHorizontalXXL}`,
     backgroundColor: tokens.colorNeutralBackground1,
     borderBottom: `1px solid ${tokens.colorNeutralStroke2}`,
-    height: '64px',
-    boxSizing: 'border-box',
+    height: "64px",
+    boxSizing: "border-box",
     boxShadow: tokens.shadow4,
-    position: 'sticky',
+    position: "sticky",
     top: 0,
-    zIndex: 1000
+    zIndex: 1000,
   },
   navLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalXXL
+    display: "flex",
+    alignItems: "center",
+    gap: tokens.spacingHorizontalXXL,
   },
   logo: {
     fontSize: tokens.fontSizeBase500,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorBrandForeground1,
-    letterSpacing: '-0.01em'
+    letterSpacing: "-0.01em",
   },
   navItems: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalS
+    display: "flex",
+    alignItems: "center",
+    gap: tokens.spacingHorizontalS,
   },
   navRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: tokens.spacingHorizontalL
+    display: "flex",
+    alignItems: "center",
+    gap: tokens.spacingHorizontalL,
   },
   navButton: {
-    minHeight: '40px',
+    minHeight: "40px",
     borderRadius: tokens.borderRadiusMedium,
     fontWeight: tokens.fontWeightMedium,
-    transition: 'all 0.15s ease-in-out',
+    transition: "all 0.15s ease-in-out",
     '&[data-current="true"]': {
       backgroundColor: tokens.colorBrandBackground2,
       color: tokens.colorBrandForeground2,
-      fontWeight: tokens.fontWeightSemibold
+      fontWeight: tokens.fontWeightSemibold,
     },
-    '&:hover': {
+    "&:hover": {
       backgroundColor: tokens.colorNeutralBackground1Hover,
-      transform: 'translateY(-1px)'
+      transform: "translateY(-1px)",
     },
     '&[data-current="true"]:hover': {
-      backgroundColor: tokens.colorBrandBackground2Hover
-    }
+      backgroundColor: tokens.colorBrandBackground2Hover,
+    },
   },
   avatarButton: {
     borderRadius: tokens.borderRadiusCircular,
     padding: tokens.spacingHorizontalXS,
-    '&:hover': {
-      backgroundColor: tokens.colorNeutralBackground1Hover
-    }
-  }
+    "&:hover": {
+      backgroundColor: tokens.colorNeutralBackground1Hover,
+    },
+  },
 });
 
 const navigationItems = [
-  { path: '/', label: 'Home', icon: HomeRegular },
-  { path: '/about', label: 'About', icon: InfoRegular },
-  { path: '/components', label: 'Components', icon: GridRegular },
-  { path: '/settings', label: 'Settings', icon: SettingsRegular }
+  { path: "/", label: "Home", icon: HomeRegular },
+  { path: "/about", label: "About", icon: InfoRegular },
+  { path: "/components", label: "Components", icon: GridRegular },
+  { path: "/agentic-index-cards", label: "Index Cards", icon: AppsRegular },
+  { path: "/settings", label: "Settings", icon: SettingsRegular },
 ];
 
 export default function Navigation() {
@@ -108,7 +110,7 @@ export default function Navigation() {
           {navigationItems.map((item) => {
             const IconComponent = item.icon;
             const isCurrent = location.pathname === item.path;
-            
+
             return (
               <Button
                 key={item.path}
@@ -146,4 +148,4 @@ export default function Navigation() {
       </div>
     </nav>
   );
-} 
+}
